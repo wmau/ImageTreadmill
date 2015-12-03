@@ -24,7 +24,7 @@ function TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,RecordSt
     %Determine the offset in seconds of the recording start time and the
     %first treadmill run. Then add this number to all timestamps in
     %TodayTreadmillLog. 
-    offset = etime(datevec(TodayTreadmillLog.StartTime{1}),datevec(RecordStartTime));
+    offset = etime(datevec(TodayTreadmillLog.firstTreadmillOn),datevec(RecordStartTime));
     
     TodayTreadmillLog.startts = TodayTreadmillLog.startts + offset; 
     TodayTreadmillLog.stopts = TodayTreadmillLog.stopts + offset; 

@@ -3,6 +3,8 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date)
 %
 %   Gets the treadmill data and processes it for the given animal and time.
 %   
+%   WORKFLOW: MakeTreadmillMD -> getTodayTreadmillLog 
+%
 %   INPUTS
 %       animal: String specifying the mouse (e.g., GCamp6f_45_treadmill). 
 %
@@ -10,8 +12,28 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date)
 %
 %   OUTPUT
 %       TodayTreadmillLog: Struct array with fields...
-%           startts = 
-
+%           startts = vector for the timestamps associated with each
+%           treadmill-on.
+%
+%           stopts = same for treadmill-off.
+%
+%           velocitysetting = setting for treadmill velocity.
+%
+%           delaysetting = setting for duration of delay. 
+%
+%           complete = logical for whether the full X seconds in
+%           velocitysetting was run. 0 if the treadmill was stopped
+%           manually.
+%
+%           speedEnforce = comes from TreadmillLog. 
+%
+%           numRuns = number of treadmill runs, complete and incomplete. 
+%
+%           StartTime = clock time of treadmill-on. 
+%
+%           StopTime = same for treadmill off. 
+%
+  
 %% Find necessary indices. 
     LoadTreadmillMD;
     
@@ -49,21 +71,21 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date)
     end
     speedEnforce = history.sessions(dateInd).TreadmillLog(:,2);
     
-    %Extract clock times. For some reason there are more entries on
-    %TreadmillLog than Log. They are zeros (as far as I can tell from
-    %11/20) in speedEnforce following another 0. 
-    bad = diff([0;speedEnforce])==0;
-    speedEnforce(bad) = [];  %Get rid of them.
-    treadmilltimes(bad) = []; 
     TodayTreadmillLog.speedEnforce = speedEnforce(speedEnforce~=0);
     TodayTreadmillLog.numRuns = length(TodayTreadmillLog.complete); 
-    row = 1; 
     
-    %Pull out the clock times. 
-    for thisRun=1:TodayTreadmillLog.numRuns 
-        TodayTreadmillLog.StartTime{thisRun,1} = treadmilltimes{row};
-        TodayTreadmillLog.StopTime{thisRun,1} = treadmilltimes{row+1};
-        
-        row = row+2; 
+%% Get the clock time of the first treadmill-on. 
+    %Duration of first run. 
+    firstRunDuration = round(diff([TodayTreadmillLog.startts(1),TodayTreadmillLog.stopts(1)]));
+    clockDurations = nan(length(treadmilltimes),1); 
+    
+    for thisT=2:length(treadmilltimes)
+        clockDurations(thisT-1) = etime(datevec(treadmilltimes{thisT}),datevec(treadmilltimes{thisT-1}));
     end
+    
+    T = find(clockDurations==firstRunDuration,1,'first'); 
+    
+    TodayTreadmillLog.firstTread
+
+    keyboard;
 end

@@ -71,21 +71,26 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date)
     end
     speedEnforce = history.sessions(dateInd).TreadmillLog(:,2);
     
-    %Extract clock times. For some reason there are more entries on
-    %TreadmillLog than Log. They are zeros (as far as I can tell from
-    %11/20) in speedEnforce following another 0. 
-    bad = diff([0;speedEnforce])==0;
-    speedEnforce(bad) = [];  %Get rid of them.
-    treadmilltimes(bad) = []; 
     TodayTreadmillLog.speedEnforce = speedEnforce(speedEnforce~=0);
     TodayTreadmillLog.numRuns = length(TodayTreadmillLog.complete); 
-    row = 1; 
     
-    %Pull out the clock times. 
-    for thisRun=1:TodayTreadmillLog.numRuns 
-        TodayTreadmillLog.StartTime{thisRun,1} = treadmilltimes{row};
-        TodayTreadmillLog.StopTime{thisRun,1} = treadmilltimes{row+1};
-        
-        row = row+2; 
+%% Get the clock time of the first treadmill-on. 
+    %Duration of first run. 
+    firstRunDuration = round(diff([TodayTreadmillLog.startts(1),TodayTreadmillLog.stopts(1)]));
+    clockDurations = nan(length(treadmilltimes),3); 
+    
+    %Get all the treadmill durations. 
+    for thisT=2:length(treadmilltimes)
+        clockDurations(thisT-1,2) = etime(datevec(treadmilltimes{thisT}),datevec(treadmilltimes{thisT-1}));
+        clockDurations(thisT-1,1) = clockDurations(thisT-1,2) - 1;
+        clockDurations(thisT-1,3) = clockDurations(thisT-1,2) + 1;
     end
+    
+    %Index of first clock duration that matches that of the timestamp
+    %durations. 
+    [T,~] = find(ismember(clockDurations,firstRunDuration),1,'first');
+    
+    %First clock time of treadmill-on.
+    TodayTreadmillLog.firstTreadmillOn = treadmilltimes{T};
+
 end

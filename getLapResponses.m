@@ -1,4 +1,4 @@
-function ratebylap = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
+function [ratebylap,bin] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %ratebylap = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %
 %   Get the lap by lap responses for each neuron during treadmill run. 
@@ -24,38 +24,38 @@ function ratebylap = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog
     ChangeDirectory(animal,date,sessionNum);
     
     %Align FT. 
-    [~,~,~,FT,~,~,~,time_interp] = AlignImagingToTracking(0.15,FT);
+    [x,y,~,FT,~,~,~,time_interp] = AlignImagingToTracking(0.15,FT);
     
     %Get treadmill run epochs. 
     inds = getTreadmillEpochs(TodayTreadmillLog,time_interp);
-    nFramesBetween = diff(inds,1,2);        %Number of frames epochs span. 
+    nFramesBetween = diff(inds,1,2);                        %Number of frames epochs span. 
     
 %% Bin time responses. 
     %Initialize.  
     [nNeurons,nFrames] = size(FT); 
-    tResolution = 0.5;                                      %seconds
+    tResolution = 0.25;                                     %seconds
     nBins = TodayTreadmillLog.delaysetting/tResolution;     %vector specifying number of bins per lap
-    ratebylap = nan(TodayTreadmillLog.numRuns,max(nBins),nNeurons); 
-    bin = nan(TodayTreadmillLog.numRuns,max(nBins),nNeurons); 
+    nComplete = sum(TodayTreadmillLog.complete); 
+    completeLaps = find(TodayTreadmillLog.complete); 
+    ratebylap = nan(nComplete,max(nBins),nNeurons); 
     
     p = ProgressBar(nNeurons);
     for thisNeuron=1:nNeurons
-        for thisLap=1:TodayTreadmillLog.numRuns
+        for thisLap=1:nComplete
+            lapnum = completeLaps(thisLap);
             tStart = 0;
-            tEnd = TodayTreadmillLog.stopts(thisLap) - TodayTreadmillLog.startts(thisLap); 
+            tEnd = TodayTreadmillLog.stopts(lapnum) - TodayTreadmillLog.startts(lapnum); 
             %Time vector. 
-            t = linspace(tStart,tEnd,nFramesBetween(thisLap)+1); 
-           
+            t = linspace(tStart,tEnd,nFramesBetween(lapnum)+1); 
+
             %Times where there was a spike. 
-            tspk = t(FT(thisNeuron,inds(thisLap,1):inds(thisLap,2))==1); 
-            
+            tspk = t(FT(thisNeuron,inds(lapnum,1):inds(lapnum,2))==1); 
+
             %Edges for histogram.
-            edges = linspace(0,TodayTreadmillLog.delaysetting(thisLap),nBins(thisLap));
-            
+            edges = linspace(0,TodayTreadmillLog.delaysetting(lapnum),nBins(lapnum));
+
             %Make histogram.
-            [ratebylap(thisLap,1:nBins(thisLap),thisNeuron),...
-                bin(thisLap,1:nBins(thisLap),thisNeuron)] = hist(tspk,edges); 
-            
+            [ratebylap(thisLap,1:nBins(lapnum),thisNeuron),bin] = hist(tspk,edges); 
         end
         p.progress;
     end
