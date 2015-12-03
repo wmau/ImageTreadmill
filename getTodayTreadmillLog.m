@@ -3,6 +3,8 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date)
 %
 %   Gets the treadmill data and processes it for the given animal and time.
 %   
+%   WORKFLOW: MakeTreadmillMD -> getTodayTreadmillLog 
+%
 %   INPUTS
 %       animal: String specifying the mouse (e.g., GCamp6f_45_treadmill). 
 %

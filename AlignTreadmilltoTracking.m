@@ -1,6 +1,9 @@
 function TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,RecordStartTime)
 %TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,RecordStartTime)
 %
+%   WORKFLOW: MakeTreadmillMD -> getTodayTreadmillLog ->
+%   AlignTreadmilltoTracking
+%   
 %   Align the treadmill on/off timestamps to the tracking timestamps by
 %   finding the difference in seconds between the first treadmill-on and
 %   the time recording starts. Then add those to the treadmill timestamps

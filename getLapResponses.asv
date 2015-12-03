@@ -1,0 +1,44 @@
+function ratebylap = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
+%ratebylap = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
+%
+%   Get the lap by lap responses for each neuron duri
+
+%%
+    ChangeDirectory(animal,date,sessionNum);
+    
+    %Align FT. 
+    [~,~,~,FT,~,~,~,time_interp] = AlignImagingToTracking(0.15,FT);
+    
+    %Get treadmill run epochs. 
+    inds = getTreadmillEpochs(TodayTreadmillLog,time_interp);
+    nFramesBetween = diff(inds,1,2);        %Number of frames epochs span. 
+    
+%%
+    %Initialize.  
+    [nNeurons,nFrames] = size(FT); 
+    tResolution = 0.5;                                      %seconds
+    nBins = TodayTreadmillLog.delaysetting/tResolution;     %vector specifying number of bins per lap
+    ratebylap = nan(TodayTreadmillLog.numRuns,max(nBins),nNeurons); 
+    bin = nan(TodayTreadmillLog.numRuns,max(nBins),nNeurons); 
+    
+    p = ProgressBar(nNeurons);
+    for thisNeuron=1:nNeurons
+        for thisLap=1:TodayTreadmillLog.numRuns
+            tStart = 0;
+            tEnd = TodayTreadmillLog.stopts(thisLap) - TodayTreadmillLog.startts(thisLap); 
+            t = linspace(tStart,tEnd,nFramesBetween(thisLap)+1); 
+           
+            tspk = t(FT(thisNeuron,inds(thisLap,1):inds(thisLap,2))==1); 
+            
+            edges = linspace(0,TodayTreadmillLog.delaysetting(thisLap),nBins(thisLap));
+            
+            [ratebylap(thisLap,1:nBins(thisLap),thisNeuron),...
+                bin(thisLap,1:nBins(thisLap),thisNeuron)] = hist(tspk,edges); 
+            
+        end
+        p.progress;
+    end
+    p.stop;
+
+    
+end
