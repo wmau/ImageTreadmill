@@ -1,5 +1,5 @@
-function TimeCells = FindTimeCells(sessionStruct,animal,date,session,T)
-%TimeCells = FindTimeCells(sessionStruct,animal,date,session,T)
+function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(sessionStruct,animal,date,session,T)
+%[TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(sessionStruct,animal,date,session,T)
 %
 %   Finds time cells using a few criteria. First, the neuron must be active
 %   for at least some proportion of the laps. This proportion is hard-coded
@@ -25,17 +25,19 @@ function TimeCells = FindTimeCells(sessionStruct,animal,date,session,T)
 %       TimeCells: Index referencing FT of neurons that pass the tests. 
 %
 
-%%
+%% Find time cells. 
     cd(sessionStruct.Location);
     
+    %Get treadmill timestamp data. 
     TodayTreadmillLog = getTodayTreadmillLog(animal,date,session);
     TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,TodayTreadmillLog.RecordStartTime);
     
+    %Get calcium imaging data. 
     load('ProcOut.mat','FT');
     
     %Get rate by lap matrix. 
     disp('Getting time responses for each neuron...');
-    [ratebylap,delays,x,y,time_interp] = getLapResponses(animal,date,2,FT,TodayTreadmillLog);  
+    [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,2,FT,TodayTreadmillLog);  
     
     %Preallocate. 
     [nLaps,nBins,nNeurons] = size(ratebylap);
@@ -61,7 +63,13 @@ function TimeCells = FindTimeCells(sessionStruct,animal,date,session,T)
     end
     prog.stop;
     
+    %Struct array for response curves. 
+    curves.tuning = tuningcurve; 
+    curves.shuffle = shufflecurve;
+    curves.sig = sigcurve;
+    curves.p = p; 
+    
     %Get indices of neurons that pass the test. 
     TimeCells = find(cellfun(@any,sigcurve)); 
-
+    save('TimeCells.mat','TimeCells','ratebylap','curves','delays','x','y','time_interp','FT'); 
 end

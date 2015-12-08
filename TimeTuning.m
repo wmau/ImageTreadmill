@@ -35,8 +35,8 @@ function [tuningcurve,shufflecurve,p,sigcurve] = TimeTuning(ratebylap,delays,T)
 
 %% Initialize
     ratebylap = ratebylap(delays==T,:); 
-    B = 10000;                         %Number of iterations. 
-    crit = 0.01;                       %Significance level.
+    B = 1000;                         %Number of iterations. 
+    crit = 0.05;                       %Significance level.
     [nLaps,nBins] = size(ratebylap); 
 
     %Preallocate. 
@@ -48,7 +48,7 @@ function [tuningcurve,shufflecurve,p,sigcurve] = TimeTuning(ratebylap,delays,T)
     
 %% Circular permutation test.
     %Construct matrix of temporal shifts. 
-    shifts = randi([-nBins,nBins],B,nLaps); 
+    shifts = randi([0,nBins],B,nLaps); 
     
     %For each permutation...
     for i=1:B

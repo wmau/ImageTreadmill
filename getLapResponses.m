@@ -1,4 +1,4 @@
-function [ratebylap,delays,x,y,time_interp] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
+function [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %ratebylap = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %
 %   Get the lap by lap responses for each neuron during treadmill run. 
@@ -41,10 +41,10 @@ function [ratebylap,delays,x,y,time_interp] = getLapResponses(animal,date,sessio
     %Initialize.  
     [nNeurons,~] = size(FT); 
     tResolution = 0.20;                                     %seconds
-    nBins = TodayTreadmillLog.delaysetting/tResolution;     %vector specifying number of bins per lap
-    nComplete = sum(TodayTreadmillLog.complete); 
-    completeLaps = find(TodayTreadmillLog.complete); 
-    ratebylap = nan(nComplete,max(nBins),nNeurons); 
+    nBins = TodayTreadmillLog.delaysetting/tResolution;     %Vector specifying number of bins per lap
+    nComplete = sum(TodayTreadmillLog.complete);            %Number of complete runs.
+    completeLaps = find(TodayTreadmillLog.complete);        %Indices of complete runs.
+    ratebylap = nan(nComplete,max(nBins),nNeurons);         %Preallocate.
     
     p = ProgressBar(nNeurons);
     for thisNeuron=1:nNeurons
