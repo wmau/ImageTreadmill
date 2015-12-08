@@ -1,4 +1,4 @@
-function [ratebylap,bin] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
+function [ratebylap,delays,x,y,time_interp] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %ratebylap = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %
 %   Get the lap by lap responses for each neuron during treadmill run. 
@@ -19,6 +19,13 @@ function [ratebylap,bin] = getLapResponses(animal,date,sessionNum,FT,TodayTreadm
 %       number of neurons) containing histograms for every neuron time
 %       responses on the treadmill. 
 %
+%       delays: Vector of length L containing the delay setting for each
+%       lap. 
+%
+%       X&Y: Aligned position data. 
+%       
+%       time_interp: Interpolated and aligned timestamps. 
+%
 
 %% Preliminary stuff. 
     ChangeDirectory(animal,date,sessionNum);
@@ -32,8 +39,8 @@ function [ratebylap,bin] = getLapResponses(animal,date,sessionNum,FT,TodayTreadm
     
 %% Bin time responses. 
     %Initialize.  
-    [nNeurons,nFrames] = size(FT); 
-    tResolution = 0.25;                                     %seconds
+    [nNeurons,~] = size(FT); 
+    tResolution = 0.20;                                     %seconds
     nBins = TodayTreadmillLog.delaysetting/tResolution;     %vector specifying number of bins per lap
     nComplete = sum(TodayTreadmillLog.complete); 
     completeLaps = find(TodayTreadmillLog.complete); 
@@ -55,11 +62,11 @@ function [ratebylap,bin] = getLapResponses(animal,date,sessionNum,FT,TodayTreadm
             edges = linspace(0,TodayTreadmillLog.delaysetting(lapnum),nBins(lapnum));
 
             %Make histogram.
-            [ratebylap(thisLap,1:nBins(lapnum),thisNeuron),bin] = hist(tspk,edges); 
+            [ratebylap(thisLap,1:nBins(lapnum),thisNeuron),~] = hist(tspk,edges); 
         end
         p.progress;
     end
     p.stop;
 
-    
+    delays = TodayTreadmillLog.delaysetting(logical(TodayTreadmillLog.complete));
 end

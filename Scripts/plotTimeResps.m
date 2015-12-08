@@ -21,7 +21,7 @@ end
 crit = 15; 
 good = find(activelaps > crit); 
 
-for i=1:2:length(good)
+for i=2:2:length(good)
     figure;
     img = imagesc([0:2:max(bin)],...
         [1:5:sum(TodayTreadmillLog.complete)],...
