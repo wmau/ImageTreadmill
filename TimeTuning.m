@@ -35,8 +35,8 @@ function [tuningcurve,shufflecurve,p,sigcurve] = TimeTuning(ratebylap,delays,T)
 
 %% Initialize
     ratebylap = ratebylap(delays==T,:); 
-    B = 1000;                         %Number of iterations. 
-    crit = 0.05;                       %Significance level.
+    B = 1000;                           %Number of iterations. 
+    crit = 0.05;                        %Significance level.
     [nLaps,nBins] = size(ratebylap); 
 
     %Preallocate. 

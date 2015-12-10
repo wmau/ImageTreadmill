@@ -1,5 +1,5 @@
-function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(sessionStruct,animal,date,session,T)
-%[TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(sessionStruct,animal,date,session,T)
+function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(animal,date,session,T)
+%[TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(animal,date,session,T)
 %
 %   Finds time cells using a few criteria. First, the neuron must be active
 %   for at least some proportion of the laps. This proportion is hard-coded
@@ -11,8 +11,6 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
 %   time cell is declared if it passes both these tests. 
 %
 %   INPUTS
-%       sessionStruct: MD entry. 
-%
 %       animal: Mouse (e.g., GCamp6f_45_treadmill).
 %
 %       date: Recording date (e.g., 11_19_2015).
@@ -26,7 +24,7 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
 %
 
 %% Find time cells. 
-    cd(sessionStruct.Location);
+    ChangeDirectory(animal,date,session);
     
     %Get treadmill timestamp data. 
     TodayTreadmillLog = getTodayTreadmillLog(animal,date,session);
