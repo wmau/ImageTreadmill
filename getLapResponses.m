@@ -40,7 +40,7 @@ function [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,ses
 %% Bin time responses. 
     %Initialize.  
     [nNeurons,~] = size(FT); 
-    tResolution = 0.20;                                     %seconds
+    tResolution = 0.25;                                     %seconds
     nBins = TodayTreadmillLog.delaysetting/tResolution;     %Vector specifying number of bins per lap
     nComplete = sum(TodayTreadmillLog.complete);            %Number of complete runs.
     completeLaps = find(TodayTreadmillLog.complete);        %Indices of complete runs.

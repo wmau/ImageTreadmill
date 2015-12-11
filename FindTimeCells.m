@@ -43,6 +43,7 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
     shufflecurve = cell(nNeurons,1);
     p = cell(nNeurons,1);
     sigcurve = cell(nNeurons,1);
+    ci = cell(nNeurons,1);
     
     %Include a consistency filter. Currently using arbitrary cutoff of must
     %be active for more than a quarter of the laps. 
@@ -54,7 +55,7 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
     prog = ProgressBar(nNeurons);
     for thisNeuron=1:nNeurons
         if sum(any(ratebylap(:,:,thisNeuron),2)) > critLaps
-            [tuningcurve{thisNeuron},shufflecurve{thisNeuron},p{thisNeuron},sigcurve{thisNeuron}] = ...
+            [tuningcurve{thisNeuron},shufflecurve{thisNeuron},p{thisNeuron},sigcurve{thisNeuron},ci{thisNeuron}] = ...
                 TimeTuning(ratebylap(:,:,thisNeuron),delays,T);
         end
         prog.progress;
@@ -66,6 +67,7 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
     curves.shuffle = shufflecurve;
     curves.sig = sigcurve;
     curves.p = p; 
+    curves.ci = ci;
     
     %Get indices of neurons that pass the test. 
     TimeCells = find(cellfun(@any,sigcurve)); 

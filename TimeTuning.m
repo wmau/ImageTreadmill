@@ -1,4 +1,4 @@
-function [tuningcurve,shufflecurve,p,sigcurve] = TimeTuning(ratebylap,delays,T)
+function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,delays,T)
 %TimeTuning(ratebylap,delay)
 %
 %   Takes a rate by lap matrix of size LxB (L=number of laps, B=number of
@@ -36,7 +36,7 @@ function [tuningcurve,shufflecurve,p,sigcurve] = TimeTuning(ratebylap,delays,T)
 %% Initialize
     ratebylap = ratebylap(delays==T,:); 
     B = 1000;                           %Number of iterations. 
-    crit = 0.05;                        %Significance level.
+    crit = 0.01;                        %Significance level.
     [nLaps,nBins] = size(ratebylap); 
 
     %Preallocate. 
@@ -64,9 +64,14 @@ function [tuningcurve,shufflecurve,p,sigcurve] = TimeTuning(ratebylap,delays,T)
        
     end
     
+    %Get confidence intervals. 
+    shufflecurve = sort(shufflecurve);
+    idxci = round([0.95;0.05].*B);
+    ci = shufflecurve(idxci,:);
+    
     %p-value is the fraction of times that the shuffled response turned out
     %to be higher than the empirical. 
-    p = sum(shufflecurve > repmat(tuningcurve,B,1))/B; 
+    p = sum(shufflecurve > repmat(tuningcurve,B,1))./B; 
     
     %Parts of the tuning curve that are significantly different. 
     sigcurve = p < crit; 
