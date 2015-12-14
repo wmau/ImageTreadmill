@@ -1,4 +1,4 @@
-function PastalkovaPlot(sessionStruct,animal,date,session,T)
+function PastalkovaPlot(animal,date,session,T)
 %PastalkovaPlot(sessionStruct,animal,date,session,T)
 %
 %
@@ -7,7 +7,7 @@ function PastalkovaPlot(sessionStruct,animal,date,session,T)
     try
         load('TimeCells.mat'); 
     catch
-        [TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(sessionStruct,animal,date,session,T); 
+        [TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(animal,date,session,T); 
     end
     
     %Useful variables.

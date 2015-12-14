@@ -1,7 +1,19 @@
 function plotTimeCells(animal,date,session,T)
 %plotTimecells(animal,date,session,T)
-%
 %   
+%   Plots single neuron responses in time during treadmill run. First
+%   panel: spike-position trajectory. Second panel: Raster. Third panel:
+%   Tuning curve. Press left/right arrows to scroll. Esc to exit. 
+%
+%   INPUTS
+%       animal: Name of mouse (e.g., 'GCamp6f_45_treadmill').
+%
+%       date: Date of recording (e.g., '11_20_2015').
+%
+%       session: Session number. 
+%   
+%       T: Length of treadmill run. 
+%
 
 %%
     ChangeDirectory(animal,date,session);
@@ -46,7 +58,11 @@ function plotTimeCells(animal,date,session,T)
     
     while keepgoing
         %Smooth the tuning curve. 
+        try
         smoothfit = fit([1:nBins]',curves.tuning{TimeCells(thisNeuron)}','smoothingspline');
+        catch
+            keyboard;
+        end
         curves.smoothed{TimeCells(thisNeuron)} = feval(smoothfit,bins);
         
         %Get confidence intervals interpolated.
@@ -82,7 +98,7 @@ function plotTimeCells(animal,date,session,T)
         figure(50);
             [~,~,key] = ginput(1); 
 
-            if key == 29 && thisNeuron < nNeurons
+            if key == 29 && thisNeuron < length(TimeCells)
                 thisNeuron = thisNeuron + 1; 
             elseif key == 28 && thisNeuron ~= 1
                 thisNeuron = thisNeuron - 1; 
@@ -95,10 +111,13 @@ function plotTimeCells(animal,date,session,T)
 end
 
 function [SIGX,SIGY] = significance(t,sigcurve,smoothedcurve,bins)
+    %Get indices of significance.
     sigT = find(sigcurve);
     
+    %Find the corresponding index in the smoothed bins.
     [~,inds] = ismember(sigT,bins);
     
+    %Values to plot.
     SIGX = t(inds);
     SIGY = smoothedcurve(inds);
 end
