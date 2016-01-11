@@ -57,12 +57,8 @@ function plotTimeCells(animal,date,session,T)
     ratebylap(:,c,:) = [];
     
     while keepgoing
-        %Smooth the tuning curve. 
-        try
+        %Smooth the tuning curve.  
         smoothfit = fit([1:nBins]',curves.tuning{TimeCells(thisNeuron)}','smoothingspline');
-        catch
-            keyboard;
-        end
         curves.smoothed{TimeCells(thisNeuron)} = feval(smoothfit,bins);
         
         %Get confidence intervals interpolated.

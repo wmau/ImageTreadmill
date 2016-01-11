@@ -22,6 +22,10 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
 %   OUTPUT
 %       TimeCells: Index referencing FT of neurons that pass the tests. 
 %
+%       ratebylap: LxBxN matrix (L=laps, B=time bins, N=neurons) depicting
+%       the rate for each cell for each lap on the treadmill. 
+%
+%       
 
 %% Find time cells. 
     ChangeDirectory(animal,date,session);
@@ -48,15 +52,18 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
     %Include a consistency filter. Currently using arbitrary cutoff of must
     %be active for more than a quarter of the laps. 
     pLaps = 0.25;
-    critLaps = pLaps*nLaps;
+    critLaps = round(pLaps*nLaps);
     
     %Perform permutation test on all neurons. 
+    goodlaps = [];
     disp('Performing permutation test on all neurons...');
     prog = ProgressBar(nNeurons);
     for thisNeuron=1:nNeurons
-        if sum(any(ratebylap(:,:,thisNeuron),2)) > critLaps
-            [tuningcurve{thisNeuron},shufflecurve{thisNeuron},p{thisNeuron},sigcurve{thisNeuron},ci{thisNeuron}] = ...
+        [tuningcurve{thisNeuron},shufflecurve{thisNeuron},p{thisNeuron},sigcurve{thisNeuron},ci{thisNeuron}] = ...
                 TimeTuning(ratebylap(:,:,thisNeuron),delays,T);
+            
+        if sum(any(ratebylap(:,:,thisNeuron),2)) > critLaps
+            goodlaps = [goodlaps; thisNeuron];
         end
         prog.progress;
     end
@@ -70,6 +77,6 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
     curves.ci = ci;
     
     %Get indices of neurons that pass the test. 
-    TimeCells = find(cellfun(@any,sigcurve)); 
+    TimeCells = intersect(find(cellfun(@any,sigcurve)),goodlaps); 
     save('TimeCells.mat','TimeCells','ratebylap','curves','delays','x','y','time_interp','FT'); 
 end

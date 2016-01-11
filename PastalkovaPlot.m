@@ -1,9 +1,11 @@
 function PastalkovaPlot(animal,date,session,T)
 %PastalkovaPlot(sessionStruct,animal,date,session,T)
 %
-%
+%   Makes a plot that shows response curves that tile the delay. 
 
-%% Make a plot that shows response curves that tile the dealy. 
+%% Make a plot that shows response curves that tile the delay. 
+    ChangeDirectory(animal,date,session);
+
     try
         load('TimeCells.mat'); 
     catch

@@ -1,5 +1,5 @@
 function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,delays,T)
-%TimeTuning(ratebylap,delay)
+%[tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,delays,T)
 %
 %   Takes a rate by lap matrix of size LxB (L=number of laps, B=number of
 %   time bins) and determines whether there is significant time tuning
@@ -32,6 +32,9 @@ function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,delays,
 %       sigcurve: Binary vector of size B, 1 where the region is
 %       significantly different.
 %   
+%       ci: 2xB matrix containing the upper and lower confidence bounds
+%       based on tuning curves from doing the circular shift bootstrap. 
+%
 
 %% Initialize
     ratebylap = ratebylap(delays==T,:); 
