@@ -22,8 +22,7 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date,session)
 %           delaysetting = setting for duration of delay. 
 %
 %           complete = logical for whether the full X seconds in
-%           velocitysetting was run. 0 if the treadmill was stopped
-%           manually.
+%           delaysetting was run. 0 if the treadmill was stopped manually.
 %
 %           speedEnforce = comes from TreadmillLog. 
 %
@@ -42,6 +41,19 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date,session)
     animalInd = find(strcmp(animal,{TreadmillMD.Animal}));
     sessions = cell2mat({MD.Session});
     MDInd = find(strcmp(animal,{MD.Animal}) & strcmp(date,{MD.Date}) & sessions == session); 
+    
+    %Get the looping direction/alternation
+    [~,folder] = fileparts(MD(MDInd).Location);
+    folder = lower(folder); 
+    
+    %Embed into TodayTreadmillLog.
+    if ~isempty(strfind(folder,'left'))
+        TodayTreadmillLog.direction = 'left';
+    elseif ~isempty(strfind(folder,'right'))
+        TodayTreadmillLog.direction = 'right';
+    elseif ~isempty(strfind(folder,'alternation'))
+        TodayTreadmillLog.direction = 'alternation';
+    end
     
     %Get file directory. 
     file = TreadmillMD(animalInd).File; 
