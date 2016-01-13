@@ -16,7 +16,7 @@ function [sect,x,y] = getsection_treadmill(x,y,bounds)
 %       7. Right approach
 %       8. Right
 %       9. Right return
-
+%
     
 %% Get relevant section coordinates.
     xmin = [bounds.base.x(1);               

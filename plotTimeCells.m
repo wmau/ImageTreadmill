@@ -19,7 +19,7 @@ function plotTimeCells(animal,date,session,T)
     ChangeDirectory(animal,date,session);
         
     %Get treadmill data log. 
-    TodayTreadmillLog = getTodayTreadmillLog(animal,date,2);
+    TodayTreadmillLog = getTodayTreadmillLog(animal,date,session);
     TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,TodayTreadmillLog.RecordStartTime);
 
     try

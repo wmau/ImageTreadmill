@@ -1,26 +1,12 @@
 function bounds = sections_treadmill(x,y,direction)
 %bounds = sections_treadmill(x,y,direction)
 %
-%   Imposes boundaries on the maze that correspond to arbitrary regions.
-%   Also plots these boundaries for visualization. 
+%   Imposes boundaries on the maze that correspond to arbitrary regions. 
 %
 %   INPUTS
 %       X&Y: Tracking data. 
 %   
-%       direction: String, specifying left, right, or alternation. 
-%
-%   OUTPUT
-%       bounds: Structure array with fields that each have an x and y
-%       field. The elements in the X and Y fields correspond to the bottom
-%       left, right, top right, left corners of the boxes defining the
-%       region. 
-%           1. Base
-%           2. Center
-%           3. Choice
-%           4. Approach for left and right
-%           5. Left and right
-%           6. Return for left and right 
-%
+%       direction: String, specifying left,
 
 %%
     xmax = max(x); xmin = min(x);

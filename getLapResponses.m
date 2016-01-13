@@ -1,5 +1,5 @@
 function [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
-%ratebylap = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
+%[ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %
 %   Get the lap by lap responses for each neuron during treadmill run. 
 %
@@ -25,6 +25,8 @@ function [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,ses
 %       X&Y: Aligned position data. 
 %       
 %       time_interp: Interpolated and aligned timestamps. 
+%
+%       FT: From the input, but aligned. 
 %
 
 %% Preliminary stuff. 

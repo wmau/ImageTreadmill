@@ -79,8 +79,8 @@ function [A,Au] = SequenceGraph(animal,date,session,T,window,alpha)
             %Preallocate. Reset for every reference neuron. Each cell entry
             %represents the lag at which another neuron was coincident
             %within T seconds.
-            coincidistance = cell(nNeurons,1); 
-            coincidistance{n} = nan;
+            cDistance = cell(nNeurons,1); 
+            cDistance{n} = nan;
             
             %For each reference calcium event...
             for e=1:nEpochs
@@ -106,7 +106,7 @@ function [A,Au] = SequenceGraph(animal,date,session,T,window,alpha)
                     %Get lags relative to each of the reference neuron's
                     %calcium events for each comparator neuron.
                     lags = onset{c}(ismember(coincidentLaps,commonLaps))-b-nBins;         
-                    coincidistance{c} = [coincidistance{c}, lags(lags<nBins & lags>-nBins)]; 
+                    cDistance{c} = [cDistance{c}, lags(lags<nBins & lags>-nBins)]; 
                 end
             end
             
@@ -114,13 +114,13 @@ function [A,Au] = SequenceGraph(animal,date,session,T,window,alpha)
             for i=1:length(coincident)
                 c = coincident(i);
 
-                if ~isempty(coincidistance{c})
+                if ~isempty(cDistance{c})
                     %Test lag distribution against a uniform null. 
-                    h = kstest2(coincidistance{c},null,'alpha',alpha);
+                    h = kstest2(cDistance{c},null,'alpha',alpha);
                     
                     %Get the average lag to get its sign.
-                    avgLag = mean(coincidistance{c}); 
-
+                    avgLag = mean(cDistance{c}); 
+ 
                     %Directed graph weighted by the average number of
                     %lag frames.
                     if avgLag>0 && h

@@ -28,27 +28,11 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
 %       curves: Structure array with the following fields:
 %           tuning: B-length vector representing the trial mean of
 %           responses.
-%
-%           shuffle: IxB matrix (I=number of iterations), each row is a
-%           jittered tuning curve. 
-%
-%           sig: B-length logical vector, 1 where that bin in the tuning
-%           curve is statistically larger than shuffles based on bootstrap
-%           test. 
-%
-%           p: B-length vector, p-values for bootstrap test. 
-%
-%           ci: 2xB matrix, confidence intervals. First row is the upper
-%           limit. 
-%
-%       delays: Vector depicting duration of delay per trial. 
-%
-%       X&Y: Aligned tracking data. 
-%
-%       time_interp: Aligned time vector (s).
+%           shuffle: 
+%           sig:
+%           p:
+%           ci: 
 %       
-%       FT: Aligned FT.
-%
 
 %% Find time cells. 
     ChangeDirectory(animal,date,session);
