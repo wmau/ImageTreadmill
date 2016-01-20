@@ -25,12 +25,12 @@ function plotTimeCells(animal,date,session,T)
     try
         load(fullfile(pwd,'TimeCells.mat')); 
     catch
-        [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(animal,date,session,T); 
+        [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT,T] = FindTimeCells(animal,date,session,T); 
     end
     
     [nNeurons,nFrames] = size(FT); 
     FT = logical(FT); 
-    nBins = sum(~isnan(ratebylap(delays==T,:,1)),2);
+    nBins = unique(sum(~isnan(ratebylap(delays==T,:,1)),2));
     
     %Get indices for treadmill runs. 
     inds = getTreadmillEpochs(TodayTreadmillLog,time_interp);

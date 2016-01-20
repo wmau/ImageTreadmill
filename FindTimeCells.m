@@ -1,4 +1,4 @@
-function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(animal,date,session,T)
+function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT,T] = FindTimeCells(animal,date,session,T)
 %[TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(animal,date,session,T)
 %
 %   Finds time cells using a few criteria. First, the neuron must be active
@@ -101,5 +101,5 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
     
     %Get indices of neurons that pass the test. 
     TimeCells = intersect(find(cellfun(@any,sigcurve)),goodlaps); 
-    save('TimeCells.mat','TimeCells','ratebylap','curves','delays','x','y','time_interp','FT'); 
+    save('TimeCells.mat','TimeCells','ratebylap','curves','delays','x','y','time_interp','FT','T'); 
 end
