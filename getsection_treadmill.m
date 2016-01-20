@@ -1,21 +1,24 @@
 function [sect,x,y] = getsection_treadmill(x,y,bounds)
-%function [sect, goal] = getsection(x,y,...)
+%function [sect,x,y] = getsection(x,y,bounds
 %   This function takes position data and transforms it into section
 %   number. 
 %
-%   X and Y are vectors indicating the mouse position.
+%   INPUTS
+%       X&Y: Vectors indicating the mouse position.
+%       
+%       bounds: Structure array from sections_treadmill.
 %
-%   OUTPUTS 
-%   SECT is X x 2 vector where col1 is the frame # and col2 is section #: 
-%       1. Base
-%       2. Center
-%       3. Choice
-%       4. Left approach
-%       5. Left
-%       6. Left return
-%       7. Right approach
-%       8. Right
-%       9. Right return
+%   OUTPUT
+%       Sect: X-length vector signifying section #: 
+%           1. Base
+%           2. Center
+%           3. Choice
+%           4. Left approach
+%           5. Left
+%           6. Left return
+%           7. Right approach
+%           8. Right
+%           9. Right return
 %
     
 %% Get relevant section coordinates.
