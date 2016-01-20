@@ -11,6 +11,12 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
     animals = {MD.Animal};
     sessions = [MD.Session];
     
+    %Setting up for titling the plots. 
+    dateTitles = dates;
+    for i=1:nSessions
+        dateTitles{i}(3:3:6) = '-';
+    end
+    
     %Preallocate.
     TIMECELLS = cell(nSessions,1);
     RATEBYLAP = cell(nSessions,1);
@@ -139,13 +145,15 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
                 end
                 
                 %Labels. 
+                title(dateTitles{thisSession});
                 xlabel('Time [s]'); ylabel('Rate');
                 yLims = get(gca,'ylim');
                 ylim([0,yLims(2)]); xlim([0,t{thisSession}(end)]);
                 set(gca,'ticklength',[0 0]);
                 hold off; 
             else
-                plot(t{thisSession},zeros(length(t{thisSession}),1),'-r','linewidth',2); 
+                plot(t{thisSession},zeros(length(t{thisSession}),1),'-r','linewidth',2);
+                title(dateTitles{thisSession});
                 yLims = get(gca,'ylim'); xlim([0,t{thisSession}(end)]);
                 ylim([0,yLims(2)]);
             end
