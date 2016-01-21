@@ -1,4 +1,4 @@
-function [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
+function [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %[ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %
 %   Get the lap by lap responses for each neuron during treadmill run. 
@@ -19,14 +19,14 @@ function [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,ses
 %       number of neurons) containing histograms for every neuron time
 %       responses on the treadmill. 
 %
-%       delays: Vector of length L containing the delay setting for each
-%       lap. 
-%
 %       X&Y: Aligned position data. 
 %       
 %       time_interp: Interpolated and aligned timestamps. 
 %
 %       FT: From the input, but aligned. 
+%
+%       TodayTreadmillLog: Containing corrections in .complete for where
+%       mouse is on treadmill. 
 %
 
 %% Preliminary stuff. 
@@ -49,36 +49,35 @@ function [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,ses
     [nNeurons,~] = size(FT); 
     tResolution = 0.25;                                     %seconds
     nBins = TodayTreadmillLog.delaysetting/tResolution;     %Vector specifying number of bins per lap
-    nComplete = sum(TodayTreadmillLog.complete);            %Number of complete runs.
-    completeLaps = find(TodayTreadmillLog.complete);        %Indices of complete runs.
+    numRuns = TodayTreadmillLog.numRuns;
     
     %Preallocate.
-    ratebylap = nan(nComplete,max(nBins),nNeurons);         
-    propOnTM = nan(nComplete,1);
-    onTM = nan(nComplete,1);
+    ratebylap = nan(numRuns,max(nBins),nNeurons);         
+    propOnTM = nan(numRuns,1);
+    onTM = nan(numRuns,1);
     
-    for thisLap=1:nComplete
-        lapnum = completeLaps(thisLap);     
-        
+    for lapnum=1:numRuns       
         %Proportion of time spent on treadmill. 
-        propOnTM(thisLap) = sum(sect(inds(lapnum,1):inds(lapnum,2))==2)/(nFramesBetween(lapnum)+1);
+        propOnTM(lapnum) = sum(sect(inds(lapnum,1):inds(lapnum,2))==2)/(nFramesBetween(lapnum)+1);
         
         %Logical. Currently using threshold that half the time must be
         %spent on the treadmill.
-        onTM(thisLap) = propOnTM(thisLap) > 0.5;
+        onTM(lapnum) = propOnTM(lapnum) > 0.5;
+        
+        if ~onTM(lapnum)
+            TodayTreadmillLog.complete(lapnum) = 0;
+        end
     end
     
     p = ProgressBar(nNeurons);
     for thisNeuron=1:nNeurons
-        for thisLap=1:nComplete           
-            lapnum = completeLaps(thisLap);
-            
-            if onTM(thisLap)
+        for lapnum=1:numRuns           
+            if TodayTreadmillLog.complete(lapnum)
                 tStart = 0;
                 tEnd = TodayTreadmillLog.stopts(lapnum) - TodayTreadmillLog.startts(lapnum); 
                 %Time vector. 
                 t = linspace(tStart,tEnd,nFramesBetween(lapnum)+1); 
-
+                
                 %Times where there was a spike. 
                 tspk = t(FT(thisNeuron,inds(lapnum,1):inds(lapnum,2))==1);
 
@@ -86,12 +85,13 @@ function [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,ses
                 edges = linspace(0,TodayTreadmillLog.delaysetting(lapnum),nBins(lapnum));
 
                 %Make histogram.
-                [ratebylap(thisLap,1:nBins(lapnum),thisNeuron),~] = hist(tspk,edges); 
+                [ratebylap(lapnum,1:nBins(lapnum),thisNeuron),~] = hist(tspk,edges);  
             end
         end
         p.progress;
+        
+        imagesc(ratebylap(:,:,thisNeuron));
     end
     p.stop;
 
-    delays = TodayTreadmillLog.delaysetting(logical(TodayTreadmillLog.complete));
 end

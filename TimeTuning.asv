@@ -12,7 +12,8 @@ function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,TodayTr
 %   INPUTS
 %       ratebylap: LxB matrix of calcium events in binned time lap by lap. 
 %
-%       TodayTreadmillLog: 
+%       delays: Output from getLapResponses, vector for each lap specifying
+%       the length of delay.
 %
 %       T: Delay duratoin you want to examine time tuning for.
 %
@@ -36,13 +37,13 @@ function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,TodayTr
 %
 
 %% Initialize
-    ratebylap = ratebylap(TodayTreadmillLog.delaysetting==T & TodayTreadmillLog.complete,:); 
+    ratebylap = ratebylap(TodayTreadmillLog.delaysetting==T,:); 
     B = 1000;                           %Number of iterations. 
     crit = 0.01;                        %Significance level.
-    [nCompleteLaps,nBins] = size(ratebylap); 
+    [nLaps,nBins] = size(ratebylap); 
 
     %Preallocate. 
-    shufflelaps = nan(nCompleteLaps,nBins,B); 
+    shufflelaps = nan(nLaps,nBins,B); 
     shufflecurve = nan(B,nBins); 
         
     %Tuning curve.
@@ -50,13 +51,13 @@ function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,TodayTr
     
 %% Circular permutation test.
     %Construct matrix of temporal shifts. 
-    shifts = randi([0,nBins],B,nCompleteLaps); 
+    shifts = randi([0,nBins],B,nLaps); 
     
     %For each permutation...
     for i=1:B
         
         %...for each lap...
-        for thisLap=1:nCompleteLaps
+        for thisLap=1:nLaps
             %...shift the response by a random amount. 
              shufflelaps(thisLap,:,i) = circshift(ratebylap(thisLap,:),[0,shifts(i,thisLap)]); 
         end

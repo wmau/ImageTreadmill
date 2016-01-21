@@ -18,25 +18,29 @@ function plotTimeCells(animal,date,session,T)
 %%
     ChangeDirectory(animal,date,session);
         
-    %Get treadmill data log. 
-    TodayTreadmillLog = getTodayTreadmillLog(animal,date,session);
-    TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,TodayTreadmillLog.RecordStartTime);
-
     try
         load(fullfile(pwd,'TimeCells.mat')); 
     catch
-        [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT,T] = FindTimeCells(animal,date,session,T); 
+        [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T); 
     end
     
+    %Extract the elements in structs. 
+    x = movies.x;
+    y = movies.y; 
+    time_interp = movies.t;
+    FT = movies.FT; 
+    delays = TodayTreadmillLog.delaysetting;
+    complete = logical(TodayTreadmillLog.complete);
+
     [nNeurons,nFrames] = size(FT); 
     FT = logical(FT); 
-    nBins = unique(sum(~isnan(ratebylap(delays==T,:,1)),2));
+    nBins = unique(sum(~isnan(ratebylap(delays==T & complete,:,1)),2));
     
     %Get indices for treadmill runs. 
     inds = getTreadmillEpochs(TodayTreadmillLog,time_interp);
     temp = [];
     for thisLap=1:size(inds,1)
-        if TodayTreadmillLog.complete(thisLap) && TodayTreadmillLog.delaysetting(thisLap) == T
+        if complete(thisLap) && delays(thisLap) == T
             temp = [temp,inds(thisLap,1):inds(thisLap,2)];
         end
     end
@@ -52,9 +56,7 @@ function plotTimeCells(animal,date,session,T)
     tCI = linspace(0,T,length(curves.ci{TimeCells(thisNeuron)}(1,:)));  %Time vector for CI interpolation.
     
     %Simplify the matrix and get rid of nans if any. 
-    ratebylap = ratebylap(delays==T,:,:);
-    [~,c] = find(isnan(ratebylap(:,:,1)));
-    ratebylap(:,c,:) = [];
+    ratebylap = ratebylap(delays==T & complete,:,:);               %Laps that match delay duration. 
     
     while keepgoing
         %Smooth the tuning curve.  
@@ -84,6 +86,7 @@ function plotTimeCells(animal,date,session,T)
             plot(t,CImean,'-b','linewidth',2);
             plot(t,CIu,'--b',t,CIl,'--b');
             Ylim = get(gca,'ylim');
+            xlim([0,T]);
             plot(SIGX,SIGY+Ylim(2)*sf,'r*');
             hold off;
                 xlabel('Time [s]'); ylabel('Rate'); 

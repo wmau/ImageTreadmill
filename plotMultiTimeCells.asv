@@ -1,7 +1,7 @@
 function plotMultiTimeCells(batch_session_map,MD,Ts)
-%plotMultiTimeCells(batch_session_map,MD,Ts)
 %
-%   Plots multiple 
+%
+%
 
 %% Organization. 
     %Partition the session data.
@@ -22,14 +22,13 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
     RATEBYLAP = cell(nSessions,1);
     CURVES = cell(nSessions,1);
     DELAYS = cell(nSessions,1); 
-    COMPLETE = cell(nSessions,1); 
   
 %% Gather all time cell data. 
     for i=1:nSessions
         cd(paths{i});
         
         try 
-            load(fullfile(paths{i},'TimeCells.mat'),'TimeCells','ratebylap','TodayTreadmillLog','curves','T');
+            load(fullfile(paths{i},'TimeCells.mat'),'TimeCells','ratebylap','curves','delays','T');
             
             %Throw an error if you specify a T that doesn't match the one
             %that you already ran. 
@@ -43,15 +42,11 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
             TIMECELLS{i} = TimeCells;
             RATEBYLAP{i} = ratebylap; 
             CURVES{i} = curves; 
-            DELAYS{i} = TodayTreadmillLog.delaysetting; 
-            COMPLETE{i} = logical(TodayTreadmillLog.complete); 
+            DELAYS{i} = delays; 
             
         catch
-            [TIMECELLS{i},RATEBYLAP{i},CURVES{i},~,~,TodayTreadmillLog]...
+            [TIMECELLS{i},RATEBYLAP{i},CURVES{i},DELAYS{i}]...
                 = FindTimeCells(animals{i},dates{i},sessions(i),Ts(i));
-            
-            DELAYS{i} = TodayTreadmillLog.delaysetting; 
-            COMPLETE{i} = logical(TodayTreadmillLog.complete);
         end
         
     end
@@ -86,7 +81,7 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
     keepgoing = 1;                  
     i = 1;                          %Row of neuron map. 
     sf = 0.1;                       %For significance asterisks. 
-    pLaps = 0.20;                   %Proportion of laps needed to be significant. 
+    pLaps = 0.25; 
     
     %Get the basics for each session like confidence interval allocations
     %and delay duration. 
@@ -96,13 +91,13 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
     t = cell(nSessions,1);          %
     critLaps = nan(nSessions,1);
     for thisSession=1:nSessions
-        nBins(thisSession) = max(sum(~isnan(RATEBYLAP{thisSession}(DELAYS{thisSession}==Ts(thisSession),:,1)),2));
+        nBins(thisSession) = unique(sum(~isnan(RATEBYLAP{thisSession}(DELAYS{thisSession}==Ts(thisSession),:,1)),2));
         tCI{thisSession} = linspace(0,Ts(thisSession),length(CURVES{thisSession}.ci{1}(1,:)));        
         bins{thisSession} = [1:0.001:nBins(thisSession)]';
         t{thisSession} = linspace(0,Ts(thisSession),length(bins{thisSession}));
         
         nLaps = size(RATEBYLAP{thisSession}(DELAYS{thisSession}==Ts(thisSession),:,1),1);
-        critLaps(thisSession) = round(nLaps*pLaps);         %Critical number of laps. 
+        critLaps(thisSession) = round(nLaps*pLaps);
     end   
     
     %Main plotting. 
@@ -113,7 +108,7 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
         neurons = MAP(thisRow,MAPinds);     %Neurons in this row. 
 
         %For each session, plot its ratebylap. If subplot has a title,
-        %neuron was mapped, but inactive on stem. 
+        %neurno was mapped, but inactive on stem. 
         for thisSession=1:nSessions
             n = neurons(thisSession);
             
@@ -121,7 +116,7 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
             rasterAX(thisSession) = subplot(nSessions,2,thisSession*2-1);
             if n  
                 imagesc([0:Ts(thisSession)],[1:5:sum(DELAYS{thisSession}==Ts(thisSession))],...
-                    RATEBYLAP{thisSession}(DELAYS{thisSession}==Ts(thisSession) & COMPLETE{thisSession},:,n));
+                    RATEBYLAP{thisSession}(DELAYS{thisSession}==Ts(thisSession),:,n));
                 colormap gray; ylabel('Laps'); title(['Neuron #',num2str(n)]);
             else
                 imagesc(0); axis off; 
@@ -139,7 +134,10 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
                 CImean = interp1(tCI{thisSession},shuffmean,t{thisSession},'pchip');
                 CIu = interp1(tCI{thisSession},CURVES{thisSession}.ci{n}(1,:),t{thisSession},'phcip');
                 CIl = interp1(tCI{thisSession},CURVES{thisSession}.ci{n}(2,:),t{thisSession},'phcip');
-                               
+                
+                [SIGX,SIGY] = significance(t{thisSession},CURVES{thisSession}.sig{n},...
+                    CURVES{thisSession}.smoothed{n},bins{thisSession});
+                
                 %Plot tuning curve and confidence intervals. 
                 plot(t{thisSession},CURVES{thisSession}.smoothed{n},'-r','linewidth',2);
                 hold on;
@@ -149,10 +147,6 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
         
                 %If there are enough laps, plot significance asterisks. 
                 if sum(any(RATEBYLAP{thisSession}(:,:,n),2)) > critLaps(thisSession)
-                    %Significance asterisks. 
-                    [SIGX,SIGY] = significance_asterisks(t{thisSession},CURVES{thisSession}.sig{n},...
-                        CURVES{thisSession}.smoothed{n},bins{thisSession});
-                    
                     plot(SIGX,SIGY+Ylim(2)*sf,'r*');                   
                 end
                 
@@ -164,7 +158,6 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
                 set(gca,'ticklength',[0 0]);
                 hold off; 
             else
-                %Flat line. 
                 plot(t{thisSession},zeros(length(t{thisSession}),1),'-r','linewidth',2);
                 title(dateTitles{thisSession});
                 yLims = get(gca,'ylim'); xlim([0,t{thisSession}(end)]);
