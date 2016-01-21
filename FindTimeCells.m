@@ -1,4 +1,4 @@
-function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT,T] = FindTimeCells(animal,date,session,T)
+function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T)
 %[TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(animal,date,session,T)
 %
 %   Finds time cells using a few criteria. First, the neuron must be active
@@ -62,7 +62,7 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT,T] = FindTimeCell
     
     %Get rate by lap matrix. 
     disp('Getting time responses for each neuron...');
-    [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,2,FT,TodayTreadmillLog);  
+    [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(animal,date,session,FT,TodayTreadmillLog);  
     
     %Preallocate. 
     [nLaps,nBins,nNeurons] = size(ratebylap);
@@ -74,7 +74,7 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT,T] = FindTimeCell
     
     %Include a consistency filter. Currently using arbitrary cutoff of must
     %be active for more than a quarter of the laps. 
-    pLaps = 0.25;
+    pLaps = 0.2;
     critLaps = round(pLaps*nLaps);
     
     %Perform permutation test on all neurons. 
@@ -83,7 +83,7 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT,T] = FindTimeCell
     prog = ProgressBar(nNeurons);
     for thisNeuron=1:nNeurons
         [tuningcurve{thisNeuron},shufflecurve{thisNeuron},p{thisNeuron},sigcurve{thisNeuron},ci{thisNeuron}] = ...
-                TimeTuning(ratebylap(:,:,thisNeuron),delays,T);
+                TimeTuning(ratebylap(:,:,thisNeuron),TodayTreadmillLog,T);
             
         if sum(any(ratebylap(:,:,thisNeuron),2)) > critLaps
             goodlaps = [goodlaps; thisNeuron];
@@ -99,7 +99,13 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT,T] = FindTimeCell
     curves.p = p; 
     curves.ci = ci;
     
+    %Tracking.
+    movies.x = x;
+    movies.y = y;
+    movies.t = time_interp;
+    movies.FT = FT;
+    
     %Get indices of neurons that pass the test. 
     TimeCells = intersect(find(cellfun(@any,sigcurve)),goodlaps); 
-    save('TimeCells.mat','TimeCells','ratebylap','curves','delays','x','y','time_interp','FT','T'); 
+    save('TimeCells.mat','TimeCells','ratebylap','curves','movies','T','TodayTreadmillLog'); 
 end

@@ -71,9 +71,7 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date,session)
     %Verify correct date. 
     if length(dateInd)>1
         disp('Multiple indices discovered for the date you specified.'); 
-        ind = input('Enter the numeric index corresponding to which you want to use: ');
-        dateInd = dateInd(ind);
-    end
+        input('Enter which 
     
 %% Get the log. 
     %Timestamps are recorded from when you hit start on the TreadmillTask

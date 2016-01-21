@@ -1,4 +1,4 @@
-function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(animal,date,session,T)
+function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T)
 %[TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(animal,date,session,T)
 %
 %   Finds time cells using a few criteria. First, the neuron must be active
@@ -28,11 +28,27 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
 %       curves: Structure array with the following fields:
 %           tuning: B-length vector representing the trial mean of
 %           responses.
-%           shuffle: 
-%           sig:
-%           p:
-%           ci: 
+%
+%           shuffle: IxB matrix (I=number of iterations), each row is a
+%           jittered tuning curve. 
+%
+%           sig: B-length logical vector, 1 where that bin in the tuning
+%           curve is statistically larger than shuffles based on bootstrap
+%           test. 
+%
+%           p: B-length vector, p-values for bootstrap test. 
+%
+%           ci: 2xB matrix, confidence intervals. First row is the upper
+%           limit. 
+%
+%       delays: Vector depicting duration of delay per trial. 
+%
+%       X&Y: Aligned tracking data. 
+%
+%       time_interp: Aligned time vector (s).
 %       
+%       FT: Aligned FT.
+%
 
 %% Find time cells. 
     ChangeDirectory(animal,date,session);
@@ -46,7 +62,7 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
     
     %Get rate by lap matrix. 
     disp('Getting time responses for each neuron...');
-    [ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,2,FT,TodayTreadmillLog);  
+    [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(animal,date,session,FT,TodayTreadmillLog);  
     
     %Preallocate. 
     [nLaps,nBins,nNeurons] = size(ratebylap);
@@ -67,7 +83,7 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
     prog = ProgressBar(nNeurons);
     for thisNeuron=1:nNeurons
         [tuningcurve{thisNeuron},shufflecurve{thisNeuron},p{thisNeuron},sigcurve{thisNeuron},ci{thisNeuron}] = ...
-                TimeTuning(ratebylap(:,:,thisNeuron),delays,T);
+                TimeTuning(ratebylap(:,:,thisNeuron),TodayTreadmillLog.delaysetting,T);
             
         if sum(any(ratebylap(:,:,thisNeuron),2)) > critLaps
             goodlaps = [goodlaps; thisNeuron];
@@ -85,5 +101,5 @@ function [TimeCells,ratebylap,curves,delays,x,y,time_interp,FT] = FindTimeCells(
     
     %Get indices of neurons that pass the test. 
     TimeCells = intersect(find(cellfun(@any,sigcurve)),goodlaps); 
-    save('TimeCells.mat','TimeCells','ratebylap','curves','delays','x','y','time_interp','FT'); 
+    save('TimeCells.mat','TimeCells','ratebylap','curves','delays','x','y','time_interp','FT','T'); 
 end
