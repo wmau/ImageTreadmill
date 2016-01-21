@@ -1,0 +1,21 @@
+function [SIGX,SIGY] = significance_asterisks(t,sigcurve,smoothedcurve,bins)
+%[SIGX,SIGY] = significance_asterisks(t,sigcurve,smoothedcurve,bins)
+%
+%   Finds the X and Y locations of the smoothed tuning curve that is
+%   statistically significant for time tuning. 
+%
+%   INPUTS
+%
+ 
+
+%%
+    %Get indices of significance.
+    sigT = find(sigcurve);
+    
+    %Find the corresponding index in the smoothed bins.
+    [~,inds] = ismember(sigT,bins);
+    
+    %Values to plot.
+    SIGX = t(inds);
+    SIGY = smoothedcurve(inds);
+end
