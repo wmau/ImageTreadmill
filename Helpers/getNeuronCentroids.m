@@ -1,4 +1,4 @@
-function centroids = getNeuronCentroids(animal,date,session)
+function centroids = getNeuronCentroids(animal,date,session,varargin)
 %centroids = getNeuronCentroids(animal,date,session)
 %
 %   INPUTS
@@ -16,9 +16,18 @@ function centroids = getNeuronCentroids(animal,date,session)
 %% Obtain neuron centroids.
     ChangeDirectory(animal,date,session);
     
+    %Minimum transient length input into TENASPIS. 
+    if nargin>3
+        min_trans_length = varargin{1}; 
+    end
+
     %Load neuron masks. 
     try
-        load(fullfile(pwd,'ProcOut.mat'),'NeuronImage');
+        if exist('min_trans_length','var')
+            load(fullfile(pwd,['ProcOut_minlength_',num2str(min_trans_length),'.mat']),'NeuronImage');
+        else
+            load(fullfile(pwd,'ProcOut.mat'),'NeuronImage');
+        end
     catch
         disp('ProcOut.mat not found. Run TENASPIS!'); 
     end

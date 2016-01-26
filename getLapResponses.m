@@ -49,14 +49,14 @@ function [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(anim
     [nNeurons,~] = size(FT); 
     tResolution = 0.25;                                     %seconds
     nBins = TodayTreadmillLog.delaysetting/tResolution;     %Vector specifying number of bins per lap
-    numRuns = TodayTreadmillLog.numRuns;
+    nRuns = TodayTreadmillLog.nRuns;
     
     %Preallocate.
-    ratebylap = nan(numRuns,max(nBins),nNeurons);         
-    propOnTM = nan(numRuns,1);
-    onTM = nan(numRuns,1);
+    ratebylap = nan(nRuns,max(nBins),nNeurons);         
+    propOnTM = nan(nRuns,1);
+    onTM = nan(nRuns,1);
     
-    for lapnum=1:numRuns       
+    for lapnum=1:nRuns       
         %Proportion of time spent on treadmill. 
         propOnTM(lapnum) = sum(sect(inds(lapnum,1):inds(lapnum,2))==2)/(nFramesBetween(lapnum)+1);
         
@@ -71,7 +71,7 @@ function [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(anim
     
     p = ProgressBar(nNeurons);
     for thisNeuron=1:nNeurons
-        for lapnum=1:numRuns           
+        for lapnum=1:nRuns           
             if TodayTreadmillLog.complete(lapnum)
                 tStart = 0;
                 tEnd = TodayTreadmillLog.stopts(lapnum) - TodayTreadmillLog.startts(lapnum); 

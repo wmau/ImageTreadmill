@@ -58,7 +58,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,TodayTreadmillLog.RecordStartTime);
     
     %Get calcium imaging data. 
-    load('ProcOut.mat','FT');
+    load('ProcOut_minlength_3.mat','FT');
     
     %Get rate by lap matrix. 
     disp('Getting time responses for each neuron...');
