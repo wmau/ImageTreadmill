@@ -21,13 +21,13 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
 
 %% Load data and process. 
     %Imaging data. 
-    load(fullfile(pwd,'ProcOut_minlength_2.mat'),'FT','NeuronImage','Xdim','Ydim'); 
+    load(fullfile(pwd,'ProcOut.mat'),'FT','NeuronImage','Xdim','Ydim'); 
     load(fullfile(pwd,'CC.mat'),'cc');
-    load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog'); 
+    load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','TimeCells'); 
     outlines = cellfun(@bwboundaries,NeuronImage,'unif',0); 
     
     %Neuron centroids. 
-    centroids = getNeuronCentroids(animal,date,session,2); 
+    centroids = getNeuronCentroids(animal,date,session,3); 
         
     %Align and get indices where mouse was on treadmill. 
     [x,y,~,~,FToffset,~,~,time_interp] = AlignImagingToTracking(0.15,FT); 
@@ -65,7 +65,6 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
 
                 %Active neurons.
                 active = find(FT(:,i));
-                nActive = length(active); 
 
                 %Display the imaging movie frame. 
                 imagesc(frame); caxis(clim); colormap gray;
@@ -78,45 +77,21 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
                 %outline.
                 if ~isempty(active)
                     hold on;
-                    for neuron=1:nActive
-                        plot(outlines{active(neuron)}{1}(:,2),outlines{active(neuron)}{1}(:,1),'-b','linewidth',2);
+                    for neuron=active'
+                        if ismember(neuron,TimeCells), c = '-r';
+                        else c = '-b'; end       
+                        plot(outlines{neuron}{1}(:,2),outlines{neuron}{1}(:,1),c,'linewidth',2);
                     end
-                    
-                    %Plot center of mass. 
-                    FTCoMx = mean(centroids(active,1)); 
-                    FTCoMy = mean(centroids(active,2));     
-                    plot(FTCoMx,FTCoMy,'b.','markersize',20);
                     hold off;        
                 end
-
-                %Clear the blob outlines. 
-                xg = cell(length(cc{i}.PixelIdxList),1);
-                yg = cell(length(cc{i}.PixelIdxList),1);
-
-                %Get blobs. 
-                for j = 1:length(cc{i}.PixelIdxList)
-                    temp = zeros(Xdim,Ydim);
-                    temp(cc{i}.PixelIdxList{j}) = 1;
-                    b = bwboundaries(temp);
-                    yg{j} = b{1}(:,1);
-                    xg{j} = b{1}(:,2);
-                end
                 
-                %Plot blobs. 
-                hold on;
-                for j = 1:length(xg)
-                    plot(xg{j},yg{j},'-r','LineWidth',3);
-                end
-                hold off; 
-
                 %Get rid of axis marks. 
                 axis equal; axis off; 
 
                 %Write video to the brain imaging movie. 
                 F = getframe(gcf); 
                 writeVideo(imagingmovie,F); 
-                clear F; 
-                clf; 
+                clf;
 
 %% Tracking movie
                 %AVI file reads using time, not frames. Get the timestamp
@@ -137,8 +112,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
                 %Write video to the tracking movie. 
                 F = getframe(gcf);
                 writeVideo(trackingwrite,F); 
-                clear F; 
-                clf; 
+                clf;
                 
                 %At the end of a lap, write a few blank frames. 
                 if i==eFrame
