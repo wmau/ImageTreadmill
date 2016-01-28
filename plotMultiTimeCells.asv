@@ -1,17 +1,14 @@
 function plotMultiTimeCells(batch_session_map,MD,Ts)
 %plotMultiTimeCells(batch_session_map,MD,Ts)
 %
-%   Plots time cells across multiple sessions. Use left and right arrow
-%   keys to scroll, esc to exit. 
+%   Plots time cells across multiple sessions. 
 %
 %   INPUTS
 %       batch_session_map: Struct from neuron_batch_reg().
 %
 %       MD: MasterDirectory entries. 
 %
-%       Ts: Vector the same size as MD specifying the delay durations for
-%       each session. 
-%
+%       T
 
 %% Organization. 
     %Partition the session data.
@@ -134,10 +131,13 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
                 goodLaps = runningAtT & COMPLETE{thisSession};          %Logical. Is the mouse running for Ts for the whole time this lap?
                 
                 %Restrict plotting to complete laps with the mouse running
-                %at the specified T.              
+                %at the specified T. 
+                try
                 plotme = RATEBYLAP{thisSession}(DELAYS{thisSession}==Ts(thisSession) & COMPLETE{thisSession},:,n);
                 plotme = plotme(:,~isnan(plotme(1,:)));
-
+                catch
+                    keyboard;
+                end
                 %Plot raster. 
                 imagesc([0:Ts(thisSession)],[1:5:sum(goodLaps)],plotme);
                 colormap gray; ylabel('Laps'); title(['Neuron #',num2str(n)]);
@@ -197,7 +197,7 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
         set(rasterAX,'XLim',rasterXLims);
         set(curveAX,'XLim',curveXLims,'YLim',curveYLims);
         
-        %Scroll left or right. Or exit. 
+        %Scroll left or right. 
         figure(f);
             [~,~,key] = ginput(1);
             if key == 29 && i < length(uniqueRows)

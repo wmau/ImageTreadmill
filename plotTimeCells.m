@@ -57,6 +57,7 @@ function plotTimeCells(animal,date,session,T)
     
     %Simplify the matrix and get rid of nans if any. 
     ratebylap = ratebylap(delays==T & complete,:,:);               %Laps that match delay duration. 
+    ratebylap = ratebylap(:,~isnan(ratebylap(1,:,1)),:);
     
     while keepgoing
         %Smooth the tuning curve.  

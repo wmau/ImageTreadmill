@@ -37,6 +37,8 @@ function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,TodayTr
 
 %% Initialize
     ratebylap = ratebylap(TodayTreadmillLog.delaysetting==T & TodayTreadmillLog.complete,:); 
+    ratebylap = ratebylap(:,~isnan(ratebylap(1,:)));
+    
     B = 1000;                           %Number of iterations. 
     crit = 0.01;                        %Significance level.
     [nCompleteLaps,nBins] = size(ratebylap); 

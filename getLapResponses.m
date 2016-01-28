@@ -49,7 +49,7 @@ function [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(anim
     [nNeurons,~] = size(FT); 
     tResolution = 0.25;                                     %seconds
     nBins = TodayTreadmillLog.delaysetting/tResolution;     %Vector specifying number of bins per lap
-    nRuns = TodayTreadmillLog.nRuns;
+    nRuns = TodayTreadmillLog.numRuns;
     
     %Preallocate.
     ratebylap = nan(nRuns,max(nBins),nNeurons);         
