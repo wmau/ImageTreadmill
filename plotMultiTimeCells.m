@@ -14,11 +14,11 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
 %
 
 %% Organization. 
+    initDir = pwd; 
+
     %Partition the session data.
     nSessions = length(MD);
     dates = {MD.Date}; 
-    paths = {MD.Location}; 
-    animals = {MD.Animal};
     sessions = [MD.Session];
     
     %Setting up for titling the plots. 
@@ -26,45 +26,9 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
     for i=1:nSessions
         dateTitles{i}(3:3:6) = '-';
     end
-    
-    %Preallocate.
-    TIMECELLS = cell(nSessions,1);
-    RATEBYLAP = cell(nSessions,1);
-    CURVES = cell(nSessions,1);
-    DELAYS = cell(nSessions,1); 
-    COMPLETE = cell(nSessions,1); 
   
 %% Gather all time cell data. 
-    for i=1:nSessions
-        cd(paths{i});
-        
-        try 
-            load(fullfile(paths{i},'TimeCells.mat'),'TimeCells','ratebylap','TodayTreadmillLog','curves','T');
-            
-            %Throw an error if you specify a T that doesn't match the one
-            %that you already ran. 
-            if T~=Ts(i)
-                error(['Delay duration specified in T(',num2str(i),') is different '...
-                    'from the one saved for ',dates{i},'. Rerunning FindTimeCells '...
-                    'using new T...']);
-            end
-            
-            %Archive. 
-            TIMECELLS{i} = TimeCells;
-            RATEBYLAP{i} = ratebylap; 
-            CURVES{i} = curves; 
-            DELAYS{i} = TodayTreadmillLog.delaysetting; 
-            COMPLETE{i} = logical(TodayTreadmillLog.complete); 
-            
-        catch
-            [TIMECELLS{i},RATEBYLAP{i},CURVES{i},~,~,TodayTreadmillLog]...
-                = FindTimeCells(animals{i},dates{i},sessions(i),Ts(i));
-            
-            DELAYS{i} = TodayTreadmillLog.delaysetting; 
-            COMPLETE{i} = logical(TodayTreadmillLog.complete);
-        end
-        
-    end
+    [TIMECELLS,RATEBYLAP,CURVES,DELAYS,COMPLETE] = CompileTimeCellData(MD,Ts);
     
 %% Find the indices in batch_session_map that correspond to the specified sessions. 
     regDates = {batch_session_map.session.date};
@@ -139,7 +103,7 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
                 plotme = plotme(:,~isnan(plotme(1,:)));
 
                 %Plot raster. 
-                imagesc([0:Ts(thisSession)],[1:5:sum(goodLaps)],plotme);
+                imagesc(0:Ts(thisSession),1:5:sum(goodLaps),plotme);
                 colormap gray; ylabel('Laps'); title(['Neuron #',num2str(n)]);
             else
                 imagesc(0); axis off; 
@@ -211,4 +175,5 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
 
     end
     
+    cd(initDir); 
 end
