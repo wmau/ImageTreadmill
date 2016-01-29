@@ -15,7 +15,7 @@ function batch_tenaspis(MD)
         infile = dir('*.h5');
         infile = fullfile(pwd,infile.name);
         
-        Tenaspis(infile,'animal_id',MD(i).Animal,'sess_date',MD(i).Date,'sess_num',MD(i).Session,'min_trans_length',3);
+        Tenaspis(infile,'animal_id',MD(i).Animal,'sess_date',MD(i).Date,'sess_num',MD(i).Session);
     end
     
 end
