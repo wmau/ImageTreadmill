@@ -27,7 +27,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     outlines = cellfun(@bwboundaries,NeuronImage,'unif',0); 
     
     %Neuron centroids. 
-    centroids = getNeuronCentroids(animal,date,session,3); 
+    centroids = getNeuronCentroids(animal,date,session); 
         
     %Align and get indices where mouse was on treadmill. 
     [x,y,~,~,FToffset,~,~,time_interp] = AlignImagingToTracking(0.15,FT); 
@@ -53,7 +53,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     
     tInc = 0;
      
-    for thisEpoch=1:nRuns
+    for thisEpoch=1:5
         if TodayTreadmillLog.complete(thisEpoch)
             sFrame = treadmillInds(thisEpoch,1) + FToffset;
             eFrame = treadmillInds(thisEpoch,2) + FToffset; 

@@ -31,8 +31,8 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
     [TIMECELLS,RATEBYLAP,CURVES,DELAYS,COMPLETE] = CompileTimeCellData(MD,Ts);
     
 %% Find the indices in batch_session_map that correspond to the specified sessions. 
-    regDates = {batch_session_map.session.date};
-    regSessions = [batch_session_map.session.session];
+    regDates = {batch_session_map.session.Date};
+    regSessions = [batch_session_map.session.Session];
       
     %Eliminate first column to match indices.
     MAP = batch_session_map.map(:,2:end);           
@@ -93,7 +93,7 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
             
             %Raster. 
             rasterAX(thisSession) = subplot(nSessions,2,thisSession*2-1);
-            if n  
+            if ~isnan(n) && n~=0
                 runningAtT = DELAYS{thisSession}==Ts(thisSession);      %Logical. Is the mouse running for Ts this lap?
                 goodLaps = runningAtT & COMPLETE{thisSession};          %Logical. Is the mouse running for Ts for the whole time this lap?
                 
@@ -111,7 +111,7 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
             
             %Tuning curve. 
             curveAX(thisSession) = subplot(nSessions,2,thisSession*2);
-            if n
+            if ~isnan(n) && n~=0
                 %Smooth tuning curve.                
                 smoothfit = fit([1:nBins(thisSession)]',CURVES{thisSession}.tuning{n}','smoothingspline');
                 CURVES{thisSession}.smoothed{n} = feval(smoothfit,bins{thisSession});

@@ -1,4 +1,4 @@
-function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,TodayTreadmillLog,T)
+function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,delaysetting,complete,T)
 %[tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,delays,T)
 %
 %   Takes a rate by lap matrix of size LxB (L=number of laps, B=number of
@@ -36,7 +36,7 @@ function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,TodayTr
 %
 
 %% Initialize
-    ratebylap = ratebylap(TodayTreadmillLog.delaysetting==T & TodayTreadmillLog.complete,:); 
+    ratebylap = ratebylap(delaysetting==T & complete,:); 
     ratebylap = ratebylap(:,~isnan(ratebylap(1,:)));
     
     B = 1000;                           %Number of iterations. 

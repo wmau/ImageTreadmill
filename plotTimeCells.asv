@@ -114,8 +114,7 @@ function plotTimeCells(animal,date,session,T)
 %% Alternation
     else
         while keepgoing
-            f = figure(50); 
-            f.Position = [540    90   560   700];
+            figure(50); 
                 subplot(3,2,1:2);
                     plot(x,y,x(treadmillruns & FT(TimeCells(thisNeuron),:)),y(treadmillruns & FT(TimeCells(thisNeuron),:)),'r.','MarkerSize',16);
                     axis off; title(['Neuron #',num2str(TimeCells(thisNeuron))]);
@@ -124,7 +123,7 @@ function plotTimeCells(animal,date,session,T)
                 
                 %Smooth the tuning curve.  
                 smoothfit = fit([1:nBins]',curves.tuning{TimeCells(thisNeuron),lr}','smoothingspline');
-                curves.smoothed{TimeCells(thisNeuron),lr} = feval(smoothfit,bins);
+                curves.smoothed{TimeCells(thisNeuron)} = feval(smoothfit,bins);
 
                 %Get confidence intervals interpolated.
                 shuffmean = mean(curves.shuffle{TimeCells(thisNeuron),lr});
@@ -136,11 +135,11 @@ function plotTimeCells(animal,date,session,T)
                 [SIGX,SIGY] = significance(t,curves.sig{TimeCells(thisNeuron),lr},...
                     curves.smoothed{TimeCells(thisNeuron),lr},bins);
                            
-                subplot(3,2,lr+2);
+                subplot(3,2,lr*2+1);
                     imagesc([0:T],[1:2:sum(delays(good)==T)],ratebylap(good,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps');
-                subplot(3,2,lr+4);
-                    plot(t,curves.smoothed{TimeCells(thisNeuron),lr},'-r','linewidth',2);
+                subplot(2,2,3:4);
+                    plot(t,curves.smoothed{TimeCells(thisNeuron)},'-r','linewidth',2);
                     hold on; 
                     plot(t,CImean,'-b','linewidth',2);
                     plot(t,CIu,'--b',t,CIl,'--b');
@@ -153,18 +152,17 @@ function plotTimeCells(animal,date,session,T)
                         ylim([0, yLims(2)]);
                         set(gca,'ticklength',[0 0]);
 
-                
-            end
-            figure(50);
-            [~,~,key] = ginput(1); 
+                figure(50);
+                    [~,~,key] = ginput(1); 
 
-            if key == 29 && thisNeuron < length(TimeCells)
-                thisNeuron = thisNeuron + 1; 
-            elseif key == 28 && thisNeuron ~= 1
-                thisNeuron = thisNeuron - 1; 
-            elseif key == 27
-                keepgoing = 0; 
-                close(figure(50)); 
+                    if key == 29 && thisNeuron < length(TimeCells)
+                        thisNeuron = thisNeuron + 1; 
+                    elseif key == 28 && thisNeuron ~= 1
+                        thisNeuron = thisNeuron - 1; 
+                    elseif key == 27
+                        keepgoing = 0; 
+                        close(figure(50)); 
+                    end
             end
         end
     end

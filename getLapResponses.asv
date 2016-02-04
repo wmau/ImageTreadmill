@@ -36,7 +36,8 @@ function [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(anim
     blocked = ~isempty(strfind(folder,'blocked')); 
     
     %Align FT. 
-    [x,y,~,FT,~,~,~,time_interp] = AlignImagingToTracking(0.15,FT);
+    [~,~,~,FT,~,~,~,time_interp] = AlignImagingToTracking(0.15,FT);
+    load(
     
     %Get treadmill run epochs. 
     inds = getTreadmillEpochs(TodayTreadmillLog,time_interp);

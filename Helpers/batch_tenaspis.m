@@ -12,8 +12,8 @@ function batch_tenaspis(MD)
     
     for i=1:nSessions
         cd(fullfile(MD(i).Location,'ICmovie_smoothed-Objects'));
-        infile = dir('*.h5');
-        infile = fullfile(pwd,infile.name);
+        infile = ls('*.h5');
+        infile = fullfile(pwd,infile);
         
         Tenaspis(infile,'animal_id',MD(i).Animal,'sess_date',MD(i).Date,'sess_num',MD(i).Session);
     end

@@ -87,7 +87,6 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     %be active for more than a quarter of the laps. 
     pLaps = 0.2;
     if alternation
-        pLapas = pLaps*2;
         critLaps = [round(pLaps*sum(TodayTreadmillLog.choice==1)),...
                     round(pLaps*sum(TodayTreadmillLog.choice==2))];
     else
@@ -102,22 +101,13 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     if alternation
         for thisNeuron=1:nNeurons
             for turn=1:2
-                good = TodayTreadmillLog.choice == turn;        %Indices for treadmill runs for left and right turns. 
-                [tuningcurve{thisNeuron,turn},shufflecurve{thisNeuron,turn},...
+                [tuniningcurve{thisNeuron,turn},shufflecurve{thisNeuron,turn},...
                     p{thisNeuron,turn},sigcurve{thisNeuron,turn},ci{thisNeuron,turn}]...
-                    = TimeTuning(ratebylap(good,:,thisNeuron),...
-                    TodayTreadmillLog.delaysetting(good),TodayTreadmillLog.complete(good),T);
-                
-                if sum(any(ratebylap(good,:,thisNeuron),2)) > critLaps(turn)
-                    goodlaps = [goodlaps; thisNeuron];
-                end
-            end
-        prog.progress;
-        end
+                    = TimeTuning(ratebylap(TodayTreadmillLog.choice==turn,:,thisNeuron),TodayTreadmillLog
     else
         for thisNeuron=1:nNeurons
             [tuningcurve{thisNeuron},shufflecurve{thisNeuron},p{thisNeuron},sigcurve{thisNeuron},ci{thisNeuron}] = ...
-                    TimeTuning(ratebylap(:,:,thisNeuron),TodayTreadmillLog.delaysetting,TodayTreadmillLog.complete,T);
+                    TimeTuning(ratebylap(:,:,thisNeuron),TodayTreadmillLog,T);
 
             if sum(any(ratebylap(:,:,thisNeuron),2)) > critLaps
                 goodlaps = [goodlaps; thisNeuron];
@@ -142,5 +132,5 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     
     %Get indices of neurons that pass the test. 
     TimeCells = intersect(find(cellfun(@any,sigcurve)),goodlaps); 
-    save('TimeCells.mat','TimeCells','ratebylap','curves','movies','T','TodayTreadmillLog','alternation'); 
+    save('TimeCells.mat','TimeCells','ratebylap','curves','movies','T','TodayTreadmillLog'); 
 end
