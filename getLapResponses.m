@@ -46,7 +46,7 @@ function [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(anim
     %section that the mouse is on. 
     if alternation
         Alt = postrials_treadmill(x,y,0); 
-        if blocked
+        if blocked %In blocked alternation, choice is always correct.
             Alt.alt = ones(1,length(Alt.frames)); 
         end
         sect = Alt.section; 
@@ -82,9 +82,9 @@ function [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(anim
             TodayTreadmillLog.complete(lapnum) = 0;
         end
         
-        if TodayTreadmillLog.complete(lapnum) 
-            choice = mode(Alt.choice(inds(lapnum,1):inds(lapnum,2))); 
-            TodayTreadmillLog.choice(lapnum) = choice; 
+        if TodayTreadmillLog.complete(lapnum) && alternation
+            %Left or right. 
+            TodayTreadmillLog.choice(lapnum) = mode(Alt.choice(inds(lapnum,1):inds(lapnum,2))); 
         end
     end
     

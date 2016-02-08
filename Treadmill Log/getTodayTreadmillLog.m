@@ -78,6 +78,9 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date,session)
 %% Get the log. 
     %Timestamps are recorded from when you hit start on the TreadmillTask
     %GUI(?).
+    TodayTreadmillLog.Animal = animal;
+    TodayTreadmillLog.Date = date;
+    TodayTreadmillLog.Session = session;
     firstTS = history.sessions(dateInd).treadmill(1,1);
     TodayTreadmillLog.startts = history.sessions(dateInd).treadmill(:,1)-firstTS;  %Normalize. 
     TodayTreadmillLog.stopts = history.sessions(dateInd).treadmill(:,2)-firstTS;
@@ -85,6 +88,7 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date,session)
     TodayTreadmillLog.delaysetting = history.sessions(dateInd).treadmill(:,4);
     TodayTreadmillLog.complete = history.sessions(dateInd).treadmill(:,5);
     TodayTreadmillLog.RecordStartTime = MD(MDInd).RecordStartTime;
+
     
     %Get the clock times associated with treadmill on/off epochs. 
     timeformat = 'HH:MM:SS';    

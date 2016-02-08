@@ -114,18 +114,13 @@ function Alt = postrials_treadmill(x,y,plot_each_trial)
         %When postrials can no longer successfully sort a trial, stop the
         %loop. 
         catch
-            numtrials = this_trial;             
-%             if length(trialtype) > numtrials    %Sometimes, the mouse leaves the maze on a left/right arm so trialtype gets an extra entry.
-%                 trialtype(this_trial) = [];     %In that case, remove it. 
-%             end
+            numtrials = this_trial - 1;             
+            if length(trialtype) > numtrials    %Sometimes, the mouse leaves the maze on a left/right arm so trialtype gets an extra entry.
+                trialtype(this_trial) = [];     %In that case, remove it. 
+            end
             break; 
         end
         
-    end
-    
-    %Display number of trials sorted. 
-    if ~exist('suppress_output','var') || suppress_output ~= 1
-        disp(['Successfully sorted ', num2str(numtrials), ' trials.']); 
     end
     
 %% Build up the struct. 

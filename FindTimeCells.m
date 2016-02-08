@@ -87,7 +87,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     %be active for more than a quarter of the laps. 
     pLaps = 0.2;
     if alternation
-        pLapas = pLaps*2;
+        pLaps = pLaps*2;
         critLaps = [round(pLaps*sum(TodayTreadmillLog.choice==1)),...
                     round(pLaps*sum(TodayTreadmillLog.choice==2))];
     else
