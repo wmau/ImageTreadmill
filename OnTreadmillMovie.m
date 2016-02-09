@@ -27,11 +27,14 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     outlines = cellfun(@bwboundaries,NeuronImage,'unif',0); 
     
     %Neuron centroids. 
-    centroids = getNeuronCentroids(animal,date,session); 
+    %centroids = getNeuronCentroids(animal,date,session); 
         
     %Align and get indices where mouse was on treadmill. 
-    [x,y,~,~,FToffset,~,~,time_interp] = AlignImagingToTracking(0.15,FT); 
-    treadmillInds = getTreadmillEpochs(TodayTreadmillLog,time_interp); 
+    Pix2CM = 0.15; 
+    sf = 0.6246; 
+    [x,y,~,~,FToffset,~,aviFrame,time_interp] = AlignImagingToTracking(Pix2CM,FT); 
+    x = x./Pix2CM*sf; y = y./Pix2CM*sf; 
+    treadmillInds = getTreadmillEpochs(TodayTreadmillLog,aviFrame); 
     nRuns = size(treadmillInds,1); 
   
 %% Initialize movie properties.     
@@ -53,7 +56,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     
     tInc = 0;
      
-    for thisEpoch=1:5
+    for thisEpoch=1:nRuns
         if TodayTreadmillLog.complete(thisEpoch)
             sFrame = treadmillInds(thisEpoch,1) + FToffset;
             eFrame = treadmillInds(thisEpoch,2) + FToffset; 
@@ -102,7 +105,10 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
                 frame = readFrame(trackingread); 
                 
                 %Display frame. 
-                imagesc(frame); 
+                imagesc(flipud(frame)); 
+                hold on;
+                t = findclosest(trackingread.currentTime,aviFrame); 
+                plot(x(t),y(t),'r.'); hold off; 
                 annotation(gcf,'textbox',[0.6, 0.8, 0.2, 0.07],'String',...
                 {['t = ',num2str(round(tInc,1)),' seconds']},'Color','red','EdgeColor','red');
                 annotation(gcf,'textbox',[0.2, 0.8, 0.1, 0.07],'String',...
@@ -135,4 +141,5 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     
     close(gcf); 
     close(imagingmovie); 
+    close(trackingwrite); 
 end

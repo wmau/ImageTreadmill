@@ -1,4 +1,4 @@
-function [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
+function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %[ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %
 %   Get the lap by lap responses for each neuron during treadmill run. 
@@ -36,10 +36,10 @@ function [ratebylap,x,y,time_interp,FT,TodayTreadmillLog] = getLapResponses(anim
     blocked = ~isempty(strfind(folder,'blocked')); 
     
     %Align FT. 
-    [x,y,~,FT,~,~,~,time_interp] = AlignImagingToTracking(0.15,FT);
+    [x,y,~,FT,~,~,aviFrame] = AlignImagingToTracking(0.15,FT);
     
     %Get treadmill run epochs. 
-    inds = getTreadmillEpochs(TodayTreadmillLog,time_interp);
+    inds = getTreadmillEpochs(TodayTreadmillLog,aviFrame);
     nFramesBetween = diff(inds,1,2);                        %Number of frames epochs span. 
     
     %Make sure the mouse is on the treadmill during these epochs. Find the
