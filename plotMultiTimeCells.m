@@ -161,17 +161,8 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
         set(rasterAX,'XLim',rasterXLims);
         set(curveAX,'XLim',curveXLims,'YLim',curveYLims);
         
-        %Scroll left or right. Or exit. 
-        figure(f);
-            [~,~,key] = ginput(1);
-            if key == 29 && i < length(uniqueRows)
-                i = i + 1; 
-            elseif key == 28 && i ~= 1
-                i = i - 1; 
-            elseif key == 27
-                keepgoing = 0; 
-                close(figure(f)); 
-            end
+        %Scroll through neurons. 
+        [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),figure(50));
 
     end
     

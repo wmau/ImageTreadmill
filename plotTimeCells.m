@@ -18,6 +18,7 @@ function plotTimeCells(animal,date,session,T)
 %%
     ChangeDirectory(animal,date,session);
         
+    %Load time cell data. 
     try
         load(fullfile(pwd,'TimeCells.mat')); 
     catch
@@ -31,10 +32,13 @@ function plotTimeCells(animal,date,session,T)
     FT = movies.FT; 
     delays = TodayTreadmillLog.delaysetting;
     complete = logical(TodayTreadmillLog.complete);
+    alternation = strcmp(TodayTreadmillLog.direction,'alternation');
 
+    %Basic setup. 
     [nNeurons,nFrames] = size(FT); 
     FT = logical(FT); 
     nBins = unique(sum(~isnan(ratebylap(delays==T & complete,:,1)),2));
+    pLaps = 0.2; 
     
     %Get indices for treadmill runs. 
     inds = getTreadmillEpochs(TodayTreadmillLog,time_interp);
@@ -77,14 +81,15 @@ function plotTimeCells(animal,date,session,T)
             [SIGX,SIGY] = significance(t,curves.sig{TimeCells(thisNeuron)},...
                 curves.smoothed{TimeCells(thisNeuron)},bins);
 
+            %Plot. 
             figure(50); 
-            subplot(2,2,1);
+            subplot(2,2,1);     %Dotplot. 
                 plot(x,y,x(treadmillruns & FT(TimeCells(thisNeuron),:)),y(treadmillruns & FT(TimeCells(thisNeuron),:)),'r.','MarkerSize',16);
                 axis off; title(['Neuron #',num2str(TimeCells(thisNeuron))]);
-            subplot(2,2,2);
+            subplot(2,2,2);     %Raster. 
                 imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
                     colormap gray; ylabel('Laps');
-            subplot(2,2,3:4);
+            subplot(2,2,3:4);   %Tuning curve.
                 plot(t,curves.smoothed{TimeCells(thisNeuron)},'-r','linewidth',2);
                 hold on; 
                 plot(t,CImean,'-b','linewidth',2);
@@ -98,17 +103,8 @@ function plotTimeCells(animal,date,session,T)
                     ylim([0, yLims(2)]);
                     set(gca,'ticklength',[0 0]);
 
-            figure(50);
-                [~,~,key] = ginput(1); 
-
-                if key == 29 && thisNeuron < length(TimeCells)
-                    thisNeuron = thisNeuron + 1; 
-                elseif key == 28 && thisNeuron ~= 1
-                    thisNeuron = thisNeuron - 1; 
-                elseif key == 27
-                    keepgoing = 0; 
-                    close(figure(50)); 
-                end
+            %Scroll through neurons. 
+            [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),figure(50));
 
         end
 %% Alternation
@@ -139,14 +135,20 @@ function plotTimeCells(animal,date,session,T)
                 subplot(3,2,lr+2);
                     imagesc([0:T],[1:2:sum(delays(good)==T)],ratebylap(good,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps');
-                subplot(3,2,lr+4);
+                curveAX(lr) = subplot(3,2,lr+4);
                     plot(t,curves.smoothed{TimeCells(thisNeuron),lr},'-r','linewidth',2);
                     hold on; 
                     plot(t,CImean,'-b','linewidth',2);
                     plot(t,CIu,'--b',t,CIl,'--b');
                     Ylim = get(gca,'ylim');
                     xlim([0,T]);
-                    plot(SIGX,SIGY+Ylim(2)*sf,'r*');
+                    
+                    %Only plot significance asterisks if there was a
+                    %response in one of the laps. 
+                    if any(curves.smoothed{TimeCells(thisNeuron),lr})
+                        plot(SIGX,SIGY+Ylim(2)*sf,'r*');
+                    end
+                    
                     hold off;
                         xlabel('Time [s]'); ylabel('Rate'); 
                         yLims = get(gca,'ylim');
@@ -155,17 +157,13 @@ function plotTimeCells(animal,date,session,T)
 
                 
             end
-            figure(50);
-            [~,~,key] = ginput(1); 
-
-            if key == 29 && thisNeuron < length(TimeCells)
-                thisNeuron = thisNeuron + 1; 
-            elseif key == 28 && thisNeuron ~= 1
-                thisNeuron = thisNeuron - 1; 
-            elseif key == 27
-                keepgoing = 0; 
-                close(figure(50)); 
-            end
+            
+            %Normalize tuning curve axes. 
+            curveYLims = [min([curveAX.YLim]), max([curveAX.YLim])];
+            set(curveAX,'YLim',curveYLims); 
+            
+            %Scroll through neurons. 
+            [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),figure(50));
         end
     end
 end
