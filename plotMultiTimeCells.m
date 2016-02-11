@@ -162,7 +162,7 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
         set(curveAX,'XLim',curveXLims,'YLim',curveYLims);
         
         %Scroll through neurons. 
-        [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),figure(50));
+        [keepgoing,i] = scroll(i,length(uniqueRows),f);
 
     end
     
