@@ -115,7 +115,8 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date,session)
     
     %Index of first clock duration that matches that of the timestamp
     %durations. 
-    [T,~] = find(ismember(clockDurations,firstRunDuration),1,'first');
+    [T,~] = find(ismember(clockDurations,firstRunDuration));
+    T = min(T); 
     
     %First clock time of treadmill-on.
     TodayTreadmillLog.firstTreadmillOn = treadmilltimes{T};

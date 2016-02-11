@@ -1,7 +1,21 @@
 function OnTreadmillMovie(animal,date,session,clim,movietype)
+%OnTreadmillMovie(animal,date,session,clim,movietype)
+%       
+%   Makes two synced AVIs. ImagingMovie_movietype is the calcium imaging
+%   movie during treadmill run epochs. Blue outlines mark active neurons,
+%   red outlines mark actiev time cells. TrackingMovie_movietype is the
+%   concurrent Cineplex movie. Red dot indicates mouse position. 
 %
+%   INPUTS
+%       animal, date, session: Example - 'GCamp6f_45_treadmill',
+%       '11_20_2015', 2. 
 %
+%       clim: Color axis limits need to be specified beacause birghtness
+%       levels differ between mice. [0 2000] for G45 D1 movies, [0 4000]
+%       for G48 D1 movies. 
 %
+%       movietype: string, either 'D1' or 'smoothed', indicating whether to
+%       use the first derivative movie or ICmovie_smoothed. 
 
 %% Preliminary stuff. 
     close all;
@@ -23,18 +37,17 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     %Imaging data. 
     load(fullfile(pwd,'ProcOut.mat'),'FT','NeuronImage','Xdim','Ydim'); 
     load(fullfile(pwd,'CC.mat'),'cc');
-    load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','TimeCells'); 
+    load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','TimeCells','movies'); 
     outlines = cellfun(@bwboundaries,NeuronImage,'unif',0); 
     
     %Neuron centroids. 
     %centroids = getNeuronCentroids(animal,date,session); 
         
     %Align and get indices where mouse was on treadmill. 
-    Pix2CM = 0.15; 
-    sf = 0.6246; 
-    [x,y,~,~,FToffset,~,aviFrame,time_interp] = AlignImagingToTracking(Pix2CM,FT); 
-    x = x./Pix2CM*sf; y = y./Pix2CM*sf; 
-    treadmillInds = getTreadmillEpochs(TodayTreadmillLog,aviFrame); 
+    Pix2CM = 0.15; sf = 0.6246;
+    [~,~,~,~,FToffset,~,~,~] = AlignImagingToTracking(Pix2CM,FT); 
+    x = movies.x./Pix2CM*sf; y = movies.y./Pix2CM*sf; 
+    treadmillInds = getTreadmillEpochs(TodayTreadmillLog,movies.t); 
     nRuns = size(treadmillInds,1); 
   
 %% Initialize movie properties.     
@@ -43,7 +56,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     trackingread = trackingread.name; 
        
     %Imaging movie.
-    imagingmovie = VideoWriter(['TreadmillMovie_',movietype],'MPEG-4');
+    imagingmovie = VideoWriter(['ImagingMovie_',movietype],'MPEG-4');
     imagingmovie.FrameRate = 20; 
     
     %Tracking movie.
@@ -55,7 +68,8 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     open(imagingmovie);
     
     tInc = 0;
-     
+    ifigure = figure('Position',[260 240 560 420]); 
+    tfigure = figure('Position',[840 240 560 420]);
     for thisEpoch=1:nRuns
         if TodayTreadmillLog.complete(thisEpoch)
             sFrame = treadmillInds(thisEpoch,1) + FToffset;
@@ -64,17 +78,24 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
             for i=sFrame:eFrame
 %% Imaging movie. 
                 %Get frame. 
-                frame = h5read(h5file,'/Object',[1 1 i 1],[Xdim Ydim 1 1]);
+                try 
+                    frame = h5read(h5file,'/Object',[1 1 i 1],[Xdim Ydim 1 1]);
+                catch
+                    disp([movietype],' movie not found! Try another type.']); 
+                end
 
                 %Active neurons.
                 active = find(FT(:,i));
 
                 %Display the imaging movie frame. 
+                set(0,'currentfigure',ifigure); 
                 imagesc(frame); caxis(clim); colormap gray;
                 annotation(gcf,'textbox',[0.6, 0.8, 0.2, 0.07],'String',...
-                {['t = ',num2str(round(tInc,1)),' seconds']},'Color','white','EdgeColor','white');
+                {['t = ',num2str(round(tInc,1)),' seconds']},...
+                'Color','white','EdgeColor','white','tag','iannotation');
                 annotation(gcf,'textbox',[0.2, 0.8, 0.1, 0.07],'String',...
-                {['Lap ',num2str(thisEpoch)]},'Color','white','EdgeColor','white');
+                {['Lap ',num2str(thisEpoch)]},'Color','white',...
+                'EdgeColor','white','tag','iannotation');
             
                 %If there are active neurons according to FT, plot its
                 %outline.
@@ -94,31 +115,33 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
                 %Write video to the brain imaging movie. 
                 F = getframe(gcf); 
                 writeVideo(imagingmovie,F); 
-                clf;
+                delete(findall(gcf,'Tag','iannotation')); 
 
 %% Tracking movie
-                %AVI file reads using time, not frames. Get the timestamp
-                %from TodayTreadmillLog.
-                trackingread.currentTime = TodayTreadmillLog.startts(thisEpoch) + tInc; 
+                %AVI file reads using time, not frames. 
+                trackingread.currentTime = movies.t(treadmillInds(thisEpoch,1)) + tInc; 
                 
                 %Get frame. 
                 frame = readFrame(trackingread); 
                 
                 %Display frame. 
+                set(0,'currentfigure',tfigure); 
                 imagesc(flipud(frame)); 
                 hold on;
-                t = findclosest(trackingread.currentTime,aviFrame); 
+                t = findclosest(trackingread.currentTime,movies.t); 
                 plot(x(t),y(t),'r.'); hold off; 
                 annotation(gcf,'textbox',[0.6, 0.8, 0.2, 0.07],'String',...
-                {['t = ',num2str(round(tInc,1)),' seconds']},'Color','red','EdgeColor','red');
+                {['t = ',num2str(round(tInc,1)),' seconds']},'Color','red',...
+                'EdgeColor','red','tag','tannotation');
                 annotation(gcf,'textbox',[0.2, 0.8, 0.1, 0.07],'String',...
-                {['Lap ',num2str(thisEpoch)]},'Color','red','EdgeColor','red');
+                {['Lap ',num2str(thisEpoch)]},'Color','red',...
+                'EdgeColor','red','tag','tannotation');
                 axis off; 
                 
                 %Write video to the tracking movie. 
                 F = getframe(gcf);
-                writeVideo(trackingwrite,F); 
-                clf;
+                writeVideo(trackingwrite,F);  
+                delete(findall(gcf,'Tag','tannotation')); 
                 
                 %At the end of a lap, write a few blank frames. 
                 if i==eFrame

@@ -36,7 +36,7 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,
     blocked = ~isempty(strfind(folder,'blocked')); 
     
     %Align FT. 
-    [x,y,~,FT,~,~,aviFrame] = AlignImagingToTracking(0.15,FT);
+    [x,y,~,FT,~,~,aviFrame,time_interp] = AlignImagingToTracking(0.15,FT);
     
     %Get treadmill run epochs. 
     inds = getTreadmillEpochs(TodayTreadmillLog,aviFrame);
@@ -57,7 +57,7 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,
     
 %% Bin time responses. 
     %Initialize.  
-    [nNeurons,~] = size(FT); 
+    nNeurons = size(FT,1); 
     tResolution = 0.25;                                     %seconds
     nBins = TodayTreadmillLog.delaysetting/tResolution;     %Vector specifying number of bins per lap
     nRuns = TodayTreadmillLog.numRuns;

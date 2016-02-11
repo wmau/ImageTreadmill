@@ -28,7 +28,7 @@ function plotTimeCells(animal,date,session,T)
     %Extract the elements in structs. 
     x = movies.x;
     y = movies.y; 
-    time_interp = movies.t;
+    aviFrame = movies.t;
     FT = movies.FT; 
     delays = TodayTreadmillLog.delaysetting;
     complete = logical(TodayTreadmillLog.complete);
@@ -41,7 +41,7 @@ function plotTimeCells(animal,date,session,T)
     pLaps = 0.2; 
     
     %Get indices for treadmill runs. 
-    inds = getTreadmillEpochs(TodayTreadmillLog,time_interp);
+    inds = getTreadmillEpochs(TodayTreadmillLog,aviFrame);
     temp = [];
     for thisLap=1:size(inds,1)
         if complete(thisLap) && delays(thisLap) == T
