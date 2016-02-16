@@ -16,6 +16,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
 %
 %       movietype: string, either 'D1' or 'smoothed', indicating whether to
 %       use the first derivative movie or ICmovie_smoothed. 
+%
 
 %% Preliminary stuff. 
     close all;

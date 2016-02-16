@@ -79,8 +79,7 @@ function multiPastalkovaPlot(batch_session_map,base,comp,Ts)
             %For each neuron...
             for thisNeuron=1:length(neurons)
                 n = neurons(thisNeuron);    %FT index. 
-                
-                
+                      
                 if n                        %If the neuron was found
                     %Get tuning curve. 
                     tilemat(thisNeuron,:) = CURVES{i}.tuning{n};

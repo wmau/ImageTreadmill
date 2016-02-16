@@ -44,6 +44,7 @@ function [sametuning,TIMECELLS,CURVES] = TimeCellRemapRate(batch_session_map,bas
     %Eliminate first column to match indices.
     MAP = batch_session_map.map(:,2:end);  
     
+    %Find columns that correspond to the dates in base and comp. 
     MAPcols = zeros(nSessions,1); 
     for i=1:nSessions
         try
@@ -51,8 +52,7 @@ function [sametuning,TIMECELLS,CURVES] = TimeCellRemapRate(batch_session_map,bas
         catch
             error(['Error in above. Possible reason: MD input has not been registered yet '...
                 'for ',dates{i},' session ',num2str(sessions(i)), '. Run neuron_reg_batch...']);
-        end
-       
+        end       
     end
    
     %Rows on MAP corresponding to where time cells are found in the base
@@ -126,11 +126,11 @@ function [sametuning,TIMECELLS,CURVES] = TimeCellRemapRate(batch_session_map,bas
                 if isempty(b) || ~ismember(neurons(thisSession),TIMECELLS{thisSession})
                     sametuning(ind,thisSession) = -1; 
                 %If sigcurve of the two sessions are within binWindow
-                %bins, 0.               
+                %bins, 1.               
                 elseif any(sameTimeField)
                     sametuning(ind,thisSession) = 1; 
                 %If comparison sigcurve is still a time cell, but encodes a
-                %different time, 1.
+                %different time, 0.
                 elseif any(differentTimeField)
                     sametuning(ind,thisSession) = 0;                                 
                 end
