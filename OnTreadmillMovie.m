@@ -81,7 +81,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
                 try 
                     frame = h5read(h5file,'/Object',[1 1 i 1],[Xdim Ydim 1 1]);
                 catch
-                    disp([movietype],' movie not found! Try another type.']); 
+                    disp([movietype,' movie not found! Try another type.']); 
                 end
 
                 %Active neurons.
@@ -145,6 +145,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
                 
                 %At the end of a lap, write a few blank frames. 
                 if i==eFrame
+                    clf; 
                     F = getframe(gcf); 
                     
                     for j=1:30
