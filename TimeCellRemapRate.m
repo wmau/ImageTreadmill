@@ -38,8 +38,8 @@ function [sametuning,TIMECELLS,CURVES] = TimeCellRemapRate(batch_session_map,bas
     [TIMECELLS,~,CURVES,~,~] = CompileTimeCellData(MD,Ts);
     
 %% Find the indices in MAP corresponding to sessions of interest.
-    regDates = {batch_session_map.session.date};
-    regSessions = [batch_session_map.session.session]; 
+    regDates = {batch_session_map.session.Date};
+    regSessions = [batch_session_map.session.Session]; 
     
     %Eliminate first column to match indices.
     MAP = batch_session_map.map(:,2:end);  
@@ -80,6 +80,7 @@ function [sametuning,TIMECELLS,CURVES] = TimeCellRemapRate(batch_session_map,bas
     %For each time cell in the base session...
     for thisRow=MAProws'     
         neurons = MAP(thisRow,MAPcols);             %Vector indexing MAP. 
+        neurons(isnan(neurons)) = 0;                %Get rid of NaNs. 
         baseSig = CURVES{1}.sig{neurons(1)};        %Significance curve for base session.
         
         %Find humps in the significance curve (essentially translates to
