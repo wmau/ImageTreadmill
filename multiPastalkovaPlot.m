@@ -1,4 +1,4 @@
-function multiPastalkovaPlot(batch_session_map,base,comp,Ts)
+function multiPastalkovaPlot(mapMD,base,comp,Ts)
 %multiPastalkovaPlot(batch_session_map,base,comp,Ts)
 %
 %   Makes a figure with Pastalkova plots for multiple days ranking each
@@ -18,6 +18,8 @@ function multiPastalkovaPlot(batch_session_map,base,comp,Ts)
 %
 
 %% Preliminary steps. 
+    cd(mapMD.Location); load(fullfile(pwd,'batch_session_map.mat')); 
+    
     sessions = [base,comp];             %Concatenate sessions. 
     dates = {sessions.Date};            %Dates
     sessionNums = [sessions.Session];   %Session numbers.
@@ -28,7 +30,9 @@ function multiPastalkovaPlot(batch_session_map,base,comp,Ts)
     nTimeCells = length(TIMECELLS{1});
     
     %Find chronological order of dates. 
-    [~,dateOrder] = sort(datenum({sessions.Date},'mm_dd_yyyy'));
+    d = datenum({sessions.Date},'mm_dd_yyyy');
+    sorted = sort(d);
+    [~,dateOrder] = ismember(d,sorted); 
     
     %For plot titles. 
     dateTitles = dates;
@@ -67,7 +71,7 @@ function multiPastalkovaPlot(batch_session_map,base,comp,Ts)
         nBins(i) = length(CURVES{i}.tuning{1}); 
     end
      
-    figure('Position',[170 260 1280 460]); 
+    f = figure('Position',[170 260 1280 460]); 
     for i=1:nSessions
         if i==1         %For the base session...
             %Get the index that references FT from MAP. 
@@ -101,6 +105,8 @@ function multiPastalkovaPlot(batch_session_map,base,comp,Ts)
             imagesc([0:Ts(i)],[1:5:nTimeCells],normtilemat); 
             colormap gray; xlabel('Time [s]'); title(dateTitles{i});            
         else %Almost the same as above. 
+            tilemat = zeros(length(neurons),length(CURVES{i}.tuning{1}));
+            
             %Get the index that references FT from MAP, but in the order
             %specified by above. 
             neurons = MAP(MAProws(order),MAPcols(i)); 
@@ -130,5 +136,6 @@ function multiPastalkovaPlot(batch_session_map,base,comp,Ts)
         if dateOrder(i)==1, ylabel('Neurons'); end
     end
         
-    
+    set(f,'PaperPositionMode','auto');         
+    set(f,'PaperOrientation','landscape');
 end
