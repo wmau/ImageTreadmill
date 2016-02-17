@@ -76,22 +76,13 @@ function multiPastalkovaPlot(mapMD,base,comp,Ts)
         if i==1         %For the base session...
             %Get the index that references FT from MAP. 
             neurons = MAP(MAProws,MAPcols(i)); 
+            missing = neurons==0;
             
             %Matrix with responses that tile delay. 
             tilemat = zeros(length(neurons),length(CURVES{i}.tuning{1}));
-            
-            %For each neuron...
-            for thisNeuron=1:length(neurons)
-                n = neurons(thisNeuron);    %FT index. 
-                      
-                if n                        %If the neuron was found
-                    %Get tuning curve. 
-                    tilemat(thisNeuron,:) = CURVES{i}.tuning{n};
-                else
-                    %Else, zeros. 
-                    tilemat(thisNeuron,:) = zeros(size(CURVES{i}.tuning{1})); 
-                end
-            end    
+                  
+            %Fill in matrix. 
+            tilemat(~missing,:) = cell2mat(CURVES{i}.tuning(neurons(~missing)));  
             
             %Find peaks and where they are. Then normalize to peaks and
             %sort based on peaks. 
@@ -105,22 +96,16 @@ function multiPastalkovaPlot(mapMD,base,comp,Ts)
             imagesc([0:Ts(i)],[1:5:nTimeCells],normtilemat); 
             colormap gray; xlabel('Time [s]'); title(dateTitles{i});            
         else %Almost the same as above. 
+            %Preallocate. 
             tilemat = zeros(length(neurons),length(CURVES{i}.tuning{1}));
             
             %Get the index that references FT from MAP, but in the order
             %specified by above. 
             neurons = MAP(MAProws(order),MAPcols(i)); 
+            missing = neurons==0;
             
-            %Matrix with responses that tile delay. 
-            for thisNeuron=1:length(neurons)
-                n = neurons(thisNeuron); 
-                
-                if n
-                    tilemat(thisNeuron,:) = CURVES{i}.tuning{n};
-                else
-                    tilemat(thisNeuron,:) = zeros(size(CURVES{i}.tuning{1})); 
-                end
-            end    
+            %Fill in matrix. 
+            tilemat(~missing,:) = cell2mat(CURVES{i}.tuning(neurons(~missing)));         
             
             %Normalize. 
             peaks = max(tilemat,[],2); 
