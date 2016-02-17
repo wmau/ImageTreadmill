@@ -41,24 +41,8 @@ function multiPastalkovaPlot(mapMD,base,comp,Ts)
     end
 
 %% Find relevant indices in batch_session_map. 
-    %Eliminate the first column to match indices and get rid of NaNs. 
-    MAP = batch_session_map.map(:,2:end); MAP(isnan(MAP)) = 0; 
-    
-    %Concatenate dates and session numbers in the registered sessions. 
-    MAPdates = {batch_session_map.session.Date}; 
-    MAPsessionnums = [batch_session_map.session.Session];
-    
-    %Find columns that correspond to the dates in base and comp. 
-    MAPcols = zeros(nSessions,1); 
-    for i=1:nSessions
-        try
-            MAPcols(i) = find(ismember(MAPdates,dates{i}) ...
-                & ismember(MAPsessionnums,sessionNums(i)));
-        catch
-            error(['Error in above. Possible reason: MD input has not been registered yet. '...
-                'Run neuron_reg_batch...']);
-        end
-    end
+    %Find the columns in MAP 
+    [MAP,MAPcols] = FilterMAPDates(batch_session_map,dates,sessionNums);
     
     %Find row indices from the batch_session_map that correspond to time
     %cells in base. 

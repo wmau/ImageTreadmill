@@ -71,8 +71,9 @@ function [TIMECELLS,RATEBYLAP,CURVES,DELAYS,COMPLETE] = CompileTimeCellData(MD,T
             %that you already ran. 
             if T~=Ts(i)
                 disp(['Delay duration specified in T(',num2str(i),') is different '...
-                    'from the one saved for ',dates{i},'. Rerunning FindTimeCells '...
-                    'using new T...']);
+                    'from the one saved for ',dates{i},'!']);
+                
+                return; 
             end
             
             %Archive. 
