@@ -1,5 +1,5 @@
-function [newTCs,MAP,TIMECELLS,CURVES] = whichTimeCellsAreNew(tday,yday,MAPlocation,Ts)
-%newTCs = whichTimeCellsAreNew(tday,yday,MAPlocation,Ts)
+function [remapped,MAP,MAPcols,TIMECELLS,CURVES] = whichTimeCellsAreNew(tday,yday,MAPlocation,Ts)
+%[newTCs,MAP,MAPcols,TIMECELLS,CURVES] = whichTimeCellsAreNew(tday,yday,MAPlocation,Ts)
 %   
 %   Take two recording sessions reasonably close in time (say one day and
 %   the day before). Across these two sessions there will be neurons that
@@ -25,6 +25,9 @@ function [newTCs,MAP,TIMECELLS,CURVES] = whichTimeCellsAreNew(tday,yday,MAPlocat
 %
 %       MAP: Matrix containing neuron mappings. 
 %
+%       MAPcols: Column indices for MAP corresponding to the sessions
+%       indicated in the inputs. 
+%
 %       TIMECELLS: Two cells containing time cells referencing the
 %       respective FTs of that session. First cell array is the yday
 %       TimeCells. 
@@ -48,13 +51,16 @@ function [newTCs,MAP,TIMECELLS,CURVES] = whichTimeCellsAreNew(tday,yday,MAPlocat
     
     %Neurons that remap. 
     remap = find(sametuning(:,2)==0);                               %Indices, referencing TimeCells{1}. 
-    newTCs = find(ismember(MAP(:,MAPcols(1)),TIMECELLS{1}(remap))); %Indices, referencing MAP. 
+    newTuning = find(ismember(MAP(:,MAPcols(1)),TIMECELLS{1}(remap))); %Indices, referencing MAP. 
     
     %Find time cells from tday and yday. 
     ydayTC = find(ismember(MAP(:,MAPcols(1)),TIMECELLS{1}));        %Indices, referencing MAP.
     tdayTC = find(ismember(MAP(:,MAPcols(2)),TIMECELLS{2}));        %Indices, referencing MAP.
     
     %Both new time cells and time cells that have remapped. 
-    newTCs = sort([newTCs; tdayTC(~ismember(tdayTC,ydayTC))]); 
+    newTCs = tdayTC(~ismember(tdayTC,ydayTC)); 
+    
+    remapped.new = newTCs; 
+    remapped.tuning = newTuning;
     
 end
