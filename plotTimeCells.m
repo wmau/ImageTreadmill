@@ -62,7 +62,9 @@ function plotTimeCells(animal,date,session,T)
     %Simplify the matrix and get rid of nans if any. 
     ratebylap = ratebylap(delays==T & complete,:,:);               %Laps that match delay duration. 
     ratebylap = ratebylap(:,~isnan(ratebylap(1,:,1)),:);
-    turn = TodayTreadmillLog.choice(delays==T & complete); 
+    if alternation
+        turn = TodayTreadmillLog.choice(delays==T & complete); 
+    end
 
 %% For non-alternation.    
     if ~alternation
