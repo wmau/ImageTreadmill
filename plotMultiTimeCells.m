@@ -1,11 +1,11 @@
-function plotMultiTimeCells(batch_session_map,MD,Ts)
-%plotMultiTimeCells(batch_session_map,MD,Ts)
+function plotMultiTimeCells(mapMD,MD,Ts)
+%plotMultiTimeCells(MAPlocation,MD,Ts)
 %
 %   Plots time cells across multiple sessions. Use left and right arrow
 %   keys to scroll, esc to exit. 
 %
 %   INPUTS
-%       batch_session_map: Struct from neuron_batch_reg().
+%       MAPlocation: Directory containing struct from neuron_batch_reg().
 %
 %       MD: MasterDirectory entries. 
 %
@@ -15,6 +15,7 @@ function plotMultiTimeCells(batch_session_map,MD,Ts)
 
 %% Organization. 
     initDir = pwd; 
+    load(fullfile(mapMD.Location),'batch_session_map.mat'); 
 
     %Partition the session data.
     nSessions = length(MD);
