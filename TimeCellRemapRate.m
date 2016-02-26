@@ -1,4 +1,4 @@
-function [sametuning,TIMECELLS,CURVES] = TimeCellRemapRate(MAPlocation,base,comp,Ts)
+function [sametuning,TIMECELLS,CURVES,MAP,MAPcols] = TimeCellRemapRate(mapMD,base,comp,Ts)
 %[sametuning,TIMECELLS,CURVES] =
 %TimeCellRemapRate(batch_session_map,base,comp,Ts)
 %
@@ -39,7 +39,7 @@ function [sametuning,TIMECELLS,CURVES] = TimeCellRemapRate(MAPlocation,base,comp
     nTimeCells = length(TIMECELLS{1}); 
     
     %Get neuron mapping. 
-    load(fullfile(MAPlocation.Location,'batch_session_map.mat')); 
+    load(fullfile(mapMD.Location,'batch_session_map.mat')); 
     
 %% Find the indices in MAP corresponding to sessions of interest.
     regDates = {batch_session_map.session.Date};

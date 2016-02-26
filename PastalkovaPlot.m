@@ -1,4 +1,4 @@
-function [sortedPastalKova,order] = PastalkovaPlot(animal,date,session,T,plotit)
+function [sortedPastalkova,order] = PastalkovaPlot(animal,date,session,T,plotit)
 %sortedPastalKova = PastalkovaPlot(animal,date,session,T)
 %
 %   Makes a plot that shows response curves that tile the delay. 
@@ -20,12 +20,12 @@ function [sortedPastalKova,order] = PastalkovaPlot(animal,date,session,T,plotit)
     [peaks,peakInds] = max(tilemat,[],2);
     normtilemat = tilemat./repmat(peaks,1,nBins);
     [~,order] = sort(peakInds);
-    sortedPastalKova = normtilemat(order,:);
+    sortedPastalkova = normtilemat(order,:);
     
     %Plot. 
     if plotit
     figure;
-    imagesc([0:T],[1:5:length(TimeCells)],sortedPastalKova);
+    imagesc([0:T],[1:5:length(TimeCells)],sortedPastalkova);
         colormap gray;
         xlabel('Time [s]'); ylabel('Neurons'); 
     end

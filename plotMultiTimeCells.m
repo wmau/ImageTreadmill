@@ -15,7 +15,7 @@ function plotMultiTimeCells(mapMD,MD,Ts)
 
 %% Organization. 
     initDir = pwd; 
-    load(fullfile(mapMD.Location),'batch_session_map.mat'); 
+    load(fullfile(mapMD.Location,'batch_session_map.mat')); 
 
     %Partition the session data.
     nSessions = length(MD);

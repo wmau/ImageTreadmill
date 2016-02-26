@@ -1,4 +1,4 @@
-function plotTimeCells(animal,date,session,T)
+function plotTimeCells(animal,date,session,T,dotplot)
 %plotTimecells(animal,date,session,T)
 %   
 %   Plots single neuron responses in time during treadmill run. First
@@ -84,13 +84,20 @@ function plotTimeCells(animal,date,session,T)
                 curves.smoothed{TimeCells(thisNeuron)},bins);
 
             %Plot. 
-            figure(50); 
-            subplot(2,2,1);     %Dotplot. 
-                plot(x,y,x(treadmillruns & FT(TimeCells(thisNeuron),:)),y(treadmillruns & FT(TimeCells(thisNeuron),:)),'r.','MarkerSize',16);
-                axis off; title(['Neuron #',num2str(TimeCells(thisNeuron))]);
-            subplot(2,2,2);     %Raster. 
-                imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
-                    colormap gray; ylabel('Laps');
+            f = figure(50); 
+            if dotplot
+                subplot(2,2,1);     %Dotplot. 
+                    plot(x,y,x(treadmillruns & FT(TimeCells(thisNeuron),:)),y(treadmillruns & FT(TimeCells(thisNeuron),:)),'r.','MarkerSize',16);
+                    axis off; title(['Neuron #',num2str(TimeCells(thisNeuron))]);
+                subplot(2,2,2);     %Raster. 
+                    imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
+                        colormap gray; ylabel('Laps'); colorbar('northoutside'); 
+            else
+                f.Position = [550 180 510 565];
+                subplot(2,2,1:2);   %Raster. 
+                    imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
+                        colormap gray; ylabel('Laps'); c = colorbar; c.Position(1) = 0.92;
+            end
             subplot(2,2,3:4);   %Tuning curve.
                 plot(t,curves.smoothed{TimeCells(thisNeuron)},'-r','linewidth',2);
                 hold on; 
@@ -106,7 +113,7 @@ function plotTimeCells(animal,date,session,T)
                     set(gca,'ticklength',[0 0]);
 
             %Scroll through neurons. 
-            [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),figure(50));
+            [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),f);
 
         end
 %% Alternation
