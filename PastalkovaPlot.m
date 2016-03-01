@@ -19,6 +19,8 @@ function [sortedPastalkova,order] = PastalkovaPlot(animal,date,session,T,plotit)
     %Find the peak and normalize.
     [peaks,peakInds] = max(tilemat,[],2);
     normtilemat = tilemat./repmat(peaks,1,nBins);
+    
+    %Sort. 
     [~,order] = sort(peakInds);
     sortedPastalkova = normtilemat(order,:);
     

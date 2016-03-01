@@ -36,6 +36,7 @@ function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,delayse
 %
 
 %% Initialize
+    %Select complete laps only. 
     ratebylap = ratebylap(delaysetting==T & complete,:); 
     ratebylap = ratebylap(:,~isnan(ratebylap(1,:)));
     

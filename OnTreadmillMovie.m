@@ -71,7 +71,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     tInc = 0;
     ifigure = figure('Position',[260 240 560 420]); 
     tfigure = figure('Position',[840 240 560 420]);
-    for thisEpoch=1:nRuns
+    for thisEpoch=1:5
         if TodayTreadmillLog.complete(thisEpoch)
             sFrame = treadmillInds(thisEpoch,1) + FToffset;
             eFrame = treadmillInds(thisEpoch,2) + FToffset; 
