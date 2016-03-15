@@ -24,19 +24,25 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     %h5 file. 
     ChangeDirectory(animal,date,session);
     
+    HalfWindow = 0; 
+    
     movietype = lower(movietype); 
     switch movietype
         case 'd1'
             h5file = fullfile(pwd,'D1Movie.h5');
+            HalfWindow = 10; 
         case 'smoothed'
             cd('ICmovie_smoothed-Objects'); 
             h5file = fullfile(pwd,'Obj_1 - ICmovie_smoothed.h5'); 
             cd ..
+        case 'dff'
+            h5file = fullfile(pwd,'DFF.h5'); 
     end
 
 %% Load data and process. 
     %Imaging data. 
     load(fullfile(pwd,'ProcOut.mat'),'FT','NeuronImage','Xdim','Ydim'); 
+    load(fullfile(pwd,'T2output.mat'),'FT','NeuronImage'); 
     load(fullfile(pwd,'CC.mat'),'cc');
     load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','TimeCells','movies'); 
     outlines = cellfun(@bwboundaries,NeuronImage,'unif',0); 
@@ -71,7 +77,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     tInc = 0;
     ifigure = figure('Position',[260 240 560 420]); 
     tfigure = figure('Position',[840 240 560 420]);
-    for thisEpoch=1:5
+    for thisEpoch=1:nRuns
         if TodayTreadmillLog.complete(thisEpoch)
             sFrame = treadmillInds(thisEpoch,1) + FToffset;
             eFrame = treadmillInds(thisEpoch,2) + FToffset; 
@@ -80,7 +86,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
 %% Imaging movie. 
                 %Get frame. 
                 try 
-                    frame = h5read(h5file,'/Object',[1 1 i 1],[Xdim Ydim 1 1]);
+                    frame = h5read(h5file,'/Object',[1 1 i+HalfWindow 1],[Xdim Ydim 1 1]);
                 catch
                     disp([movietype,' movie not found! Try another type.']); 
                 end

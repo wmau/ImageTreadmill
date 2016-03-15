@@ -112,7 +112,7 @@ function plotTimeCells(animal,date,session,T,dotplot)
                     ylim([0, yLims(2)]);
                     set(gca,'ticklength',[0 0]);
 
-            %Scroll through neurons. 
+            %Scroll through neurons.
             [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),f);
 
         end
