@@ -1,4 +1,4 @@
-function OnTreadmillMovie(animal,date,session,clim,movietype)
+function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
 %OnTreadmillMovie(animal,date,session,clim,movietype)
 %       
 %   Makes two synced AVIs. ImagingMovie_movietype is the calcium imaging
@@ -25,12 +25,21 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
     ChangeDirectory(animal,date,session);
     
     HalfWindow = 0; 
+    neuraldata = 'ProcOut.mat';
+    if ~isempty(varargin)
+        if any(strcmp('HalfWindow',varargin))   %HalfWindow (should be 10 for comparing D1 movies to T2 trace). 
+            HalfWindow = find(strcmp('HalfWindow'),varargin))+1; 
+        end
+        
+        if any(strcmp('alt_input',varargin))    %For T2 outputs. 
+            neuraldata = find(strcmp('alt_input',varargin))+1; 
+        end
+    end
     
     movietype = lower(movietype); 
     switch movietype
         case 'd1'
             h5file = fullfile(pwd,'D1Movie.h5');
-            HalfWindow = 10; 
         case 'smoothed'
             cd('ICmovie_smoothed-Objects'); 
             h5file = fullfile(pwd,'Obj_1 - ICmovie_smoothed.h5'); 
@@ -41,9 +50,8 @@ function OnTreadmillMovie(animal,date,session,clim,movietype)
 
 %% Load data and process. 
     %Imaging data. 
-    load(fullfile(pwd,'ProcOut.mat'),'FT','NeuronImage','Xdim','Ydim'); 
-    load(fullfile(pwd,'T2output.mat'),'FT','NeuronImage'); 
-    load(fullfile(pwd,'CC.mat'),'cc');
+    load(fullfile(pwd,neuraldata),'FT','NeuronImage'); 
+    %load(fullfile(pwd,'CC.mat'),'cc');
     load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','TimeCells','movies'); 
     outlines = cellfun(@bwboundaries,NeuronImage,'unif',0); 
     

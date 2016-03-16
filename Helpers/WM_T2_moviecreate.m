@@ -58,7 +58,7 @@ for i=1:nFiles
     LP.folder = [LP.name,'-Objects'];
     LP.mat = [LP.name,'.mat'];
     
-%% Minimum projection. 
+%% Step 2: Minimum projection. 
     if ~amp(i)  %Do min project
         ICmovie_min_proj = mosaic.projectMovie(MotCorrMovie,'projectionType','Minimum'); 
         mosaic.saveImageTiff(ICmovie_min_proj,'ICmovie_min_proj.tif');
@@ -92,21 +92,21 @@ for i=1:nFiles
     threePixSmooth.foldermat = fullfile(pwd,ls('*.mat')); 
     cd(MotCorrFiles(i).sessionFolder); 
     
-%% DF/F
+%% Step 3: DF/F
     if ~adff(i)
         disp('Creating DFF movie');
         %Do DF/F.
         DFF.movie = mosaic.normalizeMovie(threePixSmooth.movie,...
             'method', '(f-f0)/f0','f0Image',ICmovie_min_proj);
         %Save.
-        mosaic.saveOneObject(DFF.movie,'DFFmovie'); 
+        mosaic.saveOneObject(DFF.movie,'DFF'); 
     else
         disp('DFF movie already ran.'); 
     end
     
     clear DFF threePixSmoothMovie;
     
-%% 20-pixel radius disc filter. 
+%% Step 4: 20-pixel radius disc filter. 
     if ~as20(i)
         disp(['Performing ' num2str(LPfilter_pixel_radius) ' pixel disc smoothing of motion corrected movie for LPmovie']);
         %Perform filter.
@@ -118,17 +118,19 @@ for i=1:nFiles
         disp([num2str(LPfilter_pixel_radius), ' pixel smooth already done.']); 
     end
     
+    clear LPMovie MotCorrMovie
+    
     %Folder contents. 
     cd(LP.folder); 
     LP.h5 = fullfile(pwd,ls('*.h5'));
     LP.foldermat = fullfile(pwd,ls('*.mat')); 
     cd(MotCorrFiles(i).sessionFolder); 
     
-%% TS_Lowpass_Divide
+%% Step 5: TS_Lowpass_Divide
     disp('Creating TS Lowpass Divide movie')
     TS_Lowpass_Divide(threePixSmooth.h5,LP.h5);
     
-    % Cleanup everything
+%% Step 6: Cleanup
     disp(['Deleting smoothed movie 1: ',threePixSmooth.h5]);
     delete(threePixSmooth.h5);
     delete(threePixSmooth.foldermat);
@@ -139,4 +141,5 @@ for i=1:nFiles
     delete(LP.foldermat);
     delete(LP.mat); 
     
+    mosaic.terminate; 
 end

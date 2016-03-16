@@ -1,4 +1,4 @@
-function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T)
+function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T,varargin)
 %[TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(animal,date,session,T)
 %
 %   Finds time cells using a few criteria. First, the neuron must be active
@@ -18,6 +18,10 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
 %       session: Session number. 
 %
 %       T: Delay duration of interest. 
+%
+%       varargin: 'alt_input',str:Tenaspis output file. If you want to use
+%       another neural
+%       
 %
 %   OUTPUT
 %       TimeCells: Index referencing FT of neurons that pass the tests. 
@@ -58,8 +62,14 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     TodayTreadmillLog = getTodayTreadmillLog(animal,date,session);
     TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,TodayTreadmillLog.RecordStartTime);
     
+    %Name of neural data file. Changed post-Tenaspis 2. 
+    neuraldata = 'ProcOut.mat';         %Default: Tenaspis 1. 
+    if ~isempty(varargin)
+        neuraldata = find(strcmp('alt_input',varargin))+1; 
+    end
+    
     %Get calcium imaging data. 
-    load('T2output.mat','FT');
+    load(neuraldata,'FT');
     
     %Get rate by lap matrix. 
     disp('Getting time responses for each neuron...');

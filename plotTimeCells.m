@@ -1,4 +1,4 @@
-function plotTimeCells(animal,date,session,T,dotplot)
+function plotTimeCells(animal,date,session,T,varargin)
 %plotTimecells(animal,date,session,T)
 %   
 %   Plots single neuron responses in time during treadmill run. First
@@ -17,6 +17,25 @@ function plotTimeCells(animal,date,session,T,dotplot)
 
 %%
     ChangeDirectory(animal,date,session);
+    
+    dotplot=false;
+    pf=false; 
+    if ~isempty(varargin)
+        if any(strcmp('dotplot',varargin))
+            dotplot = find(strcmp('dotplot',varargin))+1; 
+        end
+        
+        if any(strcmp('placefield',varargin))
+            pf = find(strcmp('placefield',varargin))+1; 
+            
+            load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','OccMap'); 
+            
+            for i=1:length(TMap_gauss)
+                TMap_gauss{i}(OccMap==0) = nan; 
+            end
+        end
+    end
+    
         
     %Load time cell data. 
     try
@@ -91,13 +110,22 @@ function plotTimeCells(animal,date,session,T,dotplot)
                     axis off; title(['Neuron #',num2str(TimeCells(thisNeuron))]);
                 subplot(2,2,2);     %Raster. 
                     imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
-                        colormap gray; ylabel('Laps'); colorbar('northoutside'); 
+                        colormap gray; ylabel('Laps'); 
+            elseif pf
+                subplot(2,2,1);
+                    h = imagesc(TMap_gauss{TimeCells(thisNeuron)});
+                    set(h,'alphadata',~isnan(TMap_gauss{TimeCells(thisNeuron)}));
+                        axis off; colormap hot; freezeColors;
+                subplot(2,2,2);     %Raster. 
+                    imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
+                        colormap gray; ylabel('Laps'); 
             else
                 f.Position = [550 180 510 565];
                 subplot(2,2,1:2);   %Raster. 
                     imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps'); c = colorbar; c.Position(1) = 0.92;
             end
+            
             subplot(2,2,3:4);   %Tuning curve.
                 plot(t,curves.smoothed{TimeCells(thisNeuron)},'-r','linewidth',2);
                 hold on; 
