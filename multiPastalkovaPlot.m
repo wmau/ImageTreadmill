@@ -26,7 +26,10 @@ function multiPastalkovaPlot(mapMD,base,comp,Ts)
     nSessions = length(sessions);       %Number of sessions. 
     
     %Get time cell indices and tuning curves. 
-    [TIMECELLS,~,CURVES] = CompileTimeCellData(sessions,Ts); 
+    DATA = CompileMultiSessionData(sessions,{'timecells','curves'}); 
+    TIMECELLS = DATA.timecells; 
+    CURVES = DATA.curves; 
+    
     nTimeCells = length(TIMECELLS{1});
     
     %Find chronological order of dates. 

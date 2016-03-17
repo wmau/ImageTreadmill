@@ -18,25 +18,31 @@ function plotTimeCells(animal,date,session,T,varargin)
 %%
     ChangeDirectory(animal,date,session);
     
+    %Catch varargins, check to see whether dotplots or placefields should
+    %be plotted. 
     dotplot=false;
     pf=false; 
     if ~isempty(varargin)
-        if any(strcmp('dotplot',varargin))
+        if any(strcmp('dotplot',varargin))      %Dotplot.
             dotplot = find(strcmp('dotplot',varargin))+1; 
         end
         
-        if any(strcmp('placefield',varargin))
+        if any(strcmp('placefield',varargin))   %Placefield. 
             pf = find(strcmp('placefield',varargin))+1; 
-            
-            load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','OccMap'); 
-            
-            for i=1:length(TMap_gauss)
-                TMap_gauss{i}(OccMap==0) = nan; 
-            end
+
         end
     end
     
-        
+    if pf            
+        %Load place maps. 
+        load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','OccMap'); 
+
+        %Replace unoccupied bins with NaNs. 
+        for i=1:length(TMap_gauss)
+            TMap_gauss{i}(OccMap==0) = nan; 
+        end
+    end
+    
     %Load time cell data. 
     try
         load(fullfile(pwd,'TimeCells.mat')); 
@@ -112,7 +118,7 @@ function plotTimeCells(animal,date,session,T,varargin)
                     imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps'); 
             elseif pf
-                subplot(2,2,1);
+                subplot(2,2,1);     %Place map. 
                     h = imagesc(TMap_gauss{TimeCells(thisNeuron)});
                     set(h,'alphadata',~isnan(TMap_gauss{TimeCells(thisNeuron)}));
                         axis off; colormap hot; freezeColors;

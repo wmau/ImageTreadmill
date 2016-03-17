@@ -35,7 +35,10 @@ function [sametuning,TIMECELLS,CURVES,MAP,MAPcols] = TimeCellRemapRate(mapMD,bas
     sessions = [MD.Session];        %Session numbers. 
       
     %Get all the time cell data from each session. 
-    [TIMECELLS,~,CURVES,~,~] = CompileTimeCellData(MD,Ts);
+    DATA = CompileMultiSessionData(MD,{'timecells','curves'});
+    TIMECELLS = DATA.timecells; 
+    CURVES = DATA.curves; 
+    
     nTimeCells = length(TIMECELLS{1}); 
     
     %Get neuron mapping. 

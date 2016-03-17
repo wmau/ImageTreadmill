@@ -1,4 +1,4 @@
-function plotMultiTimeCells(mapMD,MD,Ts)
+function plotMultiTimeCells(mapMD,MD,Ts,varargin)
 %plotMultiTimeCells(MAPlocation,MD,Ts)
 %
 %   Plots time cells across multiple sessions. Use left and right arrow
@@ -16,7 +16,17 @@ function plotMultiTimeCells(mapMD,MD,Ts)
 %% Organization. 
     initDir = pwd; 
     load(fullfile(mapMD.Location,'batch_session_map.mat')); 
-
+    
+    pf=false; 
+    if ~isempty(varargin)
+        if any(strcmp('placefield',varargin))
+            pf = find(strcmp('placefield',varargin))+1; 
+        end
+    end
+    
+    if pf, nCols=3;  
+    else nCols=2; end
+    
     %Partition the session data.
     nSessions = length(MD);
     dates = {MD.Date}; 
@@ -29,7 +39,21 @@ function plotMultiTimeCells(mapMD,MD,Ts)
     end
   
 %% Gather all time cell data. 
-    [TIMECELLS,RATEBYLAP,CURVES,DELAYS,COMPLETE] = CompileTimeCellData(MD,Ts);
+    args = {'timecells',...
+            'ratebylap',...
+            'curves',...
+            'delays',...
+            'complete',...
+            'placefields'};
+        
+    DATA = CompileMultiSessionData(MD,args);
+    
+    TIMECELLS = DATA.timecells; 
+    RATEBYLAP = DATA.ratebylap; 
+    CURVES = DATA.curves; 
+    DELAYS = DATA.delays; 
+    COMPLETE = DATA.complete; 
+    PFS = DATA.placefields; 
     
 %% Find the indices in batch_session_map that correspond to the specified sessions. 
     regDates = {batch_session_map.session.Date};
@@ -92,8 +116,22 @@ function plotMultiTimeCells(mapMD,MD,Ts)
         for thisSession=1:nSessions
             n = neurons(thisSession);
             
-            %Raster. 
-            rasterAX(thisSession) = subplot(nSessions,2,thisSession*2-1);
+            %PLACE FIELD. 
+            if ~isnan(n) && n~=0 && pf
+                f.Position = [430 80 620 720];
+                	subplot(nSessions,nCols,thisSession*nCols-2);
+                    h = imagesc(PFS{thisSession}{n}); 
+                    set(h,'alphadata',~isnan(PFS{thisSession}{n}));
+                    axis off; colormap hot; freezeColors; 
+                    title(['Neuron #',num2str(n)]);
+            elseif (isnan(n) || n==0) && pf
+                f.Position = [430 80 620 720];
+                subplot(nSessions,nCols,thisSession*nCols-2);
+                    imagesc(0); axis off; 
+            end
+            
+            %RASTER. 
+            rasterAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols-1);
             if ~isnan(n) && n~=0
                 runningAtT = DELAYS{thisSession}==Ts(thisSession);      %Logical. Is the mouse running for Ts this lap?
                 goodLaps = runningAtT & COMPLETE{thisSession};          %Logical. Is the mouse running for Ts for the whole time this lap?
@@ -110,8 +148,8 @@ function plotMultiTimeCells(mapMD,MD,Ts)
                 imagesc(0); axis off; 
             end
             
-            %Tuning curve. 
-            curveAX(thisSession) = subplot(nSessions,2,thisSession*2);
+            %TUNING CURVE. 
+            curveAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols);
             if ~isnan(n) && n~=0
                 %Smooth tuning curve.                
                 smoothfit = fit([1:nBins(thisSession)]',CURVES{thisSession}.tuning{n}','smoothingspline');
