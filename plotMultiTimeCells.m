@@ -43,8 +43,8 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
             'ratebylap',...
             'curves',...
             'delays',...
-            'complete',...
-            'placefields'};
+            'complete'};
+    if pf, args{end+1} = 'placefields'; end
         
     DATA = CompileMultiSessionData(MD,args);
     
@@ -53,7 +53,7 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
     CURVES = DATA.curves; 
     DELAYS = DATA.delays; 
     COMPLETE = DATA.complete; 
-    PFS = DATA.placefields; 
+    if pf, PFS = DATA.placefields; end
     
 %% Find the indices in batch_session_map that correspond to the specified sessions. 
     regDates = {batch_session_map.session.Date};
