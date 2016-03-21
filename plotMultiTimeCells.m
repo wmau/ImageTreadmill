@@ -44,7 +44,11 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
             'curves',...
             'delays',...
             'complete'};
-    if pf, args{end+1} = 'placefields'; end
+    if pf
+        args{end+1} = 'placefields'; 
+        args{end+1} = 'occmaps'; 
+        args{end+1} = 'placefieldpvals';
+    end
         
     DATA = CompileMultiSessionData(MD,args);
     
@@ -53,7 +57,11 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
     CURVES = DATA.curves; 
     DELAYS = DATA.delays; 
     COMPLETE = DATA.complete; 
-    if pf, PFS = DATA.placefields; end
+    if pf
+        PFS = DATA.placefields; 
+        OCCMAPS = DATA.occmaps; 
+        PVALS = DATA.placefieldpvals; 
+    end
     
 %% Find the indices in batch_session_map that correspond to the specified sessions. 
     regDates = {batch_session_map.session.Date};
@@ -110,6 +118,8 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
         %Get the row index. 
         thisRow = uniqueRows(i);       
         neurons = MAP(thisRow,MAPinds);     %Neurons in this row. 
+        cmax = zeros(1,nSessions); 
+        pfExist = logical(zeros(1,nSessions)); 
 
         %For each session, plot its ratebylap. If subplot has a title,
         %neuron was mapped, but inactive on stem. 
@@ -118,16 +128,38 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
             
             %PLACE FIELD. 
             if ~isnan(n) && n~=0 && pf
-                f.Position = [430 80 620 720];
-                	subplot(nSessions,nCols,thisSession*nCols-2);
+                f.Position = [-1300 -40 520 180*nSessions];
+                	pfAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols-2);
                     h = imagesc(PFS{thisSession}{n}); 
                     set(h,'alphadata',~isnan(PFS{thisSession}{n}));
                     axis off; colormap hot; freezeColors; 
-                    title(['Neuron #',num2str(n)]);
-            elseif (isnan(n) || n==0) && pf
-                f.Position = [430 80 620 720];
-                subplot(nSessions,nCols,thisSession*nCols-2);
-                    imagesc(0); axis off; 
+                    
+                    %Peak place field. 
+                    cmax(thisSession) = max(PFS{thisSession}{n}(:));            
+                    
+                    %P-value of the place field. 
+                    title(['p=',num2str(PVALS{thisSession}(n))]);
+                    
+                    pfExist(thisSession) = true; 
+            end
+            
+            %Occupancy map. 
+            if ~isnan(n) && n~=0 && pf && logical(all(isnan(PFS{thisSession}{n}(:))))
+                f.Position = [-1300 -40 520 180*nSessions];
+                    pfAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols-2);
+                    h = imagesc(OCCMAPS{thisSession}); 
+                    set(h,'alphadata',~isnan(OCCMAPS{thisSession}));
+                    axis off; colormap gray; freezeColors;
+                    
+                pfExist(thisSession) = false; 
+            end
+            
+            if (isnan(n) || n==0) && pf     %Blank.
+                f.Position = [-1300 -40 520 180*nSessions];
+                    pfAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols-2);
+                    imagesc(0); axis off; colormap gray; freezeColors;
+                
+                pfExist(thisSession) = false; 
             end
             
             %RASTER. 
@@ -143,9 +175,11 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
 
                 %Plot raster. 
                 imagesc(0:Ts(thisSession),1:5:sum(goodLaps),plotme);
-                colormap gray; ylabel('Laps'); title(['Neuron #',num2str(n)]);
+                colormap gray; freezeColors;
+                ylabel('Laps'); title(['Neuron #',num2str(n)]); 
             else
-                imagesc(0); axis off; 
+                imagesc(0); 
+                colormap gray; axis off; freezeColors
             end
             
             %TUNING CURVE. 
@@ -183,13 +217,13 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
                 yLims = get(gca,'ylim');
                 ylim([0,yLims(2)]); xlim([0,t{thisSession}(end)]);
                 set(gca,'ticklength',[0 0]);
-                hold off; 
+                hold off; freezeColors
             else
                 %Flat line. 
                 plot(t{thisSession},zeros(length(t{thisSession}),1),'-r','linewidth',2);
                 title(dateTitles{thisSession});
                 yLims = get(gca,'ylim'); xlim([0,t{thisSession}(end)]);
-                ylim([0,yLims(2)]);
+                ylim([0,yLims(2)]); freezeColors
             end
         end
         
@@ -197,6 +231,23 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
         rasterXLims = [min([rasterAX.XLim]), max([rasterAX.XLim])];
         curveXLims = [min([curveAX.XLim]), max([curveAX.XLim])];
         curveYLims = [min([curveAX.YLim]), max([curveAX.YLim])];
+        
+        if pf 
+            for j=1:nSessions
+                if pfExist(j)
+                    subplot(nSessions,nCols,j*nCols-2);
+                    unfreezeColors; colormap hot; 
+                end
+            end
+            clims = [pfAX.CLim];
+            pfLims = [0, max(clims(clims~=1))];
+            set(pfAX(pfExist),'CLim',pfLims); 
+            for j=1:nSessions
+                subplot(nSessions,nCols,j*nCols-2);
+                freezeColors;
+            end
+        end
+        
         set(rasterAX,'XLim',rasterXLims);
         set(curveAX,'XLim',curveXLims,'YLim',curveYLims);
         

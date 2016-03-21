@@ -1,5 +1,5 @@
 function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T,varargin)
-%[TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(animal,date,session,T)
+%[TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T)
 %
 %   Finds time cells using a few criteria. First, the neuron must be active
 %   for at least some proportion of the laps. This proportion is hard-coded
@@ -54,7 +54,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
 %       FT: Aligned FT.
 %
 
-%% Find time cells. 
+%% Basic set up.
     dirstr = ChangeDirectory(animal,date,session);
     [~,folder] = fileparts(dirstr); 
     
@@ -64,8 +64,20 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     
     %Name of neural data file. Changed post-Tenaspis 2. 
     neuraldata = 'ProcOut.mat';         %Default: Tenaspis 1. 
+    savename = 'TimeCells.mat';         %Default.
+    halfwindow = 10;                    %Default: Tenaspis 1. 
     if ~isempty(varargin)
-        neuraldata = find(strcmp('alt_input',varargin))+1; 
+        if any(strcmp('alt_input',varargin))
+            neuraldata = fullfile(pwd,varargin{find(strcmp('alt_input',varargin))+1}); 
+            
+            if strcmp(neuraldata,'T2output.mat')
+                halfwindow = 0;
+            end
+        end
+        
+        if any(strcmp('savename',varargin))
+            savename = varargin{find(strcmp('savename',varargin))+1}; 
+        end
     end
     
     %Get calcium imaging data. 
@@ -73,7 +85,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     
     %Get rate by lap matrix. 
     disp('Getting time responses for each neuron...');
-    [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,date,session,FT,TodayTreadmillLog);  
+    [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,date,session,FT,TodayTreadmillLog,halfwindow);  
     
     alternation = strcmp(TodayTreadmillLog.direction,'alternation');
     blocked = ~isempty(strfind(folder,'blocked')); 
@@ -95,7 +107,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     
     %Include a consistency filter. Currently using arbitrary cutoff of must
     %be active for more than a quarter of the laps. 
-    pLaps = 0.2;
+    pLaps = 0.25;
     if alternation
         pLaps = pLaps*2;
         critLaps = [round(pLaps*sum(TodayTreadmillLog.choice==1)),...
@@ -109,6 +121,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     disp('Performing permutation test on all neurons...');
     prog = ProgressBar(nNeurons);
     
+    %Alternation. 
     if alternation
         for thisNeuron=1:nNeurons
             for turn=1:2
@@ -152,5 +165,5 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     
     %Get indices of neurons that pass the test. 
     TimeCells = intersect(find(cellfun(@any,sigcurve)),goodlaps); 
-    save('TimeCells.mat','TimeCells','ratebylap','curves','movies','T','TodayTreadmillLog','alternation'); 
+    save(savename,'TimeCells','ratebylap','curves','movies','T','TodayTreadmillLog','alternation'); 
 end

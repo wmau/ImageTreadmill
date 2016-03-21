@@ -24,11 +24,11 @@ function plotTimeCells(animal,date,session,T,varargin)
     pf=false; 
     if ~isempty(varargin)
         if any(strcmp('dotplot',varargin))      %Dotplot.
-            dotplot = find(strcmp('dotplot',varargin))+1; 
+            dotplot = varargin{find(strcmp('dotplot',varargin))+1}; 
         end
         
         if any(strcmp('placefield',varargin))   %Placefield. 
-            pf = find(strcmp('placefield',varargin))+1; 
+            pf = varargin{find(strcmp('placefield',varargin))+1}; 
 
         end
     end

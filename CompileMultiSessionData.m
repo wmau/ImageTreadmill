@@ -37,7 +37,9 @@ function DATA = CompileMultiSessionData(MD,args)
                     'curves',...
                     'delays',...
                     'complete',...
-                    'placefields'};
+                    'placefields',...
+                    'occmaps',...
+                    'placefieldpvals'};
 
     %Check that the arguments match template. 
     for i=1:nArgs
@@ -85,6 +87,20 @@ function DATA = CompileMultiSessionData(MD,args)
                 TMap_gauss{j}(OccMap==0) = nan;
             end
             DATA.placefields{i} = TMap_gauss;  
+        end
+        
+        %OCCUPANCY MAP.
+        if any(strcmp('occmaps',args))
+            load(fullfile(pwd,'PlaceMaps.mat'),'OccMap');
+            OccMap(OccMap==0) = NaN;
+            OccMap(OccMap>0) = 0;     
+            DATA.occmaps{i} = OccMap;
+        end
+        
+        %PLACE FIELD P-VALUE.
+        if any(strcmp('placefieldpvals',args))
+            load(fullfile(pwd,'PlaceMaps.mat'),'pval');
+            DATA.placefieldpvals{i} = 1-pval;
         end
     end
     
