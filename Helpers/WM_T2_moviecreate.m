@@ -72,7 +72,7 @@ for i=1:nFiles
     if ~as3(i) 
         disp(['Performing ' num2str(filter_pixel_radius) ' pixel disc smoothing of motion corrected movie']);
         %Perform filter.
-        threePixSmooth.movie = mosaic.filterMovie(inputMovie,'filterType', filter_type,...
+        threePixSmooth.movie = mosaic.filterMovie(MotCorrMovie,'filterType', filter_type,...
             'filterSize',filter_pixel_radius*2); 
         %Save. 
         mosaic.saveOneObject(threePixSmooth.movie,threePixSmooth.name);    

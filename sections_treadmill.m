@@ -1,4 +1,4 @@
-function bounds = sections_treadmill(x,y,direction)
+function bounds = sections_treadmill(x,y,direction,plotit)
 %bounds = sections_treadmill(x,y,direction)
 %
 %   Imposes boundaries on the maze that correspond to arbitrary regions.
@@ -90,20 +90,24 @@ function bounds = sections_treadmill(x,y,direction)
     end
     
     %Plot trajectory. 
+    if plotit
     plot(x,y); 
     hold on;
-    
+
         %Plot common sections. 
         plot(   [center.x center.x(1)],         [center.y center.y(1)],         'k-',...
                 [choice.x choice.x(1)],         [choice.y choice.y(1)],         'k-',...               
                 [base.x,base.x(1)],             [base.y,base.y(1)],             'k-');
+    end
      
     %Plot sections specific to left/right.        
     switch direction
     case 'left'
+        if plotit
         plot(   [left.x,left.x(1)],             [left.y,left.y(1)],             'k-',...
                 [approach_l.x,approach_l.x(1)], [approach_l.y approach_l.y(1)], 'k-',...
                 [return_l.x,return_l.x(1)],     [return_l.y,return_l.y(1)],     'k-');
+        end
 
         %Build struct.
         bounds.approach_l = approach_l;
@@ -115,13 +119,14 @@ function bounds = sections_treadmill(x,y,direction)
         bounds.right.x = zeros(1,4);            bounds.right.y = zeros(1,4);
         bounds.return_r.x = zeros(1,4);         bounds.return_r.y = zeros(1,4);
     case 'alternation'
+        if plotit
         plot(   [approach_l.x,approach_l.x(1)], [approach_l.y approach_l.y(1)], 'k-',...
                 [left.x,left.x(1)],             [left.y,left.y(1)],             'k-',...
                 [return_l.x,return_l.x(1)],     [return_l.y,return_l.y(1)],     'k-',...
                 [approach_r.x,approach_r.x(1)], [approach_r.y approach_r.y(1)], 'k-',...
                 [right.x,right.x(1)],           [right.y,right.y(1)],           'k-',...
                 [return_r.x,return_r.x(1)],     [return_r.y,return_r.y(1)],     'k-');
-            
+        end    
         %Build struct. 
         bounds.approach_l = approach_l;
         bounds.left = left; 

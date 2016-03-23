@@ -15,6 +15,8 @@ function DATA = CompileMultiSessionData(MD,args)
 %           delays - delay durations.
 %           complete - whether the run was complete or not 
 %           placefields - place fields. 
+%           occmaps - occupancy maps. 
+%           placefieldpvals - place field entropy p-values. 
 %
 %   OUTPUT
 %       DATA: structure array containing fields for each arg. Each field is

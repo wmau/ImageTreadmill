@@ -20,7 +20,7 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
     pf=false; 
     if ~isempty(varargin)
         if any(strcmp('placefield',varargin))
-            pf = find(strcmp('placefield',varargin))+1; 
+            pf = logical(varargin{find(strcmp('placefield',varargin))+1}); 
         end
     end
     
@@ -77,8 +77,8 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
         try
             MAPinds(i) = find(ismember(regDates,dates{i}) & ismember(regSessions,sessions(i)));
         catch
-            error(['Error in above. Possible reason: MD input has not been registered yet. '...
-                'Run neuron_reg_batch...']);
+            error(['Error in above. Possible reason: MD input ', num2str(i),...
+                ' has not been registered yet. Run neuron_reg_batch...']);
         end
         
         %Get row indices of MAP containing time cells in at least one
