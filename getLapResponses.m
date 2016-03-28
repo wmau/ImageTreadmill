@@ -36,7 +36,13 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,
     blocked = ~isempty(strfind(folder,'blocked')); 
     
     %Align FT. 
-    [x,y,~,FT,~,~,aviFrame,time_interp] = AlignImagingToTracking(0.15,FT,halfwindow);
+    try
+        load(fullfile(pwd,'Pos_align.mat'),'FT','x_adj_cm','y_adj_cm','aviFrame');
+        x = x_adj_cm; y = y_adj_cm; 
+        clear x_adj_cm y_adj_cm;
+    catch
+        [x,y,~,FT,~,~,aviFrame,time_interp] = AlignImagingToTracking(0.15,FT,halfwindow);
+    end
     
     %Get treadmill run epochs. 
     inds = getTreadmillEpochs(TodayTreadmillLog,aviFrame);
@@ -51,7 +57,7 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,
         end
         sect = Alt.section; 
     else
-        bounds = sections_treadmill(x,y,TodayTreadmillLog.direction);
+        bounds = sections_treadmill(x,y,TodayTreadmillLog.direction,0);
         sect = getsection_treadmill(x,y,bounds);
     end
     
