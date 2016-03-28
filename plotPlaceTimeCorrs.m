@@ -1,10 +1,27 @@
-function [pCorr,tCorr] = plotPlaceTimeCorrs(MAPMD,MD1,MD2,Ts)
+function [pCorr,tCorr] = plotPlaceTimeCorrs(mapMD,MD1,MD2,Ts)
+%[pCorr,tCorr] = plotPlaceTimeCorrs(MAPMD,MD1,MD2,Ts)
 %
+%   Plot the place fields, rasters, and tuning curves of time cells in MD1.
 %
+%   INPUTS
+%       mapMD: MD entry of where batch_session_map lives. 
+%
+%       MD1: Base MD entry. The function will look at time cells here. 
+%
+%       MD2: Comparison MD entry. Correlations will be done to this
+%       session.
+%   
+%       Ts: Delay durations for each session. 
+%
+%   OUTPUTS
+%       pCorr: Nx2 matrix of correlation results. First column is rho,
+%       second column is p-value. 
+%
+%       tCorr: Same as pCorr, but for temporal tuning curve. 
 %
 
-%%
-    [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2); 
+%% Compute correlation.
+    [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(mapMD,MD1,MD2); 
     RATEBYLAP = DATA.ratebylap; 
     CURVES = DATA.curves;
     DELAYS = DATA.delays; 
@@ -13,13 +30,17 @@ function [pCorr,tCorr] = plotPlaceTimeCorrs(MAPMD,MD1,MD2,Ts)
     PVALS = DATA.placefieldpvals;
     OCCMAPS = DATA.occmaps;
     
+%% Set up.
     MD = [MD1 MD2];
     dates = {MD.Date};
+    
+    %Strings for titling. 
     dateTitles = dates; 
     for s=1:2
         dateTitles{s}(3:3:6) = '-';
     end
     
+    %Plot stuff. 
     keepgoing = 1;
     sf = 0.1; 
     pLaps = 0.25;
@@ -35,6 +56,7 @@ function [pCorr,tCorr] = plotPlaceTimeCorrs(MAPMD,MD1,MD2,Ts)
     pfExist = logical(zeros(2,1)); 
     critLaps = nan(2,1);
     
+    %Setup. 
     for s=1:2
         nBins(s) = max(sum(~isnan(RATEBYLAP{s}(DELAYS{s}==Ts(s),:,1)),2));
         tCI{s} = linspace(0,Ts(s),length(CURVES{s}.ci{1}(1,:)));        
@@ -48,12 +70,12 @@ function [pCorr,tCorr] = plotPlaceTimeCorrs(MAPMD,MD1,MD2,Ts)
     %Main plotting. 
     f = figure('Position',[-1300, -40, 520, 360]); 
     while keepgoing                   
-        r = rows(i);
-        neurons = MAP(r,MAPcols);
-        cmax = zeros(1,2); 
+        r = rows(i);                %Rows of MAP corresponding to the neurons. 
+        neurons = MAP(r,MAPcols);   %Neuron numbers. 
+        cmax = zeros(1,2);          
         
         for s=1:2
-            n = neurons(s); 
+            n = neurons(s);         %This session's neuron. 
             
             %PLACE FIELDS. 
             if logical(all(isnan(PFS{s}{n}(:))))
@@ -128,13 +150,12 @@ function [pCorr,tCorr] = plotPlaceTimeCorrs(MAPMD,MD1,MD2,Ts)
                 title(dateTitles{s});
             end
             
+            %Labels.
             xlabel('Time [s]'); ylabel('Rate');
             yLims = get(gca,'ylim');
             ylim([0,yLims(2)]); xlim([0,t{s}(end)]);
             set(gca,'ticklength',[0 0]);
-            hold off; freezeColors;
-            
-           
+            hold off; freezeColors;    
         end
         
         %Normalize the axes. 

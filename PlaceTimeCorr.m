@@ -1,6 +1,31 @@
 function [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2)
+%[pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2)
 %
+%   Computes the correlation of the place fields of time cells as well as
+%   the correlation of the temporal tuning curve (all unsmoothed). 
 %
+%   INPUTS
+%       mapMD: MD entry of where batch_session_map lives. 
+%
+%       MD1: Base MD entry. The function will look at time cells here. 
+%
+%       MD2: Comparison MD entry. Correlations will be done to this
+%       session.
+%
+%   OUTPUTS
+%       pCorr: Nx2 matrix of correlation results. First column is rho,
+%       second column is p-value. 
+%
+%       tCorr: Same as pCorr, but for temporal tuning curve. 
+%
+%       MAP: batch_session_map.
+%
+%       MAPcols: Columns corresponding to the dates specified. 
+%
+%       DATA: Data compiled over multiple sessions. See
+%       CompileMultiSessionData. 
+%
+%       noi: Neurons of interest, indexes MD1.  
 %
 
 %% Compile data across multiple sessions. 
