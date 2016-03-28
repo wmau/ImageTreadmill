@@ -27,12 +27,13 @@ function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
     HalfWindow = 0; 
     neuraldata = 'ProcOut.mat';
     if ~isempty(varargin)
-        if any(strcmp('HalfWindow',varargin))   %HalfWindow (should be 10 for comparing D1 movies to T2 trace). 
-            HalfWindow = find(strcmp('HalfWindow'),varargin))+1; 
+        if any(strcmp('halfwindow',varargin))   %HalfWindow (should be 10 for comparing D1 movies to T2 trace). 
+            HalfWindow = varargin{find(strcmp('halfwindow',varargin))+1}; 
         end
         
         if any(strcmp('alt_input',varargin))    %For T2 outputs. 
-            neuraldata = find(strcmp('alt_input',varargin))+1; 
+            neuraldata = varargin{find(strcmp('alt_input',varargin))+1}; 
+            load('ProcOut.mat','Xdim','Ydim'); 
         end
     end
     
@@ -46,11 +47,13 @@ function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
             cd ..
         case 'dff'
             h5file = fullfile(pwd,'DFF.h5'); 
+        case 'slpdf'
+            h5file = fullfile(pwd,'SLPDF.h5'); 
     end
 
 %% Load data and process. 
     %Imaging data. 
-    load(fullfile(pwd,neuraldata),'FT','NeuronImage'); 
+    load(fullfile(pwd,neuraldata),'FT','NeuronImage','Xdim','Ydim'); 
     %load(fullfile(pwd,'CC.mat'),'cc');
     load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','TimeCells','movies'); 
     outlines = cellfun(@bwboundaries,NeuronImage,'unif',0); 
@@ -60,8 +63,9 @@ function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
         
     %Align and get indices where mouse was on treadmill. 
     Pix2CM = 0.15; sf = 0.6246;
-    [~,~,~,~,FToffset,~,~,~] = AlignImagingToTracking(Pix2CM,FT); 
-    x = movies.x./Pix2CM*sf; y = movies.y./Pix2CM*sf; 
+    [x,y,~,~,FToffset,~,~,~] = AlignImagingToTracking(Pix2CM,FT,HalfWindow); 
+    x = x./Pix2CM*sf; 
+    y = y./Pix2CM*sf; 
     treadmillInds = getTreadmillEpochs(TodayTreadmillLog,movies.t); 
     nRuns = size(treadmillInds,1); 
   
@@ -93,11 +97,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
             for i=sFrame:eFrame
 %% Imaging movie. 
                 %Get frame. 
-                try 
-                    frame = h5read(h5file,'/Object',[1 1 i+HalfWindow 1],[Xdim Ydim 1 1]);
-                catch
-                    disp([movietype,' movie not found! Try another type.']); 
-                end
+                frame = h5read(h5file,'/Object',[1 1 i+HalfWindow 1],[Xdim Ydim 1 1]);
 
                 %Active neurons.
                 active = find(FT(:,i));

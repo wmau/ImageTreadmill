@@ -1,4 +1,4 @@
-function plotPlaceTimeCorrs(MAPMD,MD1,MD2,Ts)
+function [pCorr,tCorr] = plotPlaceTimeCorrs(MAPMD,MD1,MD2,Ts)
 %
 %
 %

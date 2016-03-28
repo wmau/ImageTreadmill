@@ -9,12 +9,12 @@ function [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2)
     sessionNums = [sessions.Session];
     
     DATA = CompileMultiSessionData(sessions,...
-        {'timecells','curves','placefields','placefieldsnonan',...
+        {'timecells','curves','placefields','placefieldsunsmoothed',...
         'placefieldpvals','ratebylap','delays','complete','occmaps'}); 
    
     %Neurons of interest, aka time cells with place fields. 
     noi = DATA.timecells{1}; 
-    nNeurons = length(DATA.placefieldsnonan{1}); 
+    nNeurons = length(DATA.placefieldsunsmoothed{1}); 
     
     %Load neuron mapping.
     load(fullfile(MAPMD.Location,'batch_session_map.mat'));
@@ -32,8 +32,8 @@ function [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2)
             n2 = MAP(MAP(:,MAPcols(1))==n1,MAPcols(2));
             
             %Place fields.
-            pf1 = DATA.placefieldsnonan{1}{n1}(:);
-            pf2 = DATA.placefieldsnonan{2}{n2}(:);          
+            pf1 = DATA.placefieldsunsmoothed{1}{n1}(:);
+            pf2 = DATA.placefieldsunsmoothed{2}{n2}(:);          
             [pCorr(n1,1),pCorr(n1,2)] = corr(pf1,pf2);
             
             %Time fields.
