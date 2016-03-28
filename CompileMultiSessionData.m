@@ -40,6 +40,8 @@ function DATA = CompileMultiSessionData(MD,args)
                     'delays',...
                     'complete',...
                     'placefields',...
+                    'placefieldsnonan',...
+                    'placefieldsunsmoothed',...
                     'occmaps',...
                     'placefieldpvals'};
 
@@ -89,6 +91,21 @@ function DATA = CompileMultiSessionData(MD,args)
                 TMap_gauss{j}(OccMap==0) = nan;
             end
             DATA.placefields{i} = TMap_gauss;  
+        end
+        
+        %PLACE FIELDS version 2, no NaNs. 
+        if any(strcmp('placefieldsnonan',args))
+            load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','OccMap'); 
+            for j=1:length(TMap_gauss)
+                TMap_gauss{j}(OccMap==0) = 0;
+            end
+            DATA.placefieldsnonan{i} = TMap_gauss;  
+        end
+        
+        %PLACE FIELDS version 3, unsmoothed. 
+        if any(strcmp('placefieldsunsmoothed',args))
+            load(fullfile(pwd,'PlaceMaps.mat'),'TMap_unsmoothed'); 
+            DATA.placefieldsunsmoothed{i} = TMap_unsmoothed;  
         end
         
         %OCCUPANCY MAP.
