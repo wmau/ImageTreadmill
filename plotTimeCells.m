@@ -35,12 +35,14 @@ function plotTimeCells(animal,date,session,T,varargin)
     
     if pf            
         %Load place maps. 
-        load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','OccMap'); 
+        load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','OccMap','pval'); 
 
         %Replace unoccupied bins with NaNs. 
         for i=1:length(TMap_gauss)
             TMap_gauss{i}(OccMap==0) = nan; 
         end
+        
+        pval = 1-pval; 
     end
     
     %Load time cell data. 
@@ -121,15 +123,18 @@ function plotTimeCells(animal,date,session,T,varargin)
                 subplot(2,2,1);     %Place map. 
                     h = imagesc(TMap_gauss{TimeCells(thisNeuron)});
                     set(h,'alphadata',~isnan(TMap_gauss{TimeCells(thisNeuron)}));
+                        title(['p = ', num2str(pval(TimeCells(thisNeuron)))]);
                         axis off; colormap hot; freezeColors;
                 subplot(2,2,2);     %Raster. 
                     imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps'); 
+                        title(['Neuron #',num2str(TimeCells(thisNeuron))])
             else
                 f.Position = [550 180 510 565];
                 subplot(2,2,1:2);   %Raster. 
                     imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps'); c = colorbar; c.Position(1) = 0.92;
+                        title(['Neuron #',num2str(TimeCells(thisNeuron))])
             end
             
             subplot(2,2,3:4);   %Tuning curve.

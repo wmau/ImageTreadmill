@@ -141,5 +141,7 @@ for i=1:nFiles
     delete(LP.foldermat);
     delete(LP.mat); 
     
-    mosaic.terminate; 
 end
+
+clear
+mosaic.terminate;

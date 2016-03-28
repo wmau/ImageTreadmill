@@ -93,7 +93,7 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
     keepgoing = 1;                  
     i = 1;                          %Row of neuron map. 
     sf = 0.1;                       %For significance asterisks. 
-    pLaps = 0.20;                   %Proportion of laps needed to be significant. 
+    pLaps = 0.25;                   %Proportion of laps needed to be significant. 
     
     %Get the basics for each session like confidence interval allocations
     %and delay duration. 
