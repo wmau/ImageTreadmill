@@ -14,6 +14,7 @@ function [I,sig] = tempInfo(MD)
 %
 
 %% Set up.
+    currdir = pwd; 
     cd(MD.Location); 
     load(fullfile(pwd,'TimeCells.mat'),'ratebylap','TodayTreadmillLog','T');
     
@@ -57,15 +58,16 @@ function [I,sig] = tempInfo(MD)
     %Significant neurons. 
     sig = pval<0.05 & I>0;
     
-    
+    save('TemporalInfo.mat','I','sig');
+    cd(currdir); 
 end
 
 function I = tempInfoOneNeuron(ratebylap)
     [nLaps,nBins,~] = size(ratebylap);
     
     p = 1/nBins;                                    %Probability occupancy in time (uniform).
-    lambda_i = mean(ratebylap);                     %Mean rate at this time bin.
-    lambda = sum(sum(ratebylap))/(nLaps*nBins);     %Mean rate. 
+    lambda_i = mean(4*ratebylap);                   %Mean rate at this time bin. (multiply by 4 because 0.25 time bins)
+    lambda = sum(sum(4*ratebylap))/(nLaps*nBins);   %Mean rate. 
     
     %Temporal information.
     I = nansum(p.*lambda_i.*log2(lambda_i./lambda));

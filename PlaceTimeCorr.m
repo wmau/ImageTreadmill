@@ -1,4 +1,4 @@
-function [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2)
+function [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2,noi)
 %[pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2)
 %
 %   Computes the correlation of the place fields of time cells as well as
@@ -37,8 +37,7 @@ function [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2)
         {'timecells','curves','placefields','placefieldsunsmoothed',...
         'placefieldpvals','ratebylap','delays','complete','occmaps'}); 
    
-    %Neurons of interest, aka time cells with place fields. 
-    noi = DATA.timecells{1}; 
+    %Neurons of interest, aka time cells with place fields.
     nNeurons = length(DATA.placefieldsunsmoothed{1}); 
     
     %Load neuron mapping.

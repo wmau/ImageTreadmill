@@ -1,4 +1,4 @@
-function [pCorr,tCorr] = plotPlaceTimeCorrs(mapMD,MD1,MD2,Ts)
+function [pCorr,tCorr] = plotPlaceTimeCorrs(mapMD,MD1,MD2,Ts,neurontype)
 %[pCorr,tCorr] = plotPlaceTimeCorrs(MAPMD,MD1,MD2,Ts)
 %
 %   Plot the place fields, rasters, and tuning curves of time cells in MD1.
@@ -21,7 +21,16 @@ function [pCorr,tCorr] = plotPlaceTimeCorrs(mapMD,MD1,MD2,Ts)
 %
 
 %% Compute correlation.
-    [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(mapMD,MD1,MD2); 
+    neurontype = lower(neurontype); 
+    switch neurontype
+        case 'time'
+            load(fullfile(MD1.Location,'TimeCells.mat'),'TimeCells'); 
+            [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(mapMD,MD1,MD2,TimeCells); 
+        case 'place'
+            load(fullfile(MD1.Location,'PlaceMaps.mat'),'pval'); 
+            PlaceCells = find(pval > 0.95);
+            [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(mapMD,MD1,MD2,PlaceCells); 
+    end
     RATEBYLAP = DATA.ratebylap; 
     CURVES = DATA.curves;
     DELAYS = DATA.delays; 
@@ -68,7 +77,7 @@ function [pCorr,tCorr] = plotPlaceTimeCorrs(mapMD,MD1,MD2,Ts)
     end   
     
     %Main plotting. 
-    f = figure('Position',[-1300, -40, 520, 360]); 
+    f = figure('Position',[-1400, 100, 960, 650]); 
     while keepgoing                   
         r = rows(i);                %Rows of MAP corresponding to the neurons. 
         neurons = MAP(r,MAPcols);   %Neuron numbers. 

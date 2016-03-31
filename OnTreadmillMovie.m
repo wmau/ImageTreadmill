@@ -35,6 +35,10 @@ function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
             neuraldata = varargin{find(strcmp('alt_input',varargin))+1}; 
             load('ProcOut.mat','Xdim','Ydim'); 
         end
+        
+        if any(strcmp('noi',varargin))
+            highlight = varargin{find(strcmp('noi',varargin))+1};
+        end
     end
     
     movietype = lower(movietype); 
@@ -54,10 +58,11 @@ function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
 %% Load data and process. 
     %Imaging data. 
     load(fullfile(pwd,neuraldata),'FT','NeuronImage','Xdim','Ydim'); 
+    nNeurons = length(NeuronImage); 
     %load(fullfile(pwd,'CC.mat'),'cc');
     load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','TimeCells','movies'); 
     outlines = cellfun(@bwboundaries,NeuronImage,'unif',0); 
-    
+    colors = rand(nNeurons,3); 
     %Neuron centroids. 
     %centroids = getNeuronCentroids(animal,date,session); 
         
@@ -117,9 +122,13 @@ function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
                 if ~isempty(active)
                     hold on;
                     for neuron=active'
-                        if ismember(neuron,TimeCells), c = '-r';
-                        else c = '-b'; end       
-                        plot(outlines{neuron}{1}(:,2),outlines{neuron}{1}(:,1),c,'linewidth',2);
+                        if ismember(neuron,highlight)                            
+                            plot(outlines{neuron}{1}(:,2),outlines{neuron}{1}(:,1),...
+                                'Color',colors(neuron,:),'linewidth',4);
+                        else
+                            patchline(outlines{neuron}{1}(:,2),outlines{neuron}{1}(:,1),...
+                                'edgecolor','k','edgealpha',0.2,'linewidth',2);
+                        end
                     end
                     hold off;        
                 end

@@ -58,7 +58,7 @@ function multiPastalkovaPlot(mapMD,base,comp,Ts)
         nBins(i) = length(CURVES{i}.tuning{1}); 
     end
      
-    f = figure('Position',[170 260 1280 460]); 
+    f = figure('Position',[170 260 260*nSessions 460]); 
     for i=1:nSessions
         if i==1         %For the base session...
             %Get the index that references FT from MAP. 
@@ -107,7 +107,8 @@ function multiPastalkovaPlot(mapMD,base,comp,Ts)
         %Label y axis on first plot. 
         if dateOrder(i)==1, ylabel('Neurons'); end
     end
-        
-    set(f,'PaperPositionMode','auto');         
+         
     set(f,'PaperOrientation','landscape');
+    set(f,'PaperUnits','normalized');
+    set(f,'PaperPosition',[0 0 1 1]);
 end
