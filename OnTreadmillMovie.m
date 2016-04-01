@@ -1,4 +1,4 @@
-function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
+function OnTreadmillMovie(MD,clim,movietype,varargin)
 %OnTreadmillMovie(animal,date,session,clim,movietype)
 %       
 %   Makes two synced AVIs. ImagingMovie_movietype is the calcium imaging
@@ -19,6 +19,10 @@ function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
 %
 
 %% Preliminary stuff. 
+    animal = MD.Animal;
+    date = MD.Date;
+    session = MD.Session; 
+    
     close all;
     
     %h5 file. 
@@ -67,7 +71,7 @@ function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
     %centroids = getNeuronCentroids(animal,date,session); 
         
     %Align and get indices where mouse was on treadmill. 
-    Pix2CM = 0.15; sf = 0.6246;
+    Pix2CM = 0.1256; sf = 0.6246;
     [x,y,~,~,FToffset,~,~,~] = AlignImagingToTracking(Pix2CM,FT,HalfWindow); 
     x = x./Pix2CM*sf; 
     y = y./Pix2CM*sf; 
@@ -122,9 +126,11 @@ function OnTreadmillMovie(animal,date,session,clim,movietype,varargin)
                 if ~isempty(active)
                     hold on;
                     for neuron=active'
-                        if ismember(neuron,highlight)                            
-                            plot(outlines{neuron}{1}(:,2),outlines{neuron}{1}(:,1),...
-                                'Color',colors(neuron,:),'linewidth',4);
+                        if exist('highlight','var')
+                            if ismember(neuron,highlight)                            
+                                plot(outlines{neuron}{1}(:,2),outlines{neuron}{1}(:,1),...
+                                    'Color',colors(neuron,:),'linewidth',4);
+                            end
                         else
                             patchline(outlines{neuron}{1}(:,2),outlines{neuron}{1}(:,1),...
                                 'edgecolor','k','edgealpha',0.2,'linewidth',2);

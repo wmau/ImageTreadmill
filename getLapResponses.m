@@ -41,7 +41,7 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,
         x = x_adj_cm; y = y_adj_cm; 
         clear x_adj_cm y_adj_cm;
     catch
-        [x,y,~,FT,~,~,aviFrame,time_interp] = AlignImagingToTracking(0.15,FT,halfwindow);
+        [x,y,~,FT,~,~,aviFrame,time_interp] = AlignImagingToTracking(0.1256,FT,halfwindow);
     end
     
     %Get treadmill run epochs. 
