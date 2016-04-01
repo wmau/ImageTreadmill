@@ -1,4 +1,4 @@
-function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T,varargin)
+function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(MD,T,varargin)
 %[TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T)
 %
 %   Finds time cells using a few criteria. First, the neuron must be active
@@ -55,6 +55,10 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
 %
 
 %% Basic set up.
+    animal = MD.Animal;
+    date = MD.Date;
+    session = MD.Session; 
+    
     dirstr = ChangeDirectory(animal,date,session);
     [~,folder] = fileparts(dirstr); 
     

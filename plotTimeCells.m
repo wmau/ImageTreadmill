@@ -1,4 +1,4 @@
-function plotTimeCells(animal,date,session,T,varargin)
+function plotTimeCells(MD,T,varargin)
 %plotTimecells(animal,date,session,T)
 %   
 %   Plots single neuron responses in time during treadmill run. First
@@ -16,6 +16,10 @@ function plotTimeCells(animal,date,session,T,varargin)
 %
 
 %%
+    animal = MD.Animal;
+    date = MD.Date;
+    session = MD.Session;
+    
     ChangeDirectory(animal,date,session);
     
     %Catch varargins, check to see whether dotplots or placefields should

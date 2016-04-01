@@ -31,7 +31,7 @@ function Alt = postrials_treadmill(x,y,plot_each_trial)
 %
 
 %% Label position data with section numbers. 
-    bounds = sections_treadmill(x,y,'alternation');
+    bounds = sections_treadmill(x,y,'alternation',0);
     [sect,rot_x,rot_y] = getsection_treadmill(x,y,bounds);
     
 %% Define important section numbers. 
