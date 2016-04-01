@@ -13,7 +13,7 @@ m = accumarray(IND,II,[],@mean);
 s = accumarray(IND,II,[],@std); 
 tbl = tabulate(TT);
 n = sqrt(tbl(:,2));
-s = 2.*s./n;
+s = s./n;
 figure; hold on;
 scatter(TT,II,80,'.'); 
 errorbar(unique(TT),m,s,'rd-','linewidth',2)

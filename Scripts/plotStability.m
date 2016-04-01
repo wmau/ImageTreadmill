@@ -1,10 +1,12 @@
 place = multiProportionStable(MD(241),MD(240),MD(240:244),'place');
 time = multiProportionStable(MD(241),MD(240),MD(240:244),'time'); 
+pMatched = nMatchedNeurons(MD(241),MD(240),MD(240:244));
 
 figure;
 hold on;
 plot(datenum({MD(240:244).Date}),place,'-ob','linewidth',3); 
 plot(datenum({MD(240:244).Date}),time,'-or','linewidth',3); 
+plot(datenum({MD(240:244).Date}),pMatched,'-ok','linewidth',3);
 legend('Place Cells','Time Cells'); 
 datetick('x','mm-dd-yyyy');
 ylim([0,1]);
