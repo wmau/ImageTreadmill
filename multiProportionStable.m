@@ -1,4 +1,4 @@
-function percentStable = multiProportionStable(mapMD,MD1,MDs,neurontype)
+function [percentStable,nStable] = multiProportionStable(mapMD,MD1,MDs,neurontype)
 %percentStable = multiProportionStable(mapMD,MD1,MDs,neurontype)
 %
 %   Simple function to quickly do correlations of place or time cells
@@ -21,6 +21,9 @@ function percentStable = multiProportionStable(mapMD,MD1,MDs,neurontype)
             
             for s=1:nCompSessions
                 [~,r(:,:,s)] = PlaceTimeCorr(mapMD,MD1,MDs(s),TimeCells); 
+                
+                [~,~,~,MAP,MAPcols] = nMatchedNeurons(mapMD,MD1,MDs(s));
+                n(s) = sum(ismember(MAP(:,MAPcols(2)),TimeCells));
             end
         case 'place'
             load(fullfile(MD1.Location,'PlaceMaps.mat'),'pval'); 
@@ -28,9 +31,14 @@ function percentStable = multiProportionStable(mapMD,MD1,MDs,neurontype)
             n = length(PlaceCells); 
             
             for s=1:nCompSessions
-                [r(:,:,s),~] = PlaceTimeCorr(mapMD,MD1,MDs(s),PlaceCells); 
+                [r(:,:,s),~] = PlaceTimeCorr(mapMD,MD1,MDs(s),PlaceCells);
+                
+                [~,~,~,MAP,MAPcols] = nMatchedNeurons(mapMD,MD1,MDs(s));
+                n(s) = sum(ismember(MAP(:,MAPcols(2)),PlaceCells));
             end
     end
         
-    percentStable = squeeze(sum(r(:,2,:) < 0.05))./n;
+    n=n';
+    nStable = squeeze(sum(r(:,2,:) < 0.05));
+    percentStable = nStable./n;
 end

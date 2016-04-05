@@ -1,9 +1,12 @@
-function [sortedPastalkova,order] = PastalkovaPlot(animal,date,session,T,plotit)
+function [sortedPastalkova,order] = PastalkovaPlot(MD,T,plotit)
 %sortedPastalKova = PastalkovaPlot(animal,date,session,T)
 %
 %   Makes a plot that shows response curves that tile the delay. 
 
 %% Make a plot that shows response curves that tile the delay. 
+    animal = MD.Animal;
+    date = MD.Date;
+    session = MD.Session;
     ChangeDirectory(animal,date,session);
 
     try

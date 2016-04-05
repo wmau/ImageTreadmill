@@ -1,4 +1,4 @@
-function pMatched = nMatchedNeurons(mapMD,MD1,MDs)
+function [nMatched,pMatched,found,MAP,MAPcols] = nMatchedNeurons(mapMD,MD1,MDs)
 %
 %
 %
@@ -12,6 +12,7 @@ function pMatched = nMatchedNeurons(mapMD,MD1,MDs)
     [MAP,MAPcols] = FilterMAPDates(batch_session_map,dates,sNums); 
    
     found = find(MAP(:,MAPcols(1)));
-    pMatched = sum(MAP(found,MAPcols(2:end))>0)./length(found);
+    nMatched = sum(MAP(found,MAPcols(2:end))>0);
+    pMatched = nMatched./length(found);
     
 end

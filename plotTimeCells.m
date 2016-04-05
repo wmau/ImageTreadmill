@@ -137,23 +137,24 @@ function plotTimeCells(MD,T,varargin)
                 f.Position = [550 180 510 565];
                 subplot(2,2,1:2);   %Raster. 
                     imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
-                        colormap gray; ylabel('Laps'); c = colorbar; c.Position(1) = 0.92;
-                        title(['Neuron #',num2str(TimeCells(thisNeuron))])
+                        colormap gray; ylabel('Laps','fontsize',18); c = colorbar; c.Position(1) = 0.92;
+                        title(['Neuron #',num2str(TimeCells(thisNeuron))]);
+                        set(gca,'fontsize',16);
             end
             
             subplot(2,2,3:4);   %Tuning curve.
-                plot(t,curves.smoothed{TimeCells(thisNeuron)},'-r','linewidth',2);
+                plot(t,curves.smoothed{TimeCells(thisNeuron)},'-r','linewidth',5);
                 hold on; 
                 plot(t,CImean,'-b','linewidth',2);
                 plot(t,CIu,'--b',t,CIl,'--b');
                 Ylim = get(gca,'ylim');
                 xlim([0,T]);
-                plot(SIGX,SIGY+Ylim(2)*sf,'r*');
+                plot(SIGX,SIGY+Ylim(2)*sf,'ro','linewidth',4);
                 hold off;
-                    xlabel('Time [s]'); ylabel('Rate'); 
+                    xlabel('Time [s]','fontsize',16); ylabel('Rate','fontsize',16); 
                     yLims = get(gca,'ylim');
                     ylim([0, yLims(2)]);
-                    set(gca,'ticklength',[0 0]);
+                    set(gca,'ticklength',[0 0],'fontsize',18);
 
             %Scroll through neurons.
             [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),f);

@@ -208,7 +208,7 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
                     [SIGX,SIGY] = significance_asterisks(t{thisSession},CURVES{thisSession}.sig{n},...
                         CURVES{thisSession}.smoothed{n},bins{thisSession});
                     
-                    plot(SIGX,SIGY+Ylim(2)*sf,'r*');                   
+                    plot(SIGX,SIGY+Ylim(2)*sf,'go','linewidth',2);                   
                 end
                 
                 %Labels. 

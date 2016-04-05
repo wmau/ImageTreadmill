@@ -1,4 +1,4 @@
-function [sigI,nsigI] = plotStableTempInfo(mapMD,MD1,MD2) 
+function [sigI,nsigI] = plotStableTempInfo(mapMD,MD1,MD2,type) 
 %plotStableTempInfo(mapMD,MD1,MD2) 
 %
 %   Investigates the temporal information content of neurons based on their
@@ -21,13 +21,18 @@ function [sigI,nsigI] = plotStableTempInfo(mapMD,MD1,MD2)
 
 %% Do correlations.
     load(fullfile(MD1.Location,'TimeCells.mat'),'TimeCells'); 
-    [~,tCorr] = PlaceTimeCorr(mapMD,MD1,MD2,TimeCells); 
+    [pCorr,tCorr] = PlaceTimeCorr(mapMD,MD1,MD2,TimeCells); 
 
 %% Get stable neurons. 
     load(fullfile(MD1.Location,'TemporalInfo.mat'),'I'); 
     
-    sig = tCorr(:,2) < 0.05;
-    nsig = tCorr(:,2) > 0.05;
+    if strcmp(type,'time')
+        sig = tCorr(:,2) < 0.05;
+        nsig = tCorr(:,2) > 0.05;
+    elseif strcmp(type,'place')
+        sig = pCorr(:,2) < 0.05;
+        nsig = pCorr(:,2) > 0.05;
+    end
     
     sigI = I(sig);
     nsigI = I(nsig);
