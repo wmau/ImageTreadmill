@@ -1,7 +1,7 @@
 stableI = [];
 unstableI = [];
-for i=240:243   
-    [a,b] = plotStableTempInfo(MD(241),MD(i),MD(i+1));
+for i=242:245   
+    [a,b] = plotStableTempInfo(MD(243),MD(i),MD(i+1),'place');
     stableI = [stableI; a];
     unstableI = [unstableI; b];
 end
@@ -31,3 +31,5 @@ plot(xs,fs,'color','k','linewidth',3);
     xlabel('Temporal Information [bits/s]'); 
     ylabel('Proportion'); 
     set(gca,'ticklength',[0 0]);
+   
+[h,p] = kstest2(stableI,unstableI)

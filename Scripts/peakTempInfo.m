@@ -1,5 +1,5 @@
 TT = []; II = []; IND = [];
-for i=240:244
+for i=242:246
     [t,ind] = getTimePeak(MD(i)); 
     cd(MD(i).Location);
     load(fullfile(pwd,'TimeCells.mat'),'TimeCells');
