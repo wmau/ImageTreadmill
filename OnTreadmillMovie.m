@@ -129,7 +129,7 @@ function OnTreadmillMovie(MD,clim,movietype,varargin)
                         if exist('highlight','var')
                             if ismember(neuron,highlight)                            
                                 plot(outlines{neuron}{1}(:,2),outlines{neuron}{1}(:,1),...
-                                    'Color',colors(neuron,:),'linewidth',4);
+                                    'Color',colors(neuron,:),'linewidth',2);
                             end
                         else
                             patchline(outlines{neuron}{1}(:,2),outlines{neuron}{1}(:,1),...
