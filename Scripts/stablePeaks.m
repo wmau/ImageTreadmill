@@ -1,9 +1,9 @@
 stablePeak = [];
 unstablePeak = [];
-crit = 'place';
-for i=242:245    
+crit = 'time';
+for i=243:246    
     load(fullfile(MD(i).Location,'TimeCells.mat'),'TimeCells');
-    [pCorr,tCorr] = PlaceTimeCorr(MD(243),MD(i),MD(i+1),TimeCells);
+    [pCorr,tCorr] = PlaceTimeCorr(MD(244),MD(i),MD(i+1),TimeCells);
     
     if strcmp(crit,'time')
         sig = tCorr(:,2) < 0.05; 

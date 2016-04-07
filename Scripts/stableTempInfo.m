@@ -1,7 +1,7 @@
 stableI = [];
 unstableI = [];
-for i=242:245   
-    [a,b] = plotStableTempInfo(MD(243),MD(i),MD(i+1),'place');
+for i=243:246  
+    [~,a,b] = plotStableTempInfo(MD(244),MD(i),MD(i+1),'place',0);
     stableI = [stableI; a];
     unstableI = [unstableI; b];
 end
@@ -9,7 +9,7 @@ end
 close all;
 figure; 
 subplot(1,2,1); hold on;
-[~,edges] = histcounts(stableI,linspace(0,max([stableI;unstableI]),25));
+[~,edges] = histcounts(stableI,linspace(0,max([stableI;unstableI]),20));
 [n,b] = hist(unstableI,edges);      %Bin.
 n = n./length(unstableI);           %Normalize. 
 stairs(b,n,'linewidth',3,'color',[0.7 0.7 0.7]); 
