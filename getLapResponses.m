@@ -1,4 +1,4 @@
-function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog,halfwindow)
+function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(MD,FT,TodayTreadmillLog,halfwindow)
 %[ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %
 %   Get the lap by lap responses for each neuron during treadmill run. 
@@ -30,6 +30,9 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,
 %
 
 %% Preliminary stuff. 
+    animal = MD.Animal;
+    date = MD.Date; 
+    sessionNum = MD.Session;
     dirstr = ChangeDirectory(animal,date,sessionNum);
     [~,folder] = fileparts(dirstr); 
     alternation = strcmp(TodayTreadmillLog.direction,'alternation'); 
@@ -41,7 +44,7 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,
         x = x_adj_cm; y = y_adj_cm; 
         clear x_adj_cm y_adj_cm;
     catch
-        [x,y,~,FT,~,~,aviFrame,time_interp] = AlignImagingToTracking(0.1256,FT,halfwindow);
+        [x,y,~,FT,~,~,aviFrame,time_interp] = AlignImagingToTracking(MD.Pix2CM,FT,halfwindow);
     end
     
     %Get treadmill run epochs. 
