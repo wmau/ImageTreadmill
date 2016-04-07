@@ -89,7 +89,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     
     %Get rate by lap matrix. 
     disp('Getting time responses for each neuron...');
-    [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(animal,date,session,FT,TodayTreadmillLog,halfwindow);  
+    [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(MD,FT,TodayTreadmillLog,halfwindow);  
     
     alternation = strcmp(TodayTreadmillLog.direction,'alternation');
     blocked = ~isempty(strfind(folder,'blocked')); 
@@ -169,5 +169,8 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     
     %Get indices of neurons that pass the test. 
     TimeCells = intersect(find(cellfun(@any,sigcurve)),goodlaps); 
+    temp = cellfun(@(a) max(diff( [0 (find( ~ (a > 0) ) )+ 1] ))-1,sigcurve,'unif',0);
+    longpeak = find(cellfun(@(a) any(a>1),temp));
+    TimeCells = intersect(TimeCells,longpeak);
     save(savename,'TimeCells','ratebylap','curves','movies','T','TodayTreadmillLog','alternation'); 
 end
