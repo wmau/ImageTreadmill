@@ -1,4 +1,4 @@
-function multiPastalkovaPlot(mapMD,base,comp,Ts)
+function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts)
 %multiPastalkovaPlot(batch_session_map,base,comp,Ts)
 %
 %   Makes a figure with Pastalkova plots for multiple days ranking each
@@ -58,6 +58,8 @@ function multiPastalkovaPlot(mapMD,base,comp,Ts)
         nBins(i) = length(CURVES{i}.tuning{1}); 
     end
      
+    normtilemat = cell(nSessions,1); 
+    sortedPeaks = nan(nTimeCells,nSessions);
     f = figure('Position',[170 260 260*nSessions 460]); 
     for i=1:nSessions
         if i==1         %For the base session...
@@ -74,13 +76,19 @@ function multiPastalkovaPlot(mapMD,base,comp,Ts)
             %Find peaks and where they are. Then normalize to peaks and
             %sort based on peaks. 
             [peaks,peakInds] = max(tilemat,[],2); 
-            normtilemat = tilemat./repmat(peaks,1,nBins(i)); 
+            normtilemat{i} = tilemat./repmat(peaks,1,nBins(i)); 
             [~,order] = sort(peakInds); 
-            normtilemat = normtilemat(order,:); 
+            normtilemat{i} = normtilemat{i}(order,:); 
+            
+            %For plotting line. 
+            [~,sortedPeaks(:,i)] = max(normtilemat{i},[],2); 
+            conversionfactor = nBins(i)/Ts(i);
+            sortedPeaks(:,i) = sortedPeaks(:,i)./conversionfactor;
             
             %Plot. 
             subplot(1,nSessions,dateOrder(i)); 
-            imagesc([0:Ts(i)],[1:5:nTimeCells],normtilemat); 
+            imagesc([0:Ts(i)],[1:5:nTimeCells],normtilemat{1}); hold on;
+            plot(sortedPeaks(:,i),[1:nTimeCells],'r','linewidth',2);
             colormap gray; xlabel('Time [s]'); title(dateTitles{i});            
         else %Almost the same as above. 
             %Preallocate. 
@@ -96,11 +104,17 @@ function multiPastalkovaPlot(mapMD,base,comp,Ts)
             
             %Normalize. 
             peaks = max(tilemat,[],2); 
-            normtilemat = tilemat./repmat(peaks,1,nBins(i)); 
+            normtilemat{i} = tilemat./repmat(peaks,1,nBins(i)); 
+            
+            %New peaks.
+            [~,sortedPeaks(~missing,i)] = max(normtilemat{i}(~missing,:),[],2,'includenan'); 
+            conversionfactor = nBins(i)/Ts(i);
+            sortedPeaks(:,i) = sortedPeaks(:,i)./conversionfactor;
             
             %Plot. 
             subplot(1,nSessions,dateOrder(i))
-            imagesc([0:Ts(i)],[1:5:nTimeCells],normtilemat);
+            imagesc([0:Ts(i)],[1:5:nTimeCells],normtilemat{i}); hold on;
+            plot(sortedPeaks(:,1),[1:nTimeCells],'r','linewidth',2);
             colormap gray; xlabel('Time [s]'); title(dateTitles{i});
         end
         
