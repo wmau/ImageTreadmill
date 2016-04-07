@@ -1,4 +1,4 @@
-function SampleLapPastalkova(animal,date,session,T) 
+function SampleLapPastalkova(MD,T) 
 %SampleLapPastalkova(animal,date,session,T) 
 %
 %   Per Nick's suggestion, how do we know the tuning curves are reliable?
@@ -15,12 +15,12 @@ function SampleLapPastalkova(animal,date,session,T)
 %
 
 %% Get the Pastalkova plot for the entirety of neurons. 
-    [sortedPastalkova,order] = PastalkovaPlot(animal,date,session,T,0); 
+    [sortedPastalkova,order] = PastalkovaPlot(MD,T,0); 
 
 %% Randomly sample laps. 
     %Load time cell indices, trial by trial rate maps, and data about delay
     %duration and complete runs. 
-    load(fullfile(pwd,'TimeCells.mat'),'TimeCells','ratebylap','TodayTreadmillLog'); 
+    load(fullfile(MD.Location,'TimeCells.mat'),'TimeCells','ratebylap','TodayTreadmillLog'); 
     
     %Find all lap numbers that are valid. 
     lapNumComplete = find(TodayTreadmillLog.complete & TodayTreadmillLog.delaysetting==T); 
