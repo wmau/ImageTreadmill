@@ -149,7 +149,7 @@ function plotTimeCells(MD,T,varargin)
                 plot(t,CIu,'--b',t,CIl,'--b');
                 Ylim = get(gca,'ylim');
                 xlim([0,T]);
-                plot(SIGX,SIGY+Ylim(2)*sf,'ro','linewidth',4);
+                plot(SIGX,SIGY+Ylim(2)*sf,'go','linewidth',4);
                 hold off;
                     xlabel('Time [s]','fontsize',16); ylabel('Rate','fontsize',16); 
                     yLims = get(gca,'ylim');
@@ -199,7 +199,7 @@ function plotTimeCells(MD,T,varargin)
                     %Only plot significance asterisks if there was a
                     %response in one of the laps. 
                     if any(curves.smoothed{TimeCells(thisNeuron),lr})
-                        plot(SIGX,SIGY+Ylim(2)*sf,'r*');
+                        plot(SIGX,SIGY+Ylim(2)*sf,'go');
                     end
                     
                     hold off;
