@@ -1,5 +1,5 @@
 TT = []; II = []; IND = [];
-for i=242:246
+for i=243:246
     [t,ind] = getTimePeak(MD(i)); 
     cd(MD(i).Location);
     load(fullfile(pwd,'TimeCells.mat'),'TimeCells');
@@ -9,14 +9,14 @@ for i=242:246
     IND = [IND; ind(TimeCells)];
 end
 
-m = accumarray(IND,II,[],@mean);
-s = accumarray(IND,II,[],@std); 
-tbl = tabulate(TT);
-n = sqrt(tbl(:,2));
+TTx = [0.25:0.25:10];
+m = accumarray(IND,II,[length(TTx),1],@mean,nan);
+s = accumarray(IND,II,[length(TTx),1],@std,nan); 
+n = sqrt(histc(TT,TTx));
 s = s./n;
 figure; hold on;
 scatter(TT,II,80,'.'); 
-errorbar(unique(TT),m,s,'rd-','linewidth',2)
+errorbar(TTx,m,s,'rd-','linewidth',2)
 xlabel('Peak Time [s]'); 
 ylabel('Temporal Information [bits/s]');
 axis tight; 
