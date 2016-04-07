@@ -1,4 +1,4 @@
-function [sigI,nsigI] = plotStableTempInfo(mapMD,MD1,MD2,type) 
+function [I,sigI,nsigI,tCorr,pCorr] = plotStableTempInfo(mapMD,MD1,MD2,type,plotit) 
 %plotStableTempInfo(mapMD,MD1,MD2) 
 %
 %   Investigates the temporal information content of neurons based on their
@@ -25,6 +25,7 @@ function [sigI,nsigI] = plotStableTempInfo(mapMD,MD1,MD2,type)
 
 %% Get stable neurons. 
     load(fullfile(MD1.Location,'TemporalInfo.mat'),'I'); 
+    load(fullfile(MD1.Location,'PlaceMaps.mat'),'pval'); 
     
     if strcmp(type,'time')
         sig = tCorr(:,2) < 0.05;
@@ -39,31 +40,32 @@ function [sigI,nsigI] = plotStableTempInfo(mapMD,MD1,MD2,type)
 
 %% Plot.
     %Histogram. 
-    figure('position',[390 320 800 385]);
-    subplot(1,2,1); hold on;
-        %Get edges. 
-        [~,edges] = histcounts(I(sig),linspace(0,max(I(sig | nsig)),25));
-        [n,b] = hist(sigI,edges);     %Bin.
-        n = n./length(sigI);          %Normalize. 
-        stairs(b,n);
-        [n,b] = hist(nsigI,edges);    %Bin.
-        n = n./length(nsigI);         %Normalize. 
-        stairs(b,n); 
-            xlim([0 max(I(sig | nsig))]);
-            set(gca,'ticklength',[0 0]);
-            xlabel('Temporal Information [bits/s]');
-            ylabel('Proportion'); 
-            hold off;
-    
-    %ECDF. 
-    subplot(1,2,2); hold on;
-        ecdf(sigI); 
-        ecdf(nsigI); 
-            xlim([0 max(I(sig | nsig))]);
-            legend('Stable','Unstable','location','southeast'); 
-            xlabel('Temporal Information [bits/s]'); 
-            ylabel('Proportion'); 
-            set(gca,'ticklength',[0 0]);
-            hold off;
-        
+    if plotit
+        figure('position',[390 320 800 385]);
+        subplot(1,2,1); hold on;
+            %Get edges. 
+            [~,edges] = histcounts(I(sig),linspace(0,max(I(sig | nsig)),25));
+            [n,b] = hist(sigI,edges);     %Bin.
+            n = n./length(sigI);          %Normalize. 
+            stairs(b,n);
+            [n,b] = hist(nsigI,edges);    %Bin.
+            n = n./length(nsigI);         %Normalize. 
+            stairs(b,n); 
+                xlim([0 max(I(sig | nsig))]);
+                set(gca,'ticklength',[0 0]);
+                xlabel('Temporal Information [bits/s]');
+                ylabel('Proportion'); 
+                hold off;
+
+        %ECDF. 
+        subplot(1,2,2); hold on;
+            ecdf(sigI); 
+            ecdf(nsigI); 
+                xlim([0 max(I(sig | nsig))]);
+                legend('Stable','Unstable','location','southeast'); 
+                xlabel('Temporal Information [bits/s]'); 
+                ylabel('Proportion'); 
+                set(gca,'ticklength',[0 0]);
+                hold off;
+    end
 end
