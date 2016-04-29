@@ -1,4 +1,4 @@
-function toptempdists(animal,date,session,T)
+function toptempdists(MD,T)
 %function toptempdists(animal,date,session,T)
 %
 %   Rudimentary version of a function to see whether there is a correlation
@@ -6,20 +6,23 @@ function toptempdists(animal,date,session,T)
 %   in the hippocampus. 
 
 %%
+    animal = MD.Animal;
+    date = MD.Date;
+    session = MD.Session;
     ChangeDirectory(animal,date,session);
 
     try
         load('TimeCells.mat'); 
     catch
-        [TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(animal,date,session,T); 
+        [TimeCells,ratebylap,curves,delays,x,y,time_interp] = FindTimeCells(MD,T); 
     end
     
-    centroids = getNeuronCentroids(animal,date,session);
+    centroids = getNeuronCentroids(MD);
     
     tempResponses = cell2mat(curves.tuning(TimeCells)); 
     [~,peakT] = max(tempResponses,[],2); 
     
-    tempdist = pdist([peakT, zeros(length(peakT),1)])/20;
+    tempdist = pdist([peakT, zeros(length(peakT),1)]);
     topdist = pdist(centroids(TimeCells,:));
     
     scatter(tempdist,topdist,'.');
@@ -27,4 +30,5 @@ function toptempdists(animal,date,session,T)
     
     r
     p
+    keyboard;
 end

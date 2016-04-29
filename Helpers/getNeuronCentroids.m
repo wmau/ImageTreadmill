@@ -1,4 +1,4 @@
-function centroids = getNeuronCentroids(animal,date,session,varargin)
+function centroids = getNeuronCentroids(MD,varargin)
 %centroids = getNeuronCentroids(animal,date,session)
 %
 %   INPUTS
@@ -14,6 +14,9 @@ function centroids = getNeuronCentroids(animal,date,session,varargin)
 %
 
 %% Obtain neuron centroids.
+    animal = MD.Animal;
+    date = MD.Date;
+    session = MD.Session;
     ChangeDirectory(animal,date,session);
     
     %Minimum transient length input into TENASPIS. 
