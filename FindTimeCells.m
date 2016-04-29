@@ -72,9 +72,10 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     halfwindow = 10;                    %Default: Tenaspis 1. 
     if ~isempty(varargin)
         if any(strcmp('alt_input',varargin))
+            filename = varargin{find(strcmp('alt_input',varargin))+1};
             neuraldata = fullfile(pwd,varargin{find(strcmp('alt_input',varargin))+1}); 
             
-            if strcmp(neuraldata,'T2output.mat')
+            if strcmp(filename,'T2output.mat')
                 halfwindow = 0;
             end
         end
@@ -96,6 +97,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     
     %Preallocate. 
     [nLaps,nBins,nNeurons] = size(ratebylap);
+    nComplete = sum(TodayTreadmillLog.complete);
     
     %If the mouse is on both sides of the maze, separate tuning curves for
     %left and right. 
@@ -114,10 +116,10 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     pLaps = 0.25;
     if alternation
         pLaps = pLaps*2;
-        critLaps = [round(pLaps*sum(TodayTreadmillLog.choice==1)),...
-                    round(pLaps*sum(TodayTreadmillLog.choice==2))];
+        critLaps = [round(pLaps*sum(TodayTreadmillLog.choice==1 & TodayTreadmillLog.complete)),...
+                    round(pLaps*sum(TodayTreadmillLog.choice==2 & TodayTreadmillLog.complete))];
     else
-        critLaps = round(pLaps*nLaps);
+        critLaps = round(pLaps*nComplete);
     end
     
     %Perform permutation test on all neurons. 
