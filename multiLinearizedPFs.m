@@ -55,7 +55,7 @@ function multiLinearizedPFs(mapMD,base,comp)
             neurons = MAP(MAProws,MAPcols(s)); 
 
             %Linearize trajectory and make matrix. 
-            normRates = LinearizedPFs_treadmill(sessions(s));
+            [~,normRates] = LinearizedPFs_treadmill(sessions(s));
             
             %Trim matrix to only include place cells. 
             normRates = normRates(neurons,:);
@@ -75,7 +75,7 @@ function multiLinearizedPFs(mapMD,base,comp)
             neurons = MAP(MAProws(order),MAPcols(s));      
             
             %Linearize trajectory and find spatial responses. 
-            normRates = LinearizedPFs_treadmill(sessions(s));
+            [~,normRates] = LinearizedPFs_treadmill(sessions(s));
                
             %Deal linearized place maps. 
             plotme = zeros(size(plotme));             

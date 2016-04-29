@@ -1,4 +1,4 @@
-function [normRates,sortedRates,order] = LinearizedPFs_treadmill(MD)
+function [rate,normRates,sortedRates,order,X] = LinearizedPFs_treadmill(MD)
 %[normRate,sortedRate] = LinearizedPFs_treadmill(MD,FT)
 %
 %   Linearizes trajectory then computes place fields by binning FT
