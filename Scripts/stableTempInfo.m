@@ -1,7 +1,7 @@
 stableI = [];
 unstableI = [];
-for i=243:246  
-    [~,a,b] = plotStableTempInfo(MD(244),MD(i),MD(i+1),'place',0);
+for i=246:254
+    [~,a,b] = plotStableTempInfo(MD(247),MD(i),MD(i+1),'time',0);
     stableI = [stableI; a];
     unstableI = [unstableI; b];
 end
