@@ -29,9 +29,7 @@ function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts)
     DATA = CompileMultiSessionData(sessions,{'timecells','curves'}); 
     TIMECELLS = DATA.timecells; 
     CURVES = DATA.curves; 
-    
-    nTimeCells = length(TIMECELLS{1});
-    
+        
     %Find chronological order of dates. 
     d = datenum({sessions.Date},'mm_dd_yyyy');
     sorted = sort(d);
@@ -59,13 +57,14 @@ function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts)
     end
      
     normtilemat = cell(nSessions,1); 
-    sortedPeaks = nan(nTimeCells,nSessions);
     f = figure('Position',[170 260 260*nSessions 460]); 
     for i=1:nSessions
         if i==1         %For the base session...
             %Get the index that references FT from MAP. 
             neurons = MAP(MAProws,MAPcols(i)); 
             missing = neurons==0;
+            nTimeCells = length(neurons);
+            sortedPeaks = nan(nTimeCells,nSessions);
             
             %Matrix with responses that tile delay. 
             tilemat = zeros(length(neurons),length(CURVES{i}.tuning{1}));
