@@ -10,12 +10,11 @@ function OnTreadmillMovie(MD,clim,movietype,varargin)
 %       animal, date, session: Example - 'GCamp6f_45_treadmill',
 %       '11_20_2015', 2. 
 %
-%       clim: Color axis limits need to be specified beacause birghtness
+%       clim: Color axis limits need to be specified beacause brightness
 %       levels differ between mice. [0 2000] for G45 D1 movies, [0 4000]
 %       for G48 D1 movies. 
 %
-%       movietype: string, either 'D1' or 'smoothed', indicating whether to
-%       use the first derivative movie or ICmovie_smoothed. 
+%       movietype: string, either 'd1','smoothed','dff', or 'slpdf'. 
 %
 
 %% Preliminary stuff. 

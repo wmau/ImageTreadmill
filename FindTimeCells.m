@@ -11,16 +11,12 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
 %   time cell is declared if it passes both these tests. 
 %
 %   INPUTS
-%       animal: Mouse (e.g., GCamp6f_45_treadmill).
-%
-%       date: Recording date (e.g., 11_19_2015).
-%
-%       session: Session number. 
+%       MD: Session entry. 
 %
 %       T: Delay duration of interest. 
 %
-%       varargin: 'alt_input',str:Tenaspis output file. If you want to use
-%       another neural
+%       varargin: 'alt_input',str: Tenaspis output file. If you want to use
+%       another neural data mat file.
 %       
 %
 %   OUTPUT
