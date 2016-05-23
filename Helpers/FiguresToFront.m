@@ -1,5 +1,6 @@
 %% Bring all figures to front. 
 
-for i=1:length(findobj(0,'type','figure'))
+f = findobj(0,'type','figure');
+for i=[f.Number]
     figure(i);
 end
