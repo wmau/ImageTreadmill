@@ -116,7 +116,7 @@ function [xPoints, yPoints] = plotSpikeRaster(spikes,varargin)
 %% FILENAME  : plotSpikeRaster.m
 
 %% Set Defaults and Load optional arguments
-LineFormat.Color = [0.2 0.2 0.2];
+LineFormat.Color = [0.2 0.2 0.2 1];
 MarkerFormat.MarkerSize = 1;
 MarkerFormat.Color = [0.2 0.2 0.2];
 MarkerFormat.LineStyle = 'none';
@@ -211,7 +211,7 @@ if islogical(spikes)
 
             xPoints = xPoints(:);
             yPoints = yPoints(:);
-            plot(xPoints,yPoints,'k',lineFormat{:});
+            plot(xPoints,yPoints,'k',lineFormat{:});           
         case 'horzline2'
             %% Horizontal lines, for many timebins
             % Plots a horizontal line the width of a time bin for each
