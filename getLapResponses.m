@@ -30,11 +30,8 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(MD,FT,T
 %
 
 %% Preliminary stuff. 
-    animal = MD.Animal;
-    date = MD.Date; 
-    sessionNum = MD.Session;
-    dirstr = ChangeDirectory(animal,date,sessionNum);
-    [~,folder] = fileparts(dirstr); 
+    cd(MD.Location);
+    [~,folder] = fileparts(pwd); 
     alternation = strcmp(TodayTreadmillLog.direction,'alternation'); 
     blocked = ~isempty(strfind(folder,'blocked')); 
     
@@ -49,6 +46,7 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(MD,FT,T
     
     %Get treadmill run epochs. 
     inds = getTreadmillEpochs(TodayTreadmillLog,aviFrame);
+    TodayTreadmillLog.inds = inds;                          %Add this field to treadmill log. 
     nFramesBetween = diff(inds,1,2);                        %Number of frames epochs span. 
     
     %Make sure the mouse is on the treadmill during these epochs. Find the

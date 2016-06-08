@@ -19,8 +19,9 @@ function plotTimeCells(MD,T,varargin)
     animal = MD.Animal;
     date = MD.Date;
     session = MD.Session;
+    path = MD.Location;
     
-    ChangeDirectory(animal,date,session);
+    cd(path);
     
     %Catch varargins, check to see whether dotplots or placefields should
     %be plotted. 

@@ -21,7 +21,7 @@ function TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,RecordSt
 %
 
 %% Alignment. 
-    ChangeDirectory(TodayTreadmillLog.Animal,TodayTreadmillLog.Date,TodayTreadmillLog.Session);
+    cd(TodayTreadmillLog.md.Location);
     load(fullfile(pwd,'Pos.mat'),'start_time'); 
     %Determine the offset in seconds of the recording start time and the
     %first treadmill run. Then add this number to all timestamps in

@@ -51,15 +51,12 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
 %
 
 %% Basic set up.
-    animal = MD.Animal;
-    date = MD.Date;
-    session = MD.Session; 
+    cd(MD.Location);
     
-    dirstr = ChangeDirectory(animal,date,session);
-    [~,folder] = fileparts(dirstr); 
+    [~,folder] = fileparts(MD.Location); 
     
     %Get treadmill timestamp data. 
-    TodayTreadmillLog = getTodayTreadmillLog(animal,date,session);
+    TodayTreadmillLog = getTodayTreadmillLog(MD);
     TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,TodayTreadmillLog.RecordStartTime);
     
     %Name of neural data file. Changed post-Tenaspis 2. 

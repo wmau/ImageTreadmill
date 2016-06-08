@@ -1,4 +1,4 @@
-function TodayTreadmillLog = getTodayTreadmillLog(animal,date,session)
+function TodayTreadmillLog = getTodayTreadmillLog(md)
 %TodayTreadmilllog = getTodayTreadmillLog(animal,date)
 %
 %   Gets the treadmill data and processes it for the given animal and time.
@@ -37,13 +37,17 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date,session)
     LoadTreadmillMD;
     loadMD; 
     
+    animal = md.Animal;
+    date = md.Date;
+    session = md.Session;
+    
     %Reference TreadmillMD. 
     animalInd = find(strcmp(animal,{TreadmillMD.Animal}));
     sessions = cell2mat({MD.Session});
     MDInd = find(strcmp(animal,{MD.Animal}) & strcmp(date,{MD.Date}) & sessions == session); 
     
     %Get the looping direction/alternation
-    [~,folder] = fileparts(MD(MDInd).Location);
+    [~,folder] = fileparts(md.Location);
     folder = lower(folder); 
     
     %Embed into TodayTreadmillLog.
@@ -78,6 +82,7 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date,session)
 %% Get the log. 
     %Timestamps are recorded from when you hit start on the TreadmillTask
     %GUI(?).
+    TodayTreadmillLog.md = md;
     TodayTreadmillLog.Animal = animal;
     TodayTreadmillLog.Date = date;
     TodayTreadmillLog.Session = session;
@@ -87,7 +92,7 @@ function TodayTreadmillLog = getTodayTreadmillLog(animal,date,session)
     TodayTreadmillLog.velocitysetting = history.sessions(dateInd).treadmill(:,3);
     TodayTreadmillLog.delaysetting = history.sessions(dateInd).treadmill(:,4);
     TodayTreadmillLog.complete = history.sessions(dateInd).treadmill(:,5);
-    TodayTreadmillLog.RecordStartTime = MD(MDInd).RecordStartTime;
+    TodayTreadmillLog.RecordStartTime = md.RecordStartTime;
 
     
     %Get the clock times associated with treadmill on/off epochs. 
