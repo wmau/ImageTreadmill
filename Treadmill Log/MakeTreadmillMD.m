@@ -26,6 +26,16 @@ TreadmillMD(i).Animal = 'Libra';
 TreadmillMD(i).Path = 'E:\Imaging Data\Endoscope\Libra\Treadmill';
 TreadmillMD(i).File = fullfile('E:\Imaging Data\Endoscope\Libra\Treadmill','libra.mat'); 
 
+i=i+1;
+TreadmillMD(i).Animal = 'Polaris';
+TreadmillMD(i).Path = 'E:\Imaging Data\Endoscope\Polaris\Treadmill';
+TreadmillMD(i).File = fullfile('E:\Imaging Data\Endoscope\Polaris\','polaris.mat'); 
+
+i=i+1;
+TreadmillMD(i).Animal = 'Bellatrix';
+TreadmillMD(i).Path = 'E:\Imaging Data\Endoscope\Bellatrix\Treadmill';
+TreadmillMD(i).File = fullfile('E:\Imaging Data\Endoscope\Bellatrix\','bellatrix.mat'); 
+
 save('TreadmillMD.mat','TreadmillMD'); 
 
 cd(CurrDir); 

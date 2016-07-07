@@ -36,7 +36,7 @@ function [lagRaster,closest] = stripRaster(lagRaster,leadRaster)
             lagOnsets = lagT(lagLap==l);
             
             %Filter out those that occurred after neuron 2.
-            lagOnsets = lagOnsets(lagOnsets<o);
+            lagOnsets = lagOnsets(lagOnsets<=o);
       
             %Get closest spike. 
             bingo = lagOnsets(findclosest(o,lagOnsets));
