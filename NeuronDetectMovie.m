@@ -49,6 +49,24 @@ function NeuronDetectMovie(MD,movietype,clim,varargin)
     switch movietype
         case 'd1'
             h5file = fullfile(pwd,'D1Movie.h5');
+            
+            if ~exist(h5file,'file')
+                cd(fullfile(MD.Location,'MotCorrMovie-Objects'));
+                motcorrh5 = dir('*.h5'); 
+                
+                TempSmoothMovie(fullfile(MD.Location,'MotCorrMovie-Objects',motcorrh5.name),...
+                    fullfile(MD.Location,'SMovie.h5'),20);
+                cd(MD.Location);
+                
+                multiplier_use = DFDT_Movie('SMovie.h5','D1Movie.h5');
+                if ~isempty(multiplier_use)
+                    delete D1Movie.h5
+                    multiplier_use = DFDT_Movie('SMovie.h5','D1Movie.h5',multiplier_use);
+                    save multiplier.mat multiplier_use
+                end
+                delete SMovie.h5
+            end
+
         case 'smoothed'
             cd('ICmovie_smoothed-Objects'); 
             h5file = fullfile(pwd,'Obj_1 - ICmovie_smoothed.h5'); 
