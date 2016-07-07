@@ -45,13 +45,16 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
     
     %Line format for second neuron raster.
     lead.Color = 'r';
+    lead.LineWidth = 1;
     
     %Line format for first neuron raster, all spikes, transparent. 
     lag.Color = [0 1 0 0.3];    %Transparent green.
+    lag.LineWidth = 2;
     
     %Line format for first neuron raster, only spikes immediately
     %preceding those of neuron two. 
     immediatelag.Color = 'g';
+    immediatelag.LineWidth = 2;
    
     %Preallocate.
     i=1;
@@ -67,18 +70,18 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
         f = figure('Position',[185 70 windowWidth 700]);
         if plotcells, subplot(3,5,1); else subplot(3,2,1); end
         imagesc([0:T],...
-            [1:5:sum(TodayTreadmillLog.delaysetting==T)],...
+            [1:nLaps],...
             ratebylap(:,:,e)); 
         colormap gray; title(['Neuron ',num2str(e)]);
-        xlabel('Time [s]'); ylabel('Laps');
+        ylabel('Laps');
 
         %% Raster - Neuron leading. 
         if plotcells, subplot(3,5,2); else subplot(3,2,2); end
         imagesc([0:T],...
-            [1:5:sum(TodayTreadmillLog.delaysetting==T)],...
+            [1:nLaps],...
             ratebylap(:,:,neuron)); 
         colormap gray; title(['Neuron ',num2str(neuron)]);
-        xlabel('Time [s]');  
+         
 
         %% Tick raster
         %Build the tick raster for neuron 1. 
@@ -101,36 +104,40 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
         ax.XTick = linspace(ax.XLim(1),ax.XLim(2),nTicks);
         ax.XTickLabel = linspace(0,T,nTicks);
         ax.YTick = [1:5:nLaps];
-        hold off; ylabel('Laps'); 
+        hold off; ylabel('Laps'); xlabel('Time [s]'); 
 
         %% Temporal distance histogram. 
         if plotcells, subplot(3,5,11); else subplot(3,2,5); end
-        histogram(null{e,neuron},[-10:0.5:10],'normalization','probability','facecolor','c'); 
+        histogram(null{e,neuron},[-10:0.5:10],'normalization','probability',...
+            'facecolor','c'); 
         hold on;
-        histogram(lagMat{e,neuron},[-10:0.5:10],'normalization','probability','facecolor','y'); 
+        histogram(lagMat{e,neuron},[-10:0.5:10],'normalization','probability',...
+            'facecolor','y'); 
         hold off;
         title(['P = ',num2str(Ap(e,neuron))]);
         xlabel('Time [s]'); ylabel('Proportion');
+        set(gca,'linewidth',1.5);
 
         %% Activity relative to cell vs relative to treadmill.
         %Only look at laps where both neurons were active. Immediate raster
         %only has trues on laps where leadRaster was active. 
-%         bothActiveLaps = find(any(immediateRaster,2));  
-%         TMalignedOnsets = [];
-%         for l=bothActiveLaps'
-%             %Get the onset times of each neuron. 
-%             TMalignedOnsets = [TMalignedOnsets find(leadRaster(l,:))];    
-%         end
-        [~,TMalignedOnsets] = find(leadRaster);
+        bothActiveLaps = find(any(immediateRaster,2));  
+        TMAlignedOnsets = [];
+        for l=bothActiveLaps'
+            %Get the onset times of each neuron. 
+            TMAlignedOnsets = [TMAlignedOnsets find(leadRaster(l,:))];    
+        end
+        %[~,TMalignedOnsets] = find(leadRaster);
 
         %Divide by frame rate. 
-        TMalignedOnsets = TMalignedOnsets./20;
+        TMAlignedOnsets = TMAlignedOnsets./20;
 
         %Spread of responses relative to treadmill start. 
-        treadmillOffsetSpread = mad(TMalignedOnsets,1);
+        treadmillOffsetSpread = mad(TMAlignedOnsets,1);
         
         if plotcells, subplot(3,5,12); else subplot(3,2,6); end
-        histogram(TMalignedOnsets,[0:0.5:10],'normalization','probability','facecolor','k');
+        histogram(TMAlignedOnsets,[0:0.5:10],'normalization','probability',...
+            'facecolor','k');
         hold on;      
         
         %Get spread. 
@@ -140,10 +147,12 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
         ratio(i) = cellOffsetSpread(i) / treadmillOffsetSpread;
         
         %Histogram.
-        histogram(-d,[0:0.5:10],'normalization','probability','facecolor','y');
+        histogram(-d,[0:0.5:10],'normalization','probability',...
+            'facecolor','y');
         title({['Spread Ratio = ',num2str(ratio(i))],...
             ['N = ', num2str(length(d)), ' comparisons']});
-        xlabel('Temporal Distance [s]'); 
+        xlabel('Temporal Distance [s]')
+        set(gca,'linewidth',1.5);
         
         %% Anatomical topology.
         if plotcells
