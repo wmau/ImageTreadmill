@@ -1,5 +1,5 @@
-function plotTimeCells(MD,T,varargin)
-%plotTimecells(animal,date,session,T)
+function plotTimeCells(md,T,varargin)
+%plotTimecells(MD,T,varargin)
 %   
 %   Plots single neuron responses in time during treadmill run. First
 %   panel: spike-position trajectory. Second panel: Raster. Third panel:
@@ -15,32 +15,34 @@ function plotTimeCells(MD,T,varargin)
 %       T: Length of treadmill run. 
 %
 
-%%
-    animal = MD.Animal;
-    date = MD.Date;
-    session = MD.Session;
-    path = MD.Location;
+%% Grab inputs
+    path = md.Location;
     
     cd(path);
     
-    %Catch varargins, check to see whether dotplots or placefields should
-    %be plotted. 
-    dotplot=false;
-    pf=false; 
-    if ~isempty(varargin)
-        if any(strcmp('dotplot',varargin))      %Dotplot.
-            dotplot = varargin{find(strcmp('dotplot',varargin))+1}; 
-        end
-        
-        if any(strcmp('placefield',varargin))   %Placefield. 
-            pf = varargin{find(strcmp('placefield',varargin))+1}; 
-
-        end
+    %Load time cell data. 
+    try
+        load(fullfile(pwd,'TimeCells.mat')); 
+    catch
+        [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(md,T); 
     end
     
+    p = inputParser;
+    p.addRequired('md',@(x) isstruct(x)); 
+    p.addRequired('T',@(x) isnumeric(x) && isscalar(x)); 
+    p.addParameter('dotplot',false,@(x) islogical(x)); 
+    p.addParameter('placefield',false,@(x) islogical(x));
+    p.addParameter('TimeCells',TimeCells,@(x) isnumeric(x)); 
+    
+    p.parse(md,T,varargin{:});
+    
+    dotplot = p.Results.dotplot; 
+    pf = p.Results.placefield; 
+    TimeCells = p.Results.TimeCells;
+%%
     if pf            
         %Load place maps. 
-        load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','OccMap','pval'); 
+        load(fullfile(path,'PlaceMaps.mat'),'TMap_gauss','OccMap','pval'); 
 
         %Replace unoccupied bins with NaNs. 
         for i=1:length(TMap_gauss)
@@ -48,13 +50,6 @@ function plotTimeCells(MD,T,varargin)
         end
         
         pval = 1-pval; 
-    end
-    
-    %Load time cell data. 
-    try
-        load(fullfile(pwd,'TimeCells.mat')); 
-    catch
-        [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T); 
     end
     
     %Extract the elements in structs. 

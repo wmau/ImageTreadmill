@@ -1,4 +1,4 @@
-function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(MD,T,varargin)
+function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(md,T,varargin)
 %[TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(animal,date,session,T)
 %
 %   Finds time cells using a few criteria. First, the neuron must be active
@@ -50,40 +50,33 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
 %       FT: Aligned FT.
 %
 
-%% Basic set up.
-    cd(MD.Location);
+%% Grab inputs
+    cd(md.Location);
     
-    [~,folder] = fileparts(MD.Location); 
+    ip = inputParser;
+    ip.addRequired('md',@(x) isstruct(x)); 
+    ip.addRequired('T',@(x) isnumeric(x) && isscalar(x)); 
+    ip.addParameter('alt_input','FinalOutput.mat',@(x) ischar(x)); 
+    ip.addParameter('savename','TimeCells.mat',@(x) ischar(x)); 
+    ip.parse(md,T,varargin{:});
+    
+    neuraldata = fullfile(md.Location,ip.Results.alt_input);
+    if strcmp(ip.Results.alt_input,'ProcOut.mat'),halfwindow = 10; else halfwindow = 0; end
+    savename = ip.Results.savename; 
+    
+%% Basic set up.
+    [~,folder] = fileparts(md.Location); 
     
     %Get treadmill timestamp data. 
-    TodayTreadmillLog = getTodayTreadmillLog(MD);
+    TodayTreadmillLog = getTodayTreadmillLog(md);
     TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,TodayTreadmillLog.RecordStartTime);
-    
-    %Name of neural data file. Changed post-Tenaspis 2. 
-    neuraldata = 'ProcOut.mat';         %Default: Tenaspis 1. 
-    savename = 'TimeCells.mat';         %Default.
-    halfwindow = 10;                    %Default: Tenaspis 1. 
-    if ~isempty(varargin)
-        if any(strcmp('alt_input',varargin))
-            filename = varargin{find(strcmp('alt_input',varargin))+1};
-            neuraldata = fullfile(pwd,varargin{find(strcmp('alt_input',varargin))+1}); 
-            
-            if strcmp(filename,'T2output.mat')
-                halfwindow = 0;
-            end
-        end
-        
-        if any(strcmp('savename',varargin))
-            savename = varargin{find(strcmp('savename',varargin))+1}; 
-        end
-    end
     
     %Get calcium imaging data. 
     load(neuraldata,'FT');
     
     %Get rate by lap matrix. 
     disp('Getting time responses for each neuron...');
-    [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(MD,FT,TodayTreadmillLog,halfwindow);  
+    [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(md,FT,TodayTreadmillLog,halfwindow);  
     
     alternation = strcmp(TodayTreadmillLog.direction,'alternation');
     blocked = ~isempty(strfind(folder,'blocked')); 
