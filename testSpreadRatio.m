@@ -44,6 +44,7 @@ function [p,el] = testSpreadRatio(md,graphData,neuron,varargin)
     nInitiators = length(el);
     
     B=1000;
+    
 %% Set up.
     %Change directory and load initial variables. 
     cd(md.Location); 
@@ -63,48 +64,27 @@ function [p,el] = testSpreadRatio(md,graphData,neuron,varargin)
     
     %Preallocate things. 
     c=1; 
-    ratio = zeros(1,nInitiators);
     null = zeros(1,B);
     p = zeros(1,nInitiators);
+    
+    [ratio,~,treadmillSpread] = SpreadRatio(md,graphData,neuron);
     
 %% For each neuron in the edge list, test consistency by doing trial shuffles. 
     for e=el
         %Build the tick raster for neuron 1. 
         lagRaster = buildRaster(inds,FT,e);        
-        [immediateRaster,d] = stripRaster(lagRaster,leadRaster);
 
-        %Get spread. 
-        cellOffsetSpread = mad(d,1);
-        
-        %Only look at laps where both neurons were active. 
-%         bothActiveLaps = find(any(immediateRaster,2)); 
-%         TMalignedOnsets = [];
-%         for l=bothActiveLaps'
-%             %Get the onset times of each neuron. 
-%             TMalignedOnsets = [TMalignedOnsets find(leadRaster(l,:))];     
-%         end
-        [~,TMalignedOnsets] = find(leadRaster);
-
-        %Divide by frame rate . 
-        TMalignedOnsets = TMalignedOnsets./20;
-
-        %Spread of responses relative to treadmill start. 
-        treadmillOffsetSpread = mad(TMalignedOnsets,1);
-
-        %Ratio between cell-to-cell vs cell-to-treadmill.
-        ratio(c) = cellOffsetSpread / treadmillOffsetSpread;
-        
         %Shuffle trial identity and find the new spread ratio. 
         for i=1:B
             shuffled = lagRaster(randperm(nLaps),:);
             [~,dB] = stripRaster(shuffled,leadRaster);
             dBSpread = mad(dB,1);
-            null(i) = dBSpread./treadmillOffsetSpread;        
+            null(i) = dBSpread./treadmillSpread(c);        
         end
         
         %P-value, number of times where the real temporal relationship
         %spread was wider than the shuffled. 
-        p(c) = sum(ratio(c) > null) / B;
+        p(c) = sum(ratio(c) >= null) / B;
       
         c=c+1;  %counter.
     end
