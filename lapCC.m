@@ -4,7 +4,7 @@ function [LAGS,p,SHUFFLELAGS] = lapCC(raster1,raster2,B)
 %   Finds the "cross-correlation" between two neurons every treadmill run.
 %   Specifically, it looks for onsets of calcium transients and calculates
 %   differences between their timestamps (n1 - n2; so positive lags mean n2
-%   occurred before n1). Then it fixes n1 in place and shuffles n2 in time,
+%   occurred before n1). Then it fixes n2 in place and shuffles n1 in time,
 %   computing the lag from this randomized data to create a null
 %   distribution for statistical testing.
 %
@@ -20,25 +20,22 @@ function [LAGS,p,SHUFFLELAGS] = lapCC(raster1,raster2,B)
     [nLaps,nBins] = size(raster1);
     
 %%    
-    LAGS = [];
+    [~,LAGS] = stripRaster(raster1,raster2);
     SHUFFLELAGS = [];
-    for l=1:nLaps
-        if any(raster1(l,:)) && any(raster2(l,:))
-            a = find(raster1(l,:))./20; 
-            b = find(raster2(l,:))./20;
+    
+    if ~isempty(LAGS)
+        for i=1:B
+            temp1 = zeros(nLaps,nBins); 
 
-            lags = bsxfun(@minus,a,b');
-            LAGS = [LAGS; lags(:)];
-
-            for i=1:B
-                Bb = find(circshift(raster2(l,:),[0,randi([0,nBins])]))./20;
-
-                lags = bsxfun(@minus,a,Bb');
-                SHUFFLELAGS = [SHUFFLELAGS; lags(:)];
+            for l=1:nLaps
+                temp1(l,:) = circshift(raster1(l,:),[0,randi([0,nBins])]);
             end
+
+            [~,shuffledLags] = stripRaster(temp1,raster2);
+            SHUFFLELAGS = [SHUFFLELAGS; shuffledLags];
         end
     end
-    
+        
     if ~isempty(LAGS) && B > 0
         [~,p] = kstest2(LAGS,SHUFFLELAGS);
     else
