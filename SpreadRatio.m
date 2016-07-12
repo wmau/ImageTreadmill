@@ -9,25 +9,31 @@ function [ratio,cellSpread,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,gra
     p.addRequired('graphData',@(x) isstruct(x));
     p.addRequired('neuron',@(x) isnumeric(x) && isscalar(x)); 
     p.addParameter('edgelist',find(graphData.A(:,neuron))',@(x) isnumeric(x));
+    p.addParameter('inds',false);
     p.parse(md,graphData,neuron,varargin{:});
     
     el = p.Results.edgelist; 
     md = p.Results.md; 
     neuron = p.Results.neuron;
+    inds = p.Results.inds;
     
     %Number of neurons that presumably connect to neuron. 
     nInitiators = length(el);
     
 %%
     cd(md.Location); 
-    load('TimeCells.mat','T','TodayTreadmillLog');
     load('Pos_align.mat','FT');
-    complete = TodayTreadmillLog.complete;
-    inds = TodayTreadmillLog.inds; 
     
-    %Get treadmill run indices. 
-    inds = inds(find(complete),:);  %Only completed runs. 
-    inds(:,2) = inds(:,1) + 20*T-1; %Consistent length.   
+    if ~isnumeric(inds)
+        load('TimeCells.mat','T','TodayTreadmillLog');
+        
+        complete = TodayTreadmillLog.complete;
+        inds = TodayTreadmillLog.inds; 
+
+        %Get treadmill run indices. 
+        inds = inds(find(complete),:);  %Only completed runs. 
+        inds(:,2) = inds(:,1) + 20*T-1; %Consistent length.   
+    end
     
     %Build raster for neuron 2. 
     leadRaster = buildRaster(inds,FT,neuron);
