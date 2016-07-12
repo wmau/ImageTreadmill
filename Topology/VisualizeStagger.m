@@ -26,7 +26,7 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
     cd(md.Location); 
     load('TimeCells.mat','ratebylap','T','TodayTreadmillLog'); 
     load('Pos_align.mat','aviFrame','FT');
-    load('ProcOut.mat','NumNeurons');
+    NumNeurons = size(FT,1);
     delays = TodayTreadmillLog.delaysetting; 
     complete = TodayTreadmillLog.complete;
     
@@ -108,14 +108,14 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
 
         %% Temporal distance histogram. 
         if plotcells, subplot(3,5,11); else subplot(3,2,5); end
-        histogram(null{e,neuron},[-10:0.5:10],'normalization','probability',...
+        histogram(null{e,neuron},[-10:0.5:0],'normalization','probability',...
             'facecolor','c'); 
         hold on;
-        histogram(lagMat{e,neuron},[-10:0.5:10],'normalization','probability',...
+        histogram(lagMat{e,neuron},[-10:0.5:0],'normalization','probability',...
             'facecolor','y'); 
         hold off;
         title(['P = ',num2str(Ap(e,neuron))]);
-        xlabel('Time [s]'); ylabel('Proportion');
+        xlabel('Latency [s]'); ylabel('Proportion');
         set(gca,'linewidth',1.5);
 
         %% Activity relative to cell vs relative to treadmill.
