@@ -57,27 +57,36 @@ function [p,el] = testSpreadRatio(md,graphData,neuron,varargin)
     %Get treadmill run indices. 
     inds = inds(find(complete),:);  %Only completed runs. 
     inds(:,2) = inds(:,1) + 20*T-1; %Consistent length.   
-    nLaps = sum(complete); 
     
     %Build raster for neuron 2. 
     leadRaster = buildRaster(inds,FT,neuron);
     
     %Preallocate things. 
     c=1; 
-    null = zeros(1,B);
-    p = zeros(1,nInitiators);
     
-    [ratio,~,treadmillSpread] = SpreadRatio(md,graphData,neuron);
+    p = zeros(1,nInitiators);
+    [ratio,~,treadmillSpread] = SpreadRatio(md,graphData,neuron,'inds',inds);
     
 %% For each neuron in the edge list, test consistency by doing trial shuffles. 
     for e=el
         %Build the tick raster for neuron 1. 
         lagRaster = buildRaster(inds,FT,e);        
 
+        %Find intersect of set of laps. 
+        [leadLaps,~] = find(leadRaster); 
+        [lagLaps,~] = find(lagRaster); 
+        laps = intersect(leadLaps,lagLaps); 
+        nLaps = length(laps); 
+        
+        %Only look at those laps. 
+        tempLead = leadRaster(laps,:);
+        tempLag = lagRaster(laps,:); 
+        null = zeros(1,B);
+        
         %Shuffle trial identity and find the new spread ratio. 
         for i=1:B
-            shuffled = lagRaster(randperm(nLaps),:);
-            [~,dB] = stripRaster(shuffled,leadRaster);
+            shuffled = tempLag(randperm(nLaps),:);
+            [~,dB] = stripRaster(shuffled,tempLead);
             dBSpread = mad(dB,1);
             null(i) = dBSpread./treadmillSpread(c);        
         end
