@@ -48,25 +48,24 @@ function [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2,noi)
     goodrows = MAProws(~any(MAP(MAProws,MAPcols)==0,2));    %Cut out neurons that weren't mapped in session 2. 
     noi = noi(ismember(noi,MAP(goodrows,MAPcols(1))));      %Exclude unmapped neurons. 
     noi = intersect(noi,find(DATA.placefieldpvals{1}<0.05));
+    if size(noi,2) == 1, noi = noi'; end
     
     %Preallocate. 
     pCorr = nan(nNeurons,2); 
     tCorr = nan(nNeurons,2);    
-    for n1=1:nNeurons
-        if ismember(n1,noi)
-            n2 = MAP(MAP(:,MAPcols(1))==n1,MAPcols(2));
-            
-            %Place fields.
-            pf1 = DATA.placefieldsunsmoothed{1}{n1}(:);
-            pf2 = DATA.placefieldsunsmoothed{2}{n2}(:);          
-            [pCorr(n1,1),pCorr(n1,2)] = corr(pf1,pf2);
-            
-            %Time fields.
-            tf1 = DATA.curves{1}.tuning{n1}; 
-            tf2 = DATA.curves{2}.tuning{n2};   
-            
-            [tCorr(n1,1),tCorr(n1,2)] = corr(tf1',tf2');             
-        end
+    for n1=noi
+        n2 = MAP(MAP(:,MAPcols(1))==n1,MAPcols(2));
+
+        %Place fields.
+        pf1 = DATA.placefieldsunsmoothed{1}{n1}(:);
+        pf2 = DATA.placefieldsunsmoothed{2}{n2}(:);          
+        [pCorr(n1,1),pCorr(n1,2)] = corr(pf1,pf2);
+
+        %Time fields.
+        tf1 = DATA.curves{1}.tuning{n1}; 
+        tf2 = DATA.curves{2}.tuning{n2};   
+
+        [tCorr(n1,1),tCorr(n1,2)] = corr(tf1',tf2');                   
     end
     
 end
