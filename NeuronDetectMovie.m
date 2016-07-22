@@ -1,4 +1,4 @@
-function NeuronDetectMovie(MD,movietype,clim,varargin)
+function NeuronDetectMovie(md,movietype,clim,varargin)
 %NeuronDetectMovie(MD,movietype,clim,varargin)
 %
 %   Writes a MP4 independent of TreadmillLog data. Takes an h5 file and
@@ -21,27 +21,26 @@ function NeuronDetectMovie(MD,movietype,clim,varargin)
 %
 
 %% Setup.
-    cd(MD.Location); 
+    cd(md.Location); 
     
-    %Process varargin inputs. 
-    HalfWindow = 0; 
-    neuraldata = 'ProcOut.mat'; 
-    if ~isempty(varargin)
-        if any(strcmp('halfwindow',varargin))
-            HalfWindow = varargin{find(strcmp('halfwindow',varargin))+1}; 
-        end
-        
-        if any(strcmp('alt_input',varargin))
-            neuraldata = varargin{find(strcmp('alt_input',varargin))+1};
-            load('ProcOut.mat','Xdim','Ydim'); 
-            load(fullfile(MD.Location,neuraldata),'FT','NeuronImage');
-        end
-        
-        if any(strcmp('noi',varargin))
-            highlight = varargin{find(strcmp('noi',varargin))+1};
-        else 
-            highlight = 1:size(FT,1); 
-        end
+    p = inputParser;
+    p.addRequired('md',@(x) isstruct(x));
+    p.addRequired('movietype',@(x) ischar(x));
+    p.addRequired('clim',@(x) isnumeric(x)); 
+    p.addParameter('halfwindow',10,@(x) isscalar(x)); 
+    p.addParameter('alt_input','FinalOutput.mat',@(x) ischar(x)); 
+    p.addParameter('noi',@(x) isnumeric(x));
+    p.parse(md,movietype,clim,varargin{:});
+    
+    HalfWindow = p.Results.halfwindow;
+    alt_input = p.Results.alt_input;
+    
+    load(fullfile(md.Location,alt_input),'FT');
+    load(fullfile(md.Location,'ProcOut.mat'),'FT');
+    try
+        highlight = p.Results.noi;
+    catch
+        highlight = 1:size(FT,1);
     end
     
     %Type of processed movie.
@@ -51,12 +50,12 @@ function NeuronDetectMovie(MD,movietype,clim,varargin)
             h5file = fullfile(pwd,'D1Movie.h5');
             
             if ~exist(h5file,'file')
-                cd(fullfile(MD.Location,'MotCorrMovie-Objects'));
+                cd(fullfile(md.Location,'MotCorrMovie-Objects'));
                 motcorrh5 = dir('*.h5'); 
                 
-                TempSmoothMovie(fullfile(MD.Location,'MotCorrMovie-Objects',motcorrh5.name),...
-                    fullfile(MD.Location,'SMovie.h5'),20);
-                cd(MD.Location);
+                TempSmoothMovie(fullfile(md.Location,'MotCorrMovie-Objects',motcorrh5.name),...
+                    fullfile(md.Location,'SMovie.h5'),20);
+                cd(md.Location);
                 
                 multiplier_use = DFDT_Movie('SMovie.h5','D1Movie.h5');
                 if ~isempty(multiplier_use)

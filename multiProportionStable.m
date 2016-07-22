@@ -11,7 +11,8 @@ function [percentStable,nStable] = multiProportionStable(mapMD,MD1,MDs,neurontyp
 
 %%
     nCompSessions = length(MDs);
-    load(fullfile(MD1.Location,'ProcOut.mat'),'NumNeurons'); 
+    load(fullfile(MD1.Location,'FinalOutput.mat'),'FT'); 
+    NumNeurons = size(FT,1); 
     neurontype = lower(neurontype); 
     r = zeros(NumNeurons,2,nCompSessions); 
     switch neurontype
@@ -22,8 +23,9 @@ function [percentStable,nStable] = multiProportionStable(mapMD,MD1,MDs,neurontyp
             for s=1:nCompSessions
                 [~,r(:,:,s)] = PlaceTimeCorr(mapMD,MD1,MDs(s),TimeCells); 
                 
-                [~,~,~,MAP,MAPcols] = nMatchedNeurons(mapMD,MD1,MDs(s));
-                n(s) = sum(ismember(MAP(:,MAPcols(2)),TimeCells));
+                %[~,~,~,MAP,MAPcols] = nMatchedNeurons(mapMD,MD1,MDs(s));
+                %n(s) = sum(ismember(MAP(:,MAPcols(2)),TimeCells));
+                n(s) = sum(~isnan(r(:,2,s)));
             end
         case 'place'
             load(fullfile(MD1.Location,'PlaceMaps.mat'),'pval'); 
@@ -33,8 +35,9 @@ function [percentStable,nStable] = multiProportionStable(mapMD,MD1,MDs,neurontyp
             for s=1:nCompSessions
                 [r(:,:,s),~] = PlaceTimeCorr(mapMD,MD1,MDs(s),PlaceCells);
                 
-                [~,~,~,MAP,MAPcols] = nMatchedNeurons(mapMD,MD1,MDs(s));
-                n(s) = sum(ismember(MAP(:,MAPcols(2)),PlaceCells));
+                %[~,~,~,MAP,MAPcols] = nMatchedNeurons(mapMD,MD1,MDs(s));
+                %n(s) = sum(ismember(MAP(:,MAPcols(2)),PlaceCells));
+                n(s) = sum(~isnan(r(:,2,s)));
             end
     end
         

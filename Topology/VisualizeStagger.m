@@ -72,7 +72,7 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
         imagesc([0:T],...
             [1:nLaps],...
             ratebylap(:,:,e)); 
-        colormap gray; title(['Neuron ',num2str(e)]);
+        colormap gray; title(['\color{green}Trigger \color{black}ROI #',num2str(e)]);
         ylabel('Laps');
 
         %% Raster - Neuron leading. 
@@ -80,7 +80,7 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
         imagesc([0:T],...
             [1:nLaps],...
             ratebylap(:,:,neuron)); 
-        colormap gray; title(['Neuron ',num2str(neuron)]);
+        colormap gray; title(['\color{red}Target \color{black}ROI #',num2str(neuron)]);
          
 
         %% Tick raster
@@ -104,18 +104,21 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
         ax.XTick = linspace(ax.XLim(1),ax.XLim(2),nTicks);
         ax.XTickLabel = linspace(0,T,nTicks);
         ax.YTick = [1:5:nLaps];
+        set(gca,'ticklength',[0 0]);
         hold off; ylabel('Laps'); xlabel('Time [s]'); 
 
         %% Temporal distance histogram. 
         if plotcells, subplot(3,5,11); else subplot(3,2,5); end
-        histogram(null{e,neuron},[-10:0.5:0],'normalization','probability',...
+        histogram(-null{e,neuron},[0:0.25:10],'normalization','probability',...
             'facecolor','c'); 
         hold on;
-        histogram(lagMat{e,neuron},[-10:0.5:0],'normalization','probability',...
+        histogram(-lagMat{e,neuron},[0:0.25:10],'normalization','probability',...
             'facecolor','y'); 
         hold off;
-        title(['P = ',num2str(Ap(e,neuron))]);
-        xlabel('Latency [s]'); ylabel('Proportion');
+        title({'Spike Time Latencies',...
+            ['P = ',num2str(Ap(e,neuron))]});
+        xlabel('Latency from Target [s]'); ylabel('Proportion of Spike Pairs');
+        legend({'Shuffled','Trigger'});
         set(gca,'linewidth',1.5);
 
         %% Activity relative to cell vs relative to treadmill.
@@ -136,7 +139,7 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
         treadmillOffsetSpread = mad(TMAlignedOnsets,1);
         
         if plotcells, subplot(3,5,12); else subplot(3,2,6); end
-        histogram(TMAlignedOnsets,[0:0.5:10],'normalization','probability',...
+        histogram(TMAlignedOnsets,[0:0.25:10],'normalization','probability',...
             'facecolor','k');
         hold on;      
         
@@ -144,14 +147,15 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
         cellOffsetSpread(i) = mad(d,1);
         
         %Ratio between cell-to-cell vs cell-to-treadmill.
-        ratio(i) = cellOffsetSpread(i) / treadmillOffsetSpread;
+        ratio(i) =  cellOffsetSpread(i) / treadmillOffsetSpread;
         
         %Histogram.
-        histogram(-d,[0:0.5:10],'normalization','probability',...
+        histogram(-d,[0:0.25:10],'normalization','probability',...
             'facecolor','y');
-        title({['Spread Ratio = ',num2str(ratio(i))],...
-            ['N = ', num2str(length(d)), ' comparisons']});
-        xlabel('Temporal Distance [s]')
+        title({'Trigger-Target vs. Treadmill-Target',...
+            ['TT Score = ',num2str(ratio(i))]});
+        legend({'Treadmill','Trigger'});
+        xlabel('Latency from Target [s]')
         set(gca,'linewidth',1.5);
         
         %% Anatomical topology.
