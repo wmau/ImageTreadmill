@@ -34,7 +34,10 @@ function DATA = CompileMultiSessionData(MD,args)
     args = lower(args); 
     
     %Template. 
-    datatypes = {   'timecells',...
+    datatypes = {   'ft',...
+                    'ttl',...
+                    't',...
+                    'timecells',...
                     'ratebylap',...
                     'curves',...
                     'delays',...
@@ -53,6 +56,23 @@ function DATA = CompileMultiSessionData(MD,args)
 %% Compile. 
     for i=1:nSessions
         cd(paths{i}); 
+        %FT.
+        if any(strcmp('ft',args))
+            load(fullfile(pwd,'Pos_align.mat'),'FT');
+            DATA.ft{i} = FT;
+        end
+        
+        %TODAYTREADMILLLOG.
+        if any(strcmp('ttl',args))
+            load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog');
+            DATA.ttl{i} = TodayTreadmillLog;
+        end
+        
+        %T.
+        if any(strcmp('t',args))
+            load(fullfile(pwd,'TimeCells.mat'),'T');
+            DATA.t{i} = T;
+        end
         
         %TIME CELLS. 
         if any(strcmp('timecells',args))
