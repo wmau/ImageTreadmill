@@ -1,5 +1,5 @@
 function centroids = getNeuronCentroids(MD,varargin)
-%centroids = getNeuronCentroids(animal,date,session)
+%centroids = getNeuronCentroids(MD,varargin)
 %
 %   INPUTS
 %       animal: Name of the mouse (e.g., GCamp6f_45_treadmill).
@@ -29,7 +29,7 @@ function centroids = getNeuronCentroids(MD,varargin)
         if exist('min_trans_length','var')
             load(fullfile(pwd,['ProcOut_minlength_',num2str(min_trans_length),'.mat']),'NeuronImage');
         else
-            load(fullfile(pwd,'ProcOut.mat'),'NeuronImage');
+            load(fullfile(pwd,'FinalOutput.mat'),'NeuronImage');
         end
     catch
         disp('ProcOut.mat not found. Run TENASPIS!'); 

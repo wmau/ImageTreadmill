@@ -156,9 +156,15 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     movies.FT = FT;
     
     %Get indices of neurons that pass the test. 
-    TimeCells = intersect(find(cellfun(@any,sigcurve)),goodlaps); 
-    temp = cellfun(@(a) max(diff( [0 (find( ~ (a > 0) ) )+ 1] ))-1,sigcurve,'unif',0);
-    longpeak = find(cellfun(@(a) any(a>1),temp));
-    TimeCells = intersect(TimeCells,longpeak);
+    TimeCells = intersect(find(cellfun(@any,sigcurve)),goodlaps);   %Lap criterion.
+    n = 1;
+    nConsecPeaks = nan(length(TimeCells),1);
+    for tc = TimeCells'
+        d = diff([0 sigcurve{tc} 0]);
+        nConsecPeaks(n) = max(find(d<0) - find(d>0));
+        
+        n=n+1; 
+    end
+    TimeCells(nConsecPeaks < 2) = [];
     save(savename,'TimeCells','ratebylap','curves','movies','T','TodayTreadmillLog','alternation'); 
 end

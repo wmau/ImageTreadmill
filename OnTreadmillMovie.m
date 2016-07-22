@@ -28,7 +28,8 @@ function OnTreadmillMovie(MD,clim,movietype,varargin)
     ChangeDirectory(animal,date,session);
     
     HalfWindow = 0; 
-    neuraldata = 'ProcOut.mat';
+    neuraldata = 'FinalOutput.mat';
+    load('ProcOut.mat','Xdim','Ydim');
     if ~isempty(varargin)
         if any(strcmp('halfwindow',varargin))   %HalfWindow (should be 10 for comparing D1 movies to T2 trace). 
             HalfWindow = varargin{find(strcmp('halfwindow',varargin))+1}; 
@@ -36,7 +37,7 @@ function OnTreadmillMovie(MD,clim,movietype,varargin)
         
         if any(strcmp('alt_input',varargin))    %For T2 outputs. 
             neuraldata = varargin{find(strcmp('alt_input',varargin))+1}; 
-            load('ProcOut.mat','Xdim','Ydim'); 
+             
         end
         
         if any(strcmp('noi',varargin))
@@ -60,7 +61,7 @@ function OnTreadmillMovie(MD,clim,movietype,varargin)
 
 %% Load data and process. 
     %Imaging data. 
-    load(fullfile(pwd,neuraldata),'FT','NeuronImage','Xdim','Ydim'); 
+    load(fullfile(pwd,neuraldata),'FT','NeuronImage'); 
     nNeurons = length(NeuronImage); 
     %load(fullfile(pwd,'CC.mat'),'cc');
     load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','TimeCells','movies'); 
@@ -97,7 +98,7 @@ function OnTreadmillMovie(MD,clim,movietype,varargin)
     tInc = 0;
     ifigure = figure('Position',[260 240 560 420]); 
     tfigure = figure('Position',[840 240 560 420]);
-    for thisEpoch=1:nRuns
+    for thisEpoch=[1 3 4 5]
         if TodayTreadmillLog.complete(thisEpoch)
             sFrame = treadmillInds(thisEpoch,1) + FToffset;
             eFrame = treadmillInds(thisEpoch,2) + FToffset; 

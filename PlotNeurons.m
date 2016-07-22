@@ -1,5 +1,5 @@
 function PlotNeurons(md,neurons,col,thickness)
-%PlotNeurons(NeuronImage)
+%PlotNeurons(md,neurons,col,thickness)
 %
 %   Given cell arrays of binary images, plot the outlines of neurons. 
 %
@@ -12,16 +12,16 @@ function PlotNeurons(md,neurons,col,thickness)
 
 %% Plot neurons. 
     cd(md.Location); 
-    load('FinalOutput.mat','NeuronImage');
-    [Xdim,Ydim] = size(NeuronImage{1});
-    NumNeurons = length(NeuronImage);
     
-    w = whos('file','FinalOutput.mat');
+    w = whos('-file','FinalOutput.mat');
     if any(strcmp({w.name},'xOutline'))
         load('FinalOutput.mat','xOutline','yOutline'); 
     elseif exist('PlaceMaps.mat','file')
         load('PlaceMaps.mat','xOutline','yOutline'); 
     else
+        load('FinalOutput.mat','NeuronImage');
+        NumNeurons = length(NeuronImage);
+
         xOutline = cell(NumNeurons,1);
         yOutline = cell(NumNeurons,1); 
 
@@ -33,6 +33,8 @@ function PlotNeurons(md,neurons,col,thickness)
         
         save('FinalOutput.mat','xOutline','yOutline','-append');
     end
+    
+    %[Xdim,Ydim] = size(NeuronImage{1});
         
     hold on; 
     for i=neurons
