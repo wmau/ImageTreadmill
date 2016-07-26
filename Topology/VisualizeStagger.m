@@ -1,4 +1,4 @@
-function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphData,neuron,varargin)
+function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphData,neuron,varargin)
 %
 %
 %
@@ -16,7 +16,7 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
     Ap = p.Results.graphData.Ap;
     null = p.Results.graphData.null;
     lagMat = p.Results.graphData.lagMat;
-    closest = p.Results.graphData.closest;
+    %closest = p.Results.graphData.closest;
     plotcells = p.Results.plotcells;
     md = p.Results.md; 
     neuron = p.Results.neuron;
@@ -41,7 +41,7 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
     nLaps = size(ratebylap,1); 
     
     %Build raster for second neuron. 
-    leadRaster = buildRaster(inds,FT,neuron);
+    targetRaster = buildRaster(inds,FT,neuron);
     
     %Line format for second neuron raster.
     lead.Color = 'r';
@@ -61,7 +61,7 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
     nInitiators = length(el);
     cellOffsetSpread = zeros(1,nInitiators);
     ratio = zeros(1,nInitiators);
-    lagRaster = cell(1,nInitiators);
+    triggerRaster = cell(1,nInitiators);
 %% Plot neurons.
     nTicks = 6;
     for e=el
@@ -85,19 +85,19 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
 
         %% Tick raster
         %Build the tick raster for neuron 1. 
-        lagRaster{i} = buildRaster(inds,FT,e);
+        triggerRaster{i} = buildRaster(inds,FT,e);
         
         %Raster for responses immediately preceding neuron 2.
-        [immediateRaster,d] = stripRaster(lagRaster{i},leadRaster); 
+        [immediateRaster,d] = stripRaster(triggerRaster{i},targetRaster); 
        
         %Raster. 
         if plotcells, subplot(3,5,6:7); else subplot(3,2,3:4); end
-        plotSpikeRaster(lagRaster{i},'PlotType','vertline',...
+        plotSpikeRaster(triggerRaster{i},'PlotType','vertline',...
             'LineFormat',lag,'TimePerBin',0.05,'SpikeDuration',0.05); 
         hold on;
         plotSpikeRaster(immediateRaster,'PlotType','vertline',...
             'LineFormat',immediatelag,'TimePerBin',0.05,'SpikeDuration',0.05); 
-        plotSpikeRaster(leadRaster,'PlotType','vertline',...
+        plotSpikeRaster(targetRaster,'PlotType','vertline',...
             'LineFormat',lead,'TimePerBin',0.05,'SpikeDuration',0.05); 
         ax = gca; 
         ax.Color = 'k';
@@ -124,16 +124,7 @@ function [lagRaster,leadRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphD
         %% Activity relative to cell vs relative to treadmill.
         %Only look at laps where both neurons were active. Immediate raster
         %only has trues on laps where leadRaster was active. 
-        bothActiveLaps = find(any(immediateRaster,2));  
-        TMAlignedOnsets = [];
-        for l=bothActiveLaps'
-            %Get the onset times of each neuron. 
-            TMAlignedOnsets = [TMAlignedOnsets find(leadRaster(l,:))];    
-        end
-        %[~,TMalignedOnsets] = find(leadRaster);
-
-        %Divide by frame rate. 
-        TMAlignedOnsets = TMAlignedOnsets./20;
+        TMAlignedOnsets = TMLatencies(immediateRaster,targetRaster);
 
         %Spread of responses relative to treadmill start. 
         treadmillOffsetSpread = mad(TMAlignedOnsets,1);

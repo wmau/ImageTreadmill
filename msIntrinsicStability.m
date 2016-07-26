@@ -1,26 +1,27 @@
-function msIntrinsicStability(mapMD,md,A)
+function [pStableConnections,pStableCells] = msIntrinsicStability(mapMD,md,A)
+%[pStableConnections,pStableCells] = msIntrinsicStability(mapMD,md,A)
 %
-%
+%   Finds the proportion of targets and connections that are stable from
+%   day to day. As of this writing, I use the KS-test MakeGraph method. 
 %
 
-%%
-    nSessions = length(md);
-    [trigger,target] = find(A);
-    nEdges = length(trigger); 
+%% Set up.
+    nSessions = length(md);         %Number of sessions.
+    [trigger,target] = find(A);     %Indices of triggers and targets for the initial session.
+    nEdges = length(trigger);       %Number of connections.
     
+    %Get the cell identities for each session.
     triggers = msMatchCells(mapMD,md,trigger); 
     targets = msMatchCells(mapMD,md,target);
     
+    %Targets. 
     uTarg = unique(target);
     
+    %Get the number of cells that mapped onto other sessions. 
     nGoodCells = zeros(1,nSessions); 
     for s=1:nSessions
         for e=uTarg'
-            try 
             nGoodCells(s) = nGoodCells(s) + (targets(targets(:,1)==e,s) > 0);
-            catch
-                keyboard;
-            end
         end
     end
     
@@ -28,7 +29,7 @@ function msIntrinsicStability(mapMD,md,A)
     pStableCells = zeros(1,nSessions); pStableCells(1) = 1;
     goodCells = cell(1,nSessions);
     for s=2:nSessions
-        load(fullfile(md(s).Location,'graphData_p.mat'),'A');
+        load(fullfile(md(s).Location,'graphData_KS.mat'),'A');
         n = 0; nGoodConnections = 0;
         for e=1:nEdges
             thisTrig = trigger(e);
@@ -50,6 +51,6 @@ function msIntrinsicStability(mapMD,md,A)
         pStableConnections(s) = n/nGoodConnections;
         pStableCells(s) = length(unique(goodCells{s}))/nGoodCells(s);
     end
-    keyboard;
+
     
 end
