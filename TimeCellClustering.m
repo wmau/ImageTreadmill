@@ -26,7 +26,7 @@ function p= TimeCellClustering(md)
     for j=1:nTCs-1
         dists(j) = pdist(centroids(j:j+1,:),'euclidean');
     end
-    distmean = mean(dists);
+    distmean = median(dists);
     
     p = ProgressBar(B);
     for i=1:B
@@ -34,13 +34,13 @@ function p= TimeCellClustering(md)
         for j=1:nTCs-1
             null(i,j) = pdist(shuffled(j:j+1,:),'euclidean');     
         end
-        nullmeans(i) = mean(null(i,:));
+        nullmeans(i) = median(null(i,:));
         
         p.progress;
     end
     p.stop;
     
-    p = sum(distmean > nullmeans)/B
+    p = sum(distmean > nullmeans)/B;
     
     figure;
     histogram(nullmeans,'normalization','probability');
