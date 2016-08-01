@@ -1,4 +1,4 @@
-function [lagRaster,closest] = stripRaster(lagRaster,leadRaster) 
+function [trigRaster,closest] = stripRaster(trigRaster,targRaster) 
 %lagRaster = stripRaster(lagRaster,leadRaster)
 %
 %   Takes lagRaster (raster of neuron 1, preceding neuron 2) and takes out
@@ -18,12 +18,12 @@ function [lagRaster,closest] = stripRaster(lagRaster,leadRaster)
 
 %% Main body. 
     %Preallocate. 
-    temp = false(size(lagRaster)); 
+    temp = false(size(trigRaster)); 
     closest = [];
     
     %Find indices of spikes. 
-    [lagLap,lagT] = find(lagRaster); 
-    [leadLap,leadT] = find(leadRaster); 
+    [lagLap,lagT] = find(trigRaster); 
+    [leadLap,leadT] = find(targRaster); 
     
     %For each lap where both neurons were active...
     for l=intersect(leadLap,lagLap)'
@@ -51,5 +51,5 @@ function [lagRaster,closest] = stripRaster(lagRaster,leadRaster)
     closest = closest./20; 
     
     %Replace lagRaster with processed 
-    lagRaster = temp; 
+    trigRaster = temp; 
 end

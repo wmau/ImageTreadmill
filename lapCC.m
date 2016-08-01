@@ -1,4 +1,4 @@
-function [LAGS,p,SHUFFLELAGS] = lapCC(raster1,raster2,B)
+function [LAGS,p,SHUFFLELAGS] = lapCC(trigRaster,targRaster,B)
 %LAGS = lapCC(md,n1,n2,shuffle)
 %
 %   Finds the "cross-correlation" between two neurons every treadmill run.
@@ -17,10 +17,10 @@ function [LAGS,p,SHUFFLELAGS] = lapCC(raster1,raster2,B)
 %       from n1 to n2. 
 
 %% 
-    [nLaps,nBins] = size(raster1);
+    [nLaps,nBins] = size(trigRaster);
     
 %%    
-    [~,LAGS] = stripRaster(raster1,raster2);
+    [~,LAGS] = stripRaster(trigRaster,targRaster);
     SHUFFLELAGS = [];
     
     if ~isempty(LAGS)
@@ -28,10 +28,10 @@ function [LAGS,p,SHUFFLELAGS] = lapCC(raster1,raster2,B)
             temp1 = zeros(nLaps,nBins); 
 
             for l=1:nLaps
-                temp1(l,:) = circshift(raster1(l,:),[0,randi([0,nBins])]);
+                temp1(l,:) = circshift(trigRaster(l,:),[0,randi([0,nBins])]);
             end
 
-            [~,shuffledLags] = stripRaster(temp1,raster2);
+            [~,shuffledLags] = stripRaster(temp1,targRaster);
             SHUFFLELAGS = [SHUFFLELAGS; shuffledLags];
         end
     end
