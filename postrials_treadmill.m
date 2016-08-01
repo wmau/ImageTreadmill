@@ -89,28 +89,32 @@ function Alt = postrials_treadmill(x,y,plot_each_trial)
                 %Once mouse enters left/right arm, reach for next instance
                 %where he is in the base. The duration since the while loop
                 %started up until this timepoint is now one lap. 
-                epochs(next) = min(base(base > epochs(next))); 
+                try
+                    epochs(next) = min(base(base > epochs(next))); 
+                catch
+                    epochs(next) = length(rot_x); 
+                end
+             
+                %Plot laps. 
+                if plot_each_trial
+                    figure(this_trial);
+                    plot(x(epochs(this_trial):epochs(next)), y(epochs(this_trial):epochs(next))); 
+                    xlim([min(x) max(x)]); ylim([min(y) max(y)]); 
+                    title(['Trial ', num2str(this_trial)], 'fontsize', 12); 
+                end
 
+                %Notify user of possible errors in the trial sorting script. This
+                %catches when the mouse appears on both maze arms in what the
+                %script believed to be a single trial. 
+                if (ismember(left, sect(epochs(this_trial):epochs(next))) && trialtype(this_trial) == 2) || ...
+                        (ismember(right, sect(epochs(this_trial):epochs(next))) && trialtype(this_trial) == 1)
+                    disp(['Warning: This epoch may contain more than one trial: Trial ', num2str(this_trial)]);
+                end       
+                
                 break;
             end
         end
         
-        %Plot laps. 
-        if plot_each_trial == 1
-            figure(this_trial);
-            plot(x(epochs(this_trial):epochs(next)), y(epochs(this_trial):epochs(next))); 
-            xlim([min(x) max(x)]); ylim([min(y) max(y)]); 
-            title(['Trial ', num2str(this_trial)], 'fontsize', 12); 
-        end
-        
-        %Notify user of possible errors in the trial sorting script. This
-        %catches when the mouse appears on both maze arms in what the
-        %script believed to be a single trial. 
-        if (ismember(left, sect(epochs(this_trial):epochs(next))) && trialtype(this_trial) == 2) || ...
-                (ismember(right, sect(epochs(this_trial):epochs(next))) && trialtype(this_trial) == 1)
-            disp(['Warning: This epoch may contain more than one trial: Trial ', num2str(this_trial)]);
-        end       
-
         %When postrials can no longer successfully sort a trial, stop the
         %loop. 
         catch
