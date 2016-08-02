@@ -18,14 +18,7 @@ function OnTreadmillMovie(MD,clim,movietype,varargin)
 %
 
 %% Preliminary stuff. 
-    animal = MD.Animal;
-    date = MD.Date;
-    session = MD.Session; 
-    
-    close all;
-    
-    %h5 file. 
-    ChangeDirectory(animal,date,session);
+    cd(md.Location);
     
     HalfWindow = 0; 
     neuraldata = 'FinalOutput.mat';
