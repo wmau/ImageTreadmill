@@ -65,7 +65,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     savename = ip.Results.savename; 
     
 %% Basic set up.
-    [~,folder] = fileparts(md.Location); 
+    %[~,folder] = fileparts(md.Location); 
     
     %Get treadmill timestamp data. 
     TodayTreadmillLog = getTodayTreadmillLog(md);
@@ -79,7 +79,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(md,FT,TodayTreadmillLog,halfwindow);  
     
     alternation = strcmp(TodayTreadmillLog.direction,'alternation');
-    blocked = ~isempty(strfind(folder,'blocked')); 
+    
     
     %Preallocate. 
     [nLaps,nBins,nNeurons] = size(ratebylap);
@@ -157,7 +157,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     
     %Get indices of neurons that pass the test. 
     TimeCells = intersect(find(any(cellfun(@any,sigcurve),2)),goodlaps);   %Lap criterion.
-    nConsecPeaks = nan(length(TimeCells),2);
+    nConsecPeaks = nan(length(TimeCells),size(sigcurve,2));
     for t = 1:size(sigcurve,2)
         n = 1;
         for tc = TimeCells'
