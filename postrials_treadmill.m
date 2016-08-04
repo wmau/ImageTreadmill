@@ -1,4 +1,4 @@
-function Alt = postrials_treadmill(x,y,plot_each_trial)
+function Alt = postrials_treadmill(md,plot_each_trial)
 %function data = postrials(x,y,plot_each_trial,...)
 %   
 %   This function takes mouse position data and sorts them into trial
@@ -29,6 +29,14 @@ function Alt = postrials_treadmill(x,y,plot_each_trial)
 %   TIP: To find frames for a particular trial of interest, you can do:
 %       data.frames(data.trial == TRIAL_OF_INTEREST).
 %
+
+%% Get XY coordinates.
+    cd(md.Location);
+    load('Pos_align.mat','x_adj_cm','y_adj_cm');
+    x = x_adj_cm; y = y_adj_cm; 
+    
+    [~,folder] = fileparts(md.Location); 
+    blocked = ~isempty(strfind(folder,'blocked'));  
 
 %% Label position data with section numbers. 
     bounds = sections_treadmill(x,y,'alternation',0);
@@ -136,7 +144,11 @@ function Alt = postrials_treadmill(x,y,plot_each_trial)
     %minus one or two minus two). Take the absolute value and all other
     %correct visits will be 1. The first choice (reward on both arms) is
     %always correct. 
-    alt = [1 abs(diff(trialtype))]; 
+    if blocked 
+        alt = ones(1,length(trialtype));
+    else
+        alt = [1 abs(diff(trialtype))]; 
+    end
     
     %Trial numbers, trial type (left vs. right), and correct vs. incorrect. 
     for this_trial = 1:numtrials
