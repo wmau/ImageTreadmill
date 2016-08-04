@@ -37,11 +37,24 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger_alt
     
     %Get treadmill run indices. 
     inds = getTreadmillEpochs(TodayTreadmillLog,aviFrame); 
-    inds = inds(find(complete),:);  %Only completed runs. 
+    inds = inds(find(delays==T & complete),:);  %Only completed runs. 
     inds(:,2) = inds(:,1) + 20*T-1; %Consistent length.   
     
+    %Sanity check - are all the trial numbers for complete treadmill runs
+    %unique? 
+    trialsOnTM = Alt.trial(inds(:,1)); 
+    if length(unique(trialsOnTM)) ~= length(trialsOnTM)
+        disp('Warning! Multiple laps sorted by postrials_treadmill correspond to run indices!'); 
+        
+        trialCounts = hist(trialsOnTM,unique(trialsOnTM)); 
+        badTrials = find(trialCounts>1); 
+        inds(badTrials,:) = [];
+    end
+    
     %Trim ratebylap. 
-    ratebylap = ratebylap(delays==T & complete & goodLaps,:,:);
+    ratebylap = ratebylap(delays==T & complete,:,:);
+    ratebylap(badTrials,:,:) = [];
+    ratebylap = ratebylap(goodLaps,:,:);
     ratebylap = ratebylap(:,~isnan(ratebylap(1,:,1)),:); 
     nLaps = size(ratebylap,1); 
     
