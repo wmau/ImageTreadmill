@@ -65,7 +65,7 @@ function plotTimeCells(md,T,varargin)
     [nNeurons,nFrames] = size(FT); 
     FT = logical(FT); 
     nBins = unique(sum(~isnan(ratebylap(delays==T & complete,:,1)),2));
-    pLaps = 0.2; 
+    %pLaps = 0.2; 
     
     %Get indices for treadmill runs. 
     inds = getTreadmillEpochs(TodayTreadmillLog,aviFrame);
@@ -75,8 +75,8 @@ function plotTimeCells(md,T,varargin)
             temp = [temp,inds(thisLap,1):inds(thisLap,2)];
         end
     end
-    treadmillruns = logical(zeros(1,nFrames));
-    treadmillruns(temp) = 1; 
+    treadmillruns = false(1,nFrames);
+    treadmillruns(temp) = true; 
 
 %% Plot setup. 
     thisNeuron = 1;
