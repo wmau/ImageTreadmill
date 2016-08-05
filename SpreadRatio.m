@@ -36,7 +36,7 @@ function [ratio,cellSpread,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,gra
     end
     
     %Build raster for neuron 2. 
-    leadRaster = buildRaster(inds,FT,neuron);
+    targetRaster = buildRaster(inds,FT,neuron);
 
     %Treadmill-aligned onsets. 
     %[~,TMAlignedOnsets] = find(leadRaster); 
@@ -54,19 +54,12 @@ function [ratio,cellSpread,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,gra
     treadmillSpread = nan(1,nInitiators);
     for e=el
         %Build the tick raster for neuron 1. 
-        lagRaster = buildRaster(inds,FT,e);        
-        [immediateRaster,d] = stripRaster(lagRaster,leadRaster);
+        triggerRaster = buildRaster(inds,FT,e);        
+        [immediateRaster,d] = stripRaster(triggerRaster,targetRaster);
 
-        %Only look at laps where both neurons were active. 
-        bothActiveLaps = find(any(immediateRaster,2)); 
-
-        %Only look at laps where both neurons were active. 
-        for l=bothActiveLaps'
-            %Get the onset times of each neuron. 
-            TMAlignedOnsets{c} = [TMAlignedOnsets{c} find(leadRaster(l,:))];     
-        end
-        TMAlignedOnsets{c} = TMAlignedOnsets{c}./20;
-
+        %Get treadmill-target latencies.
+        TMAlignedOnsets{c} = TMLatencies(immediateRaster,targetRaster);
+        
         %Get treadmill latency spread. 
         treadmillSpread(c) = mad(TMAlignedOnsets{c},1); 
 
