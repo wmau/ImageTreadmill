@@ -67,7 +67,7 @@ function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts)
             sortedPeaks = nan(nTimeCells,nSessions);
             
             %Matrix with responses that tile delay. 
-            tilemat = zeros(length(neurons),length(CURVES{i}.tuning{1}));
+            tilemat = zeros(nTimeCells,nBins(i));
                   
             %Fill in matrix. 
             tilemat(~missing,:) = cell2mat(CURVES{i}.tuning(neurons(~missing)));  
@@ -86,7 +86,7 @@ function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts)
             
             %Plot. 
             subplot(1,nSessions,dateOrder(i)); 
-            imagesc([0:Ts(i)],[1:5:nTimeCells],normtilemat{1}); hold on;
+            imagesc([0:Ts(i)],[1:nTimeCells],normtilemat{1}); hold on;
             plot(sortedPeaks(:,i),[1:nTimeCells],'r','linewidth',2);
             colormap gray; xlabel('Time [s]'); title(dateTitles{i});            
         else %Almost the same as above. 

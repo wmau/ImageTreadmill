@@ -14,8 +14,8 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(md,
     
     el = p.Results.edgelist; 
     Ap = p.Results.graphData.Ap;
-    null = p.Results.graphData.null;
-    lagMat = p.Results.graphData.lagMat;
+    nulld = p.Results.graphData.nulld;
+    CC = p.Results.graphData.CC;
     %closest = p.Results.graphData.closest;
     plotcells = p.Results.plotcells;
     md = p.Results.md; 
@@ -109,10 +109,10 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(md,
 
         %% Temporal distance histogram. 
         if plotcells, subplot(3,5,11); else subplot(3,2,5); end
-        histogram(-null{e,neuron},[0:0.25:10],'normalization','probability',...
+        histogram(-nulld{e,neuron},[0:0.25:10],'normalization','probability',...
             'facecolor','c'); 
         hold on;
-        histogram(-lagMat{e,neuron},[0:0.25:10],'normalization','probability',...
+        histogram(-CC{e,neuron},[0:0.25:10],'normalization','probability',...
             'facecolor','y'); 
         hold off;
         title({'Spike Time Latencies',...

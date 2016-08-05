@@ -27,7 +27,7 @@ function [sortedPastalkova,order] = PastalkovaPlot(MD,T,plotit)
     %Plot. 
     if plotit
     figure;
-    imagesc([0:T],[1:5:length(TimeCells)],sortedPastalkova);
+    imagesc([0:T],[1:length(TimeCells)],sortedPastalkova);
         colormap gray;
         xlabel('Time [s]'); ylabel('Neurons'); 
     end
