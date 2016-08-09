@@ -24,7 +24,7 @@ function TMAlignedOnsets = TMLatencies(immRaster,targRaster)
         TMAlignedOnsets = [TMAlignedOnsets find(targRaster(l,:))];    
     end
     
-    %Divide by frame rate. 
+    %Divide by frame rate then subtract by 1 frame. 
     TMAlignedOnsets = TMAlignedOnsets ./ 20 - 0.05; 
     
 end

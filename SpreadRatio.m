@@ -48,6 +48,7 @@ function [ratio,cellSpread,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,gra
     %treadmillSpread = mad(TMAlignedOnsets,1); 
 %%
     c=1;
+    mm=0;
     ratio = nan(1,nInitiators); 
     cellSpread = nan(1,nInitiators); 
     TMAlignedOnsets = cell(1,nInitiators);
@@ -55,16 +56,16 @@ function [ratio,cellSpread,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,gra
     for e=el
         %Build the tick raster for neuron 1. 
         triggerRaster = buildRaster(inds,FT,e);        
-        [immediateRaster,d] = stripRaster(triggerRaster,targetRaster);
+        [immediateRaster,latencies] = stripRaster(triggerRaster,targetRaster);
 
         %Get treadmill-target latencies.
         TMAlignedOnsets{c} = TMLatencies(immediateRaster,targetRaster);
         
         %Get treadmill latency spread. 
-        treadmillSpread(c) = mad(TMAlignedOnsets{c},1); 
+        treadmillSpread(c) = mad(TMAlignedOnsets{c},mm); 
 
         %Get cell pairing latency spread. 
-        cellSpread(c) = mad(d,1);
+        cellSpread(c) = mad(latencies,mm);
 
         %Get cell pairing to cell-treadmill latency spread ratio.
         ratio(c) = cellSpread(c) / treadmillSpread(c); 
