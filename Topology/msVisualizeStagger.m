@@ -1,7 +1,7 @@
 function msVisualizeStagger(mapMD,md,neuron,A,varargin)
+%msVisualizeStagger(mapMD,md,neuron,A,varargin)
 %
-%
-%
+%   
 
 %%
     p = inputParser;
