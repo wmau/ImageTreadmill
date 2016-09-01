@@ -1,5 +1,5 @@
-function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(MD,FT,TodayTreadmillLog,halfwindow)
-%[ratebylap,delays,x,y,time_interp,FT] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
+function [ratebylap,x,y,time_interp,aviFrame,FT,TodayTreadmillLog] = getLapResponses(MD,FT,TodayTreadmillLog,halfwindow)
+%[ratebylap,delays,x,y,time_interp,aviFrame,FT] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %
 %   Get the lap by lap responses for each neuron during treadmill run. 
 %
@@ -37,7 +37,7 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(MD,FT,T
     
     %Align FT. 
     try
-        load(fullfile(pwd,'Pos_align.mat'),'FT','x_adj_cm','y_adj_cm','aviFrame');
+        load(fullfile(pwd,'Pos_align.mat'),'FT','x_adj_cm','y_adj_cm','time_interp','aviFrame');
         x = x_adj_cm; y = y_adj_cm; 
         clear x_adj_cm y_adj_cm;
     catch
@@ -45,7 +45,7 @@ function [ratebylap,x,y,aviFrame,FT,TodayTreadmillLog] = getLapResponses(MD,FT,T
     end
     
     %Get treadmill run epochs. 
-    inds = getTreadmillEpochs(TodayTreadmillLog,aviFrame);
+    inds = getTreadmillEpochs(TodayTreadmillLog,time_interp);
     TodayTreadmillLog.inds = inds;                          %Add this field to treadmill log. 
     nFramesBetween = diff(inds,1,2);                        %Number of frames epochs span. 
     

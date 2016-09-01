@@ -35,7 +35,7 @@ function TMTrackingMovie(md,varargin)
             
             for i=sFrame:eFrame
                 %AVI file reads using time, not frames. 
-                trackingread.currentTime = movies.t(treadmillInds(thisEpoch,1)) + tInc; 
+                trackingread.currentTime = movies.aviFrame(treadmillInds(thisEpoch,1)) + tInc; 
                 
                 %Get frame. 
                 frame = readFrame(trackingread); 

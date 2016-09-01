@@ -1,16 +1,15 @@
-function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(md,graphData,neuron,varargin)
+function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(graphData,neuron,varargin)
 %
 %
 %
 
 %% Grab inputs. 
     p = inputParser;
-    p.addRequired('md',@(x) isstruct(x)); 
     p.addRequired('graphData',@(x) isstruct(x));
     p.addRequired('neuron',@(x) isnumeric(x) && isscalar(x)); 
     p.addParameter('edgelist',find(graphData.A(:,neuron))',@(x) isnumeric(x));
     p.addParameter('plotcells',false,@(x) islogical(x)); 
-    p.parse(md,graphData,neuron,varargin{:});
+    p.parse(graphData,neuron,varargin{:});
     
     el = p.Results.edgelist; 
     Ap = p.Results.graphData.Ap;
@@ -18,20 +17,22 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(md,
     CC = p.Results.graphData.CC;
     %closest = p.Results.graphData.closest;
     plotcells = p.Results.plotcells;
-    md = p.Results.md; 
     neuron = p.Results.neuron;
     
 %% Set up.
+    %Get MD entry. 
+    md = findMDfromGraphData(graphData); 
+    
     %Change directory and load initial variables. 
     cd(md.Location); 
     load('TimeCells.mat','ratebylap','T','TodayTreadmillLog'); 
-    load('Pos_align.mat','aviFrame','FT');
+    load('Pos_align.mat','time_interp','FT');
     NumNeurons = size(FT,1);
     delays = TodayTreadmillLog.delaysetting; 
     complete = TodayTreadmillLog.complete;
     
     %Get treadmill run indices. 
-    inds = getTreadmillEpochs(TodayTreadmillLog,aviFrame); 
+    inds = getTreadmillEpochs(TodayTreadmillLog,time_interp); 
     inds = inds(find(complete),:);  %Only completed runs. 
     inds(:,2) = inds(:,1) + 20*T-1; %Consistent length.   
     
@@ -82,7 +83,6 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(md,
             ratebylap(:,:,neuron)); 
         colormap gray; title(['\color{red}Target \color{black}ROI #',num2str(neuron)]);
          
-
         %% Tick raster
         %Build the tick raster for neuron 1. 
         triggerRaster{i} = buildRaster(inds,FT,e);
