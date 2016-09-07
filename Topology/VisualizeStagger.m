@@ -19,6 +19,10 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
     plotcells = p.Results.plotcells;
     neuron = p.Results.neuron;
     
+    if isfield(graphData,'prune_p')
+        graphData.p = graphData.prune_p;
+    end
+    
 %% Set up.
     %Get MD entry. 
     md = findMDfromGraphData(graphData); 
@@ -144,7 +148,8 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
         histogram(-d,[0:0.25:10],'normalization','probability',...
             'facecolor','y');
         title({'Trigger-Target vs. Treadmill-Target',...
-            ['TT Score = ',num2str(ratio(i))]});
+            ['TT Score = ',num2str(ratio(i))],...
+            ['P = ',num2str(graphData.p(e,neuron))]});
         legend({'Treadmill','Trigger'});
         xlabel('Latency from Target [s]')
         set(gca,'linewidth',1.5);

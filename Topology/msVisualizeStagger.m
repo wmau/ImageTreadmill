@@ -1,9 +1,29 @@
 function msVisualizeStagger(mapMD,md,neuron,A,varargin)
 %msVisualizeStagger(mapMD,md,neuron,A,varargin)
 %
-%   
+%   Plots rasters of the neuron specified as the input plus all its
+%   triggers. Also plots the latency histogram of the target from its
+%   triggers and the treadmill. Then it looks for the same neuron across
+%   the days specified in md and does the same thing. 
+%
+%   INPUTS
+%       mapMD: session entry where the neuron map lives. 
+%
+%       md: session entries. The first entry must be the one that
+%       corresponds to the other inputs A and neuron. Panels in the final
+%       plot will appear in the same order as specified here. 
+%
+%       neuron: target neuron you wish to examine. 
+%
+%       A: adjacency matrix, from graphData.
+%
+%       varargin: 
+%           -edgelist: list of triggers (or not; specifying ROIs will force
+%           this function to plot them).
+%
 
-%%
+%% Setup. 
+    %Parse inputs. 
     p = inputParser;
     p.addRequired('mapMD',@(x) isstruct(x));
     p.addRequired('md',@(x) isstruct(x));
@@ -15,9 +35,8 @@ function msVisualizeStagger(mapMD,md,neuron,A,varargin)
     el = p.Results.edgelist;
     nTriggers = length(el);
     nSessions = length(md);
-    
-    iDir = pwd;
        
+    %Get data from all the sessions then find the corresponding cells. 
     DATA = CompileMultiSessionData(md,{'ratebylap','ft','ttl','t'});
     targets = msMatchCells(mapMD,md,neuron);
     triggers = msMatchCells(mapMD,md,el);
@@ -36,7 +55,6 @@ function msVisualizeStagger(mapMD,md,neuron,A,varargin)
     immediatelag.LineWidth = 2;
     
     nTicks = 6;
-    i = 1;
      
     for e=1:nTriggers
         f = figure('Position',[80 240 380*nSessions 570]);
@@ -86,16 +104,8 @@ function msVisualizeStagger(mapMD,md,neuron,A,varargin)
                 hold off; if s==1, ylabel('Laps'); end
 
             %% Target to trigger/treadmill latency
-            bothActiveLaps = find(any(immediateRaster,2));
-            TMAlignedOnsets = [];
-            for l=bothActiveLaps'
-                %Get the onset times of each neuron. 
-                TMAlignedOnsets = [TMAlignedOnsets find(targetRaster(l,:))];    
-            end
-            %[~,TMalignedOnsets] = find(targetRaster);
-
-            %Divide by frame rate. 
-            TMAlignedOnsets = TMAlignedOnsets./20;
+            %Get treadmill-target latencies. 
+            TMAlignedOnsets = TMLatencies(immediateRaster,targetRaster); 
 
             %Spread of responses relative to treadmill start. 
             treadmillOffsetSpread = mad(TMAlignedOnsets,1);
@@ -114,7 +124,7 @@ function msVisualizeStagger(mapMD,md,neuron,A,varargin)
             %Histogram.
             histogram(-d,[0:0.25:10],'normalization','probability',...
                 'facecolor','y');
-            title(['TT Score = ',num2str(ratio)]);
+            title(['P = ',num2str(ratio)]);
             legend({'Treadmill','Trigger'});
             xlabel('Latency from Target [s]'); 
             if s==1, ylabel('Proportion of Spikes'); end

@@ -4,6 +4,8 @@ function p= TimeCellClustering(md)
 %
 
 %%
+    global MasterDirectory;
+    MasterDirectory = 'C:/MasterData';
     B = 1000;
     cd(md.Location);
     
