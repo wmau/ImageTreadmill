@@ -1,13 +1,11 @@
-function [p,el] = trialShuffleKSTest(md,graphData,neuron,varargin)
-%[p,el] = trialShuffleKSTest(md,graphData,neuron,varargin)
+function [p,el] = trialShuffleKSTest(graphData,neuron,varargin)
+%[p,el] = trialShuffleKSTest(graphData,neuron,varargin)
 %
 %   Perform randomized trial shuffles for treadmill run epochs where two
 %   specified cells are active. Then compare their latency distribution to
 %   the latency distribution after the trial shuffle. 
 %
 %   INPUTS
-%       md: Session entry
-%
 %       graphData: Output from MakeGraphv4.
 %
 %       neuron: Putative target neuron.
@@ -25,15 +23,13 @@ function [p,el] = trialShuffleKSTest(md,graphData,neuron,varargin)
 
 %% Set up. 
     p = inputParser;
-    p.addRequired('md',@(x) isstruct(x)); 
     p.addRequired('graphData',@(x) isstruct(x));
     p.addRequired('neuron',@(x) isnumeric(x) && isscalar(x)); 
     p.addParameter('edgelist',find(graphData.A(:,neuron))',@(x) isnumeric(x));
-    p.parse(md,graphData,neuron,varargin{:});
+    p.parse(graphData,neuron,varargin{:});
     
     %Assign values. 
     el = p.Results.edgelist; 
-    md = p.Results.md; 
     neuron = p.Results.neuron;
     
     %Number of neurons that presumably connect to neuron. 
@@ -41,6 +37,9 @@ function [p,el] = trialShuffleKSTest(md,graphData,neuron,varargin)
     
     %Number of trial shuffles. 
     B=1000;
+    
+    %Get MD entry. 
+    md = findMDfromGraphData(graphData); 
   
     %Change directory and load initial variables. 
     cd(md.Location); 
@@ -63,10 +62,11 @@ function [p,el] = trialShuffleKSTest(md,graphData,neuron,varargin)
     
 %% Do trial shuffle. 
     %Get treadmill spread for each connection.
-    [~,~,treadmillSpread] = SpreadRatio(md,graphData,neuron,'inds',inds);
+    [~,~,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,graphData,neuron,'inds',inds);
     
     for e=el 
-        if treadmillSpread(c) > 0   %If treadmill-target latency is variable...
+        %If treadmill-target latency is variable...
+        if treadmillSpread(c) > 0 && mode(TMAlignedOnsets{c})~=0
             %Build the tick raster for the trigger neuron. 
             triggerRaster = buildRaster(inds,FT,e); 
             
@@ -97,4 +97,7 @@ function [p,el] = trialShuffleKSTest(md,graphData,neuron,varargin)
             c=c+1; 
         end
     end
+    
+    %Round to get rid of round-off error. 
+    p = round(p,4);
 end
