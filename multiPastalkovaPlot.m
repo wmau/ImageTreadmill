@@ -1,4 +1,4 @@
-function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts)
+function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts,plotit)
 %multiPastalkovaPlot(batch_session_map,base,comp,Ts)
 %
 %   Makes a figure with Pastalkova plots for multiple days ranking each
@@ -57,7 +57,9 @@ function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts)
     end
      
     normtilemat = cell(nSessions,1); 
-    f = figure('Position',[170 260 260*nSessions 460]); 
+    if plotit
+        f = figure('Position',[170 260 260*nSessions 460]); 
+    end
     for i=1:nSessions
         if i==1         %For the base session...
             %Get the index that references FT from MAP. 
@@ -85,10 +87,12 @@ function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts)
             sortedPeaks(:,i) = sortedPeaks(:,i)./conversionfactor;
             
             %Plot. 
-            subplot(1,nSessions,dateOrder(i)); 
-            imagesc([0:Ts(i)],[1:nTimeCells],normtilemat{1}); hold on;
-            plot(sortedPeaks(:,i),[1:nTimeCells],'r','linewidth',2);
-            colormap gray; xlabel('Time [s]'); title(dateTitles{i});            
+            if plotit
+                subplot(1,nSessions,dateOrder(i)); 
+                imagesc([0:Ts(i)],[1:nTimeCells],normtilemat{1}); hold on;
+                plot(sortedPeaks(:,i),[1:nTimeCells],'r','linewidth',2);
+                colormap gray; xlabel('Time [s]'); title(dateTitles{i});
+            end
         else %Almost the same as above. 
             %Preallocate. 
             tilemat = zeros(length(neurons),length(CURVES{i}.tuning{1}));
@@ -111,17 +115,21 @@ function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts)
             sortedPeaks(:,i) = sortedPeaks(:,i)./conversionfactor;
             
             %Plot. 
-            subplot(1,nSessions,dateOrder(i))
-            imagesc([0:Ts(i)],[1:5:nTimeCells],normtilemat{i}); hold on;
-            plot(sortedPeaks(:,1),[1:nTimeCells],'r','linewidth',2);
-            colormap gray; xlabel('Time [s]'); title(dateTitles{i});
+            if plotit
+                subplot(1,nSessions,dateOrder(i))
+                imagesc([0:Ts(i)],[1:nTimeCells],normtilemat{i}); hold on;
+                plot(sortedPeaks(:,1),[1:nTimeCells],'r','linewidth',2);
+                colormap gray; xlabel('Time [s]'); title(dateTitles{i});
+            end
         end
         
         %Label y axis on first plot. 
-        if dateOrder(i)==1, ylabel('Neurons'); end
+        if dateOrder(i)==1 && plotit, ylabel('Neurons'); end
     end
          
-    set(f,'PaperOrientation','landscape');
-    set(f,'PaperUnits','normalized');
-    set(f,'PaperPosition',[0 0 1 1]);
+    if plotit
+        set(f,'PaperOrientation','landscape');
+        set(f,'PaperUnits','normalized');
+        set(f,'PaperPosition',[0 0 1 1]);
+    end
 end
