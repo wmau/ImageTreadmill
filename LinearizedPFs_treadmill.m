@@ -21,8 +21,7 @@ function [rate,normRates,sortedRates,order,X] = LinearizedPFs_treadmill(MD)
     cd(MD.Location); 
     
     %Get treadmill log for excluding treadmill epochs. 
-    TodayTreadmillLog = getTodayTreadmillLog(MD.Animal,MD.Date,MD.Session); 
-    TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,TodayTreadmillLog.RecordStartTime);
+    load('TimeCells.mat','TodayTreadmillLog'); 
     d = TodayTreadmillLog.direction; 
     
     %Find direction for linearizing trajectory. 
@@ -44,7 +43,7 @@ function [rate,normRates,sortedRates,order,X] = LinearizedPFs_treadmill(MD)
     [nNeurons,nFrames] = size(FT); 
     
     %Exclude treadmill epochs. 
-    inds = getTreadmillEpochs(TodayTreadmillLog,aviFrame);
+    inds = TodayTreadmillLog.inds;
     i=[];
     for e=1:size(inds,1)
         i = [i,inds(e,1):inds(e,2)];
@@ -57,7 +56,10 @@ function [rate,normRates,sortedRates,order,X] = LinearizedPFs_treadmill(MD)
     
 %% Linearize trajectory and bin responses spatially.
     %Linearized trajectory. 
+    try
     X = LinearizeTrajectory_treadmill(x,y,mazetype); 
+    catch
+        keyboard; end; 
     
     %Occupancy map. 
     [occ,edges] = histcounts(X,nBins); 
