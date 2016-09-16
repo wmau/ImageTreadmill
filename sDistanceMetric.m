@@ -1,4 +1,4 @@
-function [stability,mds] = sDistanceMetric(sortedPeaks)
+function stability = sDistanceMetric(sortedPeaks)
 %[stability,mds] = sDistanceMetric(sortedPeaks,mds,position)
 %   
 %   Computes the distance that the peak time tuning curve drifted since the
@@ -11,7 +11,6 @@ function [stability,mds] = sDistanceMetric(sortedPeaks)
 %       order as presented in the input argument for multiPastalkova plot,
 %       compMDs.
 %
-%       position: Specifies which session 
 
 %% Setup.
     %Get important variables and preallocate. 
