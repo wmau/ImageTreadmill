@@ -22,24 +22,24 @@ function [trigRaster,closest] = stripRaster(trigRaster,targRaster)
     closest = [];
     
     %Find indices of spikes. 
-    [lagLap,lagT] = find(trigRaster); 
-    [leadLap,leadT] = find(targRaster); 
+    [trigLap,trigT] = find(trigRaster); 
+    [targLap,targT] = find(targRaster); 
     
     %For each lap where both neurons were active...
-    for l=intersect(leadLap,lagLap)'
+    for l=intersect(targLap,trigLap)'
         %Get all spike times of neuron 2 on that lap. 
-        leadOnset = leadT(leadLap==l);
-        
+        targOnset = targT(targLap==l);
+              
         %For each spike of neuron 2 on lap l...
-        for o=leadOnset'
+        for o=targOnset'
             %Get all spike times of neuron 1 on that lap. 
-            lagOnsets = lagT(lagLap==l);
+            trigOnsets = trigT(trigLap==l);
             
             %Filter out those that occurred after neuron 2.
-            lagOnsets = lagOnsets(lagOnsets<=o);
+            trigOnsets = trigOnsets(trigOnsets<=o);
       
             %Get closest spike. 
-            bingo = lagOnsets(findclosest(o,lagOnsets));
+            bingo = trigOnsets(findclosest(o,trigOnsets));
             closest = [closest; bingo - o];
         
             %Tick. 

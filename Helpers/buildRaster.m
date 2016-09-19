@@ -28,6 +28,7 @@ function raster = buildRaster(inds,FT,neuron)
     else
         raster = zeros(nTrials,treadmilldurations+1);  %Preallocate.
     end
+    
     for t=1:nTrials
         lapRaster = [0 FT(neuron,inds(t,1):inds(t,2))]; %Take column difference of binary FT. 
         raster(t,:) = diff(lapRaster);          

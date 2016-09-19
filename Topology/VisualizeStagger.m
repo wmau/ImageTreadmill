@@ -50,16 +50,16 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
     
     %Line format for second neuron raster.
     lead.Color = 'r';
-    lead.LineWidth = 1;
+    lead.LineWidth = 1.5;
     
     %Line format for first neuron raster, all spikes, transparent. 
     lag.Color = [0 1 0 0.3];    %Transparent green.
-    lag.LineWidth = 2;
+    lag.LineWidth = 1.5;
     
     %Line format for first neuron raster, only spikes immediately
     %preceding those of neuron two. 
     immediatelag.Color = 'g';
-    immediatelag.LineWidth = 2;
+    immediatelag.LineWidth = 1.5;
    
     %Preallocate.
     i=1;
@@ -96,13 +96,13 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
        
         %Raster. 
         if plotcells, subplot(3,5,6:7); else subplot(3,2,3:4); end
-        plotSpikeRaster(triggerRaster{i},'PlotType','vertline',...
-            'LineFormat',lag,'TimePerBin',0.05,'SpikeDuration',0.05); 
         hold on;
+        plotSpikeRaster(triggerRaster{i},'PlotType','vertline',...
+            'LineFormat',lag,'VertSpikeHeight',1.5); 
         plotSpikeRaster(immediateRaster,'PlotType','vertline',...
-            'LineFormat',immediatelag,'TimePerBin',0.05,'SpikeDuration',0.05); 
+            'LineFormat',immediatelag,'VertSpikeHeight',1.5); 
         plotSpikeRaster(targetRaster,'PlotType','vertline',...
-            'LineFormat',lead,'TimePerBin',0.05,'SpikeDuration',0.05); 
+            'LineFormat',lead,'VertSpikeHeight',1.5); 
         ax = gca; 
         ax.Color = 'k';
         ax.XTick = linspace(ax.XLim(1),ax.XLim(2),nTicks);
@@ -113,10 +113,10 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
 
         %% Temporal distance histogram. 
         if plotcells, subplot(3,5,11); else subplot(3,2,5); end
-        histogram(-nulld{e,neuron},[0:0.25:10],'normalization','probability',...
+        histogram(-nulld{e,neuron},[0:0.1:10],'normalization','probability',...
             'facecolor','c'); 
         hold on;
-        histogram(-CC{e,neuron},[0:0.25:10],'normalization','probability',...
+        histogram(-CC{e,neuron},[0:0.1:10],'normalization','probability',...
             'facecolor','y'); 
         hold off;
         title({'Spike Time Latencies',...
@@ -134,7 +134,7 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
         treadmillOffsetSpread = mad(TMAlignedOnsets,1);
         
         if plotcells, subplot(3,5,12); else subplot(3,2,6); end
-        histogram(TMAlignedOnsets,[0:0.25:10],'normalization','probability',...
+        histogram(TMAlignedOnsets,[0:0.1:10],'normalization','probability',...
             'facecolor','k');
         hold on;      
         
@@ -145,7 +145,7 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
         ratio(i) =  cellOffsetSpread(i) / treadmillOffsetSpread;
         
         %Histogram.
-        histogram(-d,[0:0.25:10],'normalization','probability',...
+        histogram(-d,[0:0.1:10],'normalization','probability',...
             'facecolor','y');
         title({'Trigger-Target vs. Treadmill-Target',...
             ['TT Score = ',num2str(ratio(i))],...
@@ -164,9 +164,7 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
             hold off
                   
             %Sizing purpose for saving onto pdf. 
-            set(f,'PaperOrientation','landscape');
-            set(f,'PaperUnits','normalized');
-            set(f,'PaperPosition',[0 0 1 1]);
+             set(f, 'PaperType', 'A4', 'PaperOrientation', 'landscape', 'PaperPositionMode', 'auto');
         end
         
         %Advance counter.

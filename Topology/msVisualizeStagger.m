@@ -43,7 +43,7 @@ function msVisualizeStagger(mapMD,md,neuron,A,varargin)
     
     %Line format for second neuron raster.
     lead.Color = 'r';
-    lead.LineWidth = 1;
+    lead.LineWidth = 2;
     
     %Line format for first neuron raster, all spikes, transparent. 
     lag.Color = [0 1 0 0.3];    %Transparent green.
@@ -89,12 +89,12 @@ function msVisualizeStagger(mapMD,md,neuron,A,varargin)
 
             subplot(3,2*nSessions,s*2+nSessions*2-1:s*2+nSessions*2);
             plotSpikeRaster(triggerRaster,'PlotType','vertline',...
-                'LineFormat',lag,'TimePerBin',0.05,'SpikeDuration',0.05); 
+                'LineFormat',lag,'VertSpikeHeight',1.5); 
             hold on;
             plotSpikeRaster(immediateRaster,'PlotType','vertline',...
-                'LineFormat',immediatelag,'TimePerBin',0.05,'SpikeDuration',0.05); 
+                'LineFormat',immediatelag,'VertSpikeHeight',1.5); 
             plotSpikeRaster(targetRaster,'PlotType','vertline',...
-                'LineFormat',lead,'TimePerBin',0.05,'SpikeDuration',0.05);   
+                'LineFormat',lead,'VertSpikeHeight',1.5);   
                 ax = gca; 
                 ax.Color = 'k';
                 ax.XTick = linspace(ax.XLim(1),ax.XLim(2),nTicks);
