@@ -21,9 +21,9 @@ function [X,y] = SourceSinkGLMSetUp(md,sources,sink,tracetype)
 %% Set up.  
         cd(md.Location);
         if strcmp(tracetype,'FT')   
-            load('Pos_align.mat','FT'); 
-        elseif strcmp(tracetype,'trace')
-            load('Pos_align.mat','trace');
+            load('Pos_align.mat','FT');         %Load FT.
+        elseif strcmp(tracetype,'rawtrace')
+            load('Pos_align.mat','rawtrace');   %Load rawtrace.
         end
         load('TimeCells.mat','TimeCells','T','TodayTreadmillLog'); 
 
@@ -32,23 +32,28 @@ function [X,y] = SourceSinkGLMSetUp(md,sources,sink,tracetype)
         inds = inds(find(TodayTreadmillLog.complete),:);
         inds(:,2) = inds(:,1) + 20*T-1; 
 
+        %Build raster depending on whether the input is FT or rawtrace. 
         if strcmp(tracetype,'FT')
             sinkRaster = buildRaster(inds,FT,sink);
-        elseif strcmp(tracetype,'trace')
-            sinkRaster = buildRasterTrace(inds,trace,sink);
+        elseif strcmp(tracetype,'rawtrace')
+            sinkRaster = buildRasterTrace(inds,rawtrace,sink);
         end
         
+    %If more than one output is specified, assume user wants X and y. 
     if nargout > 1
         [nLaps,nTimeBins] = size(sinkRaster); 
+        
+        %Make time vector for each lap. 
         t = linspace(0,T,nTimeBins)';
         X(:,1) = repmat(t,nLaps,1);
 
+        %For each source. 
         nSources = length(sources);
         for s=1:nSources
             if strcmp(tracetype,'FT')
                 sourceRaster = buildRaster(inds,FT,sources(s));
-            elseif strcmp(tracetype,'trace')
-                sourceRaster = buildRasterTrace(inds,trace,sources(s));
+            elseif strcmp(tracetype,'rawtrace')
+                sourceRaster = buildRasterTrace(inds,rawtrace,sources(s));
             end
             sourceRaster = sourceRaster';
             X(:,s+1) = sourceRaster(:);

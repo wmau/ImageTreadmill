@@ -24,10 +24,10 @@ function [all,notime,nocells] = SourceSinkGLM(tbl,tracetype)
 
 %% GLM fits
     if strcmp(tracetype,'FT'), dtype = 'poisson'; 
-    elseif strcmp(tracetype,'trace'), dtype = 'normal'; end
-    all = fitglm(tbl,'distribution',dtype,'intercept',false);
-    notime = fitglm(tbl(:,2:end),'distribution',dtype,'intercept',false);
-    nocells = fitglm(tbl(:,[1,end]),'distribution',dtype,'intercept',false);
+    elseif strcmp(tracetype,'rawtrace'), dtype = 'normal'; end
+    all = fitglm(tbl,'distribution',dtype);
+    notime = fitglm(tbl(:,2:end),'distribution',dtype);
+    nocells = fitglm(tbl(:,[1,end]),'distribution',dtype);
 %     automated = stepwiseglm(tbl,'linear',...
 %          'upper','linear',...
 %          'distribution','poisson',...

@@ -24,7 +24,7 @@ function [neurons,all,notime,nocells] = AllGLMs(md,tracetype)
         
         %fitTbl = X(:,[1;Xind+1]);           %Get design matrix.  
         fitTbl = X;
-        fitTbl(:,['n',num2str(n)]) = [];     %Get rid of identity.
+        fitTbl(:,['n',num2str(n)]) = [];    %Get rid of identity.
         fitTbl(:,end+1) = table(y);         %Add in response variable. 
         
         %Do the fit. 
