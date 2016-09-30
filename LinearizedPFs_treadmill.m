@@ -38,7 +38,7 @@ function [rate,normRates,sortedRates,order,X] = LinearizedPFs_treadmill(MD)
     minspeed = 3;   %Speed threshold (cm/s). 
     
     %Load aligned position data. 
-    load(fullfile(pwd,'Pos_align.mat'),'x_adj_cm','y_adj_cm','speed','aviFrame','FT');
+    load(fullfile(pwd,'Pos_align.mat'),'x_adj_cm','y_adj_cm','speed','time_interp','FT');
     x=x_adj_cm; y=y_adj_cm; FT=logical(FT); clear x_adj_cm y_adj_cm;
     [nNeurons,nFrames] = size(FT); 
     
@@ -56,11 +56,8 @@ function [rate,normRates,sortedRates,order,X] = LinearizedPFs_treadmill(MD)
     
 %% Linearize trajectory and bin responses spatially.
     %Linearized trajectory. 
-    try
     X = LinearizeTrajectory_treadmill(x,y,mazetype); 
-    catch
-        keyboard; end; 
-    
+
     %Occupancy map. 
     [occ,edges] = histcounts(X,nBins); 
     

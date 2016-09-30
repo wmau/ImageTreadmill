@@ -1,31 +1,15 @@
-function xcorr_by_laps(triggerRaster,targetRaster,critLaps)
+function [r,lags]=xcorr_by_laps(triggerRaster,targetRaster)
 %
 %
 %
 
 %%
-    %Turn into numerics. 
-    triggerRaster = single(triggerRaster); 
-    targetRaster = single(targetRaster); 
+    nLaps = size(triggerRaster,1); 
     
-    [triggerLaps,~] = find(triggerRaster); 
-    [targetLaps,~] = find(targetRaster); 
-    
-    LapsBothActive = intersect(triggerLaps,targetLaps)';
-    nLapsBothActive = length(LapsBothActive); 
-    
-    lapnum = 1; 
-    r = zeros(nLapsBothActive,399); 
-    if length(LapsBothActive) > critLaps
-        for l=LapsBothActive
-            [r(lapnum,:),lags] = xcorr(triggerRaster(l,:),targetRaster(l,:)); 
-            
-            plot(lags,r(lapnum,:)); hold on;
-            
-            lapnum = lapnum+1; 
-        end
+    r = zeros(nLaps,399); 
+    for l=1:nLaps
+        [r(l,:),lags] = xcorr(triggerRaster(l,:),targetRaster(l,:),'coeff'); 
     end
     
-   
+    %Lags is in frames. 
 end
-            

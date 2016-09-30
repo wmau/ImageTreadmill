@@ -1,4 +1,4 @@
-function [X,y] = SourceSinkGLMSetUp(md,sources,sink,tracetype)
+function [X,y] = SourceSinkGLMSetUp(md,sources,sink,lags,tracetype)
 %[X,y] = SourceSinkGLMSetUp(md,sources,sink)
 %
 %   Sets up design matrix and response variable given neuron indices. 
@@ -30,7 +30,7 @@ function [X,y] = SourceSinkGLMSetUp(md,sources,sink,tracetype)
         %Make treadmill run indices even.
         inds = TodayTreadmillLog.inds; 
         inds = inds(find(TodayTreadmillLog.complete),:);
-        inds(:,2) = inds(:,1) + 20*T-1; 
+        inds(:,2) = inds(:,1) + 20*T-1;
 
         %Build raster depending on whether the input is FT or rawtrace. 
         if strcmp(tracetype,'FT')
@@ -49,29 +49,36 @@ function [X,y] = SourceSinkGLMSetUp(md,sources,sink,tracetype)
 
         %For each source. 
         nSources = length(sources);
+        nLags = length(lags);
+        n = 2;
         for s=1:nSources
-            if strcmp(tracetype,'FT')
-                sourceRaster = buildRaster(inds,FT,sources(s));
-            elseif strcmp(tracetype,'rawtrace')
-                sourceRaster = buildRasterTrace(inds,rawtrace,sources(s));
+            for l=1:nLags
+                if strcmp(tracetype,'FT')
+                    sourceRaster = buildRaster(inds+lags(l),FT,sources(s));
+                elseif strcmp(tracetype,'rawtrace')
+                    sourceRaster = buildRasterTrace(inds+lags(l),rawtrace,sources(s));
+                end
+                sourceRaster = sourceRaster';
+                X(:,n) = sourceRaster(:);
+                
+                n = n+1;
             end
-            sourceRaster = sourceRaster';
-            X(:,s+1) = sourceRaster(:);
         end
         
-        tbltitles = cell(1,nSources+1);
+        tbltitles = cell(1,nLags*nSources+1);
         tbltitles{1} = 't';
         
+        n = 2;
         for s=1:nSources
-            tbltitles{s+1} = ['n',num2str(sources(s))];
+            for l=1:nLags
+                tbltitles{n} = ['n',num2str(sources(s)),'lag',num2str(abs(lags(l)))];
+                
+                n=n+1;
+            end
         end
         
         X = array2table(X,'variablenames',tbltitles);
-        X.Properties.VariableDescriptions{1} = 't';
-        
-        for s=1:nSources
-            X.Properties.VariableDescriptions{s+1} = num2str(sources(s));
-        end
+        X.Properties.VariableDescriptions{1} = 't';      
     end
         
     y = sinkRaster';

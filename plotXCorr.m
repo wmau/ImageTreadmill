@@ -1,0 +1,40 @@
+function plotXCorr(R,source,sink,lags)
+%
+%
+%
+
+%%
+    %Set up error bars. 
+    trialErrBar = zeros([size(R.trialShuffled{source,sink}.mu),2]);
+    trialErrBar(1,:,1) = abs(R.trialShuffled{source,sink}.upper' - R.trialShuffled{source,sink}.mu');
+    trialErrBar(1,:,2) = abs(R.trialShuffled{source,sink}.lower' - R.trialShuffled{source,sink}.mu'); 
+%    errBar = smooth(R.shuffled{source,sink}.std)';
+    trialLine.col = {'b'};
+    
+    timeErrBar = zeros([size(R.timeShuffled{source,sink}.mu),2]);
+    timeErrBar(1,:,1) = abs(R.timeShuffled{source,sink}.upper' - R.timeShuffled{source,sink}.mu');
+    timeErrBar(1,:,2) = abs(R.timeShuffled{source,sink}.lower' - R.timeShuffled{source,sink}.mu'); 
+    timeLine.col = {'r'};
+    
+%     RErrBar = zeros([size(R.timeShuffled{source,sink}.mu),2]);
+%     RErrBar(1,:,1) = abs(R.CI{source,sink}(1,:)' - R.smoothed{source,sink}');
+%     RErrBar(1,:,2) = abs(R.CI{source,sink}(2,:)' - R.smoothed{source,sink}'); 
+    Rline.col = {'k'};
+    
+    %Plot.
+    figure;
+    hold on;
+    mseb(lags,R.trialShuffled{source,sink}.mu',trialErrBar,trialLine,1);    %Shuffled.
+    mseb(lags,R.timeShuffled{source,sink}.mu',timeErrBar,timeLine,1);
+        
+    %plot(lags,R.smoothed{source,sink},'k','linewidth',3);     %CCG.
+    mseb(lags,R.smoothed{source,sink},R.CI{source,sink},Rline,1);
+    sigplot = R.smoothed{source,sink}.*single(R.sig{source,sink});
+    sigplot(sigplot==0) = nan;
+    plot(lags,sigplot,'g','linewidth',3);                      %Significant.
+
+    xlabel('Lags [s]');
+    ylabel('Trial Averaged Cross-Correlation');
+    title(['Neuron ',num2str(source),' to Neuron ',num2str(sink)]);
+    %ylim([-1,1]);
+end
