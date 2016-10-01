@@ -1,11 +1,11 @@
-function [neurons,all,notime,nocells,automated] = SourceOnlyGLMs(md,lags,tracetype)
+function [neurons,nocells,automated] = SourceOnlyGLMs(md,lags,tracetype)
 %[neurons,all,nocells,automated] = AllGLMs(md)
 %
 %
 
 %%
     cd(md.Location);
-    load('graphData_p.mat','A');
+    load('XCorr.mat','A');
     [nNeurons,neurons] = nNeuronsActiveonTM(md);
 
     %Set up design matrix. 
@@ -32,7 +32,7 @@ function [neurons,all,notime,nocells,automated] = SourceOnlyGLMs(md,lags,tracety
             fitTbl(:,end+1) = table(y);         %Add in response variable. 
 
             %Do the fit. 
-            [all{nn},notime{nn},nocells{nn},automated{nn}] = SourceSinkGLM(fitTbl,tracetype);
+            [nocells{nn},automated{nn}] = SourceSinkGLM(fitTbl,tracetype);
         end
         
         nn=nn+1;

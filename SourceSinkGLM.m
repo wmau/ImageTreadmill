@@ -1,4 +1,4 @@
-function [all,notime,nocells,automated] = SourceSinkGLM(tbl,tracetype)
+function [nocells,automated] = SourceSinkGLM(tbl,tracetype)
 %[all,notime,nocells,automated] = SourceSinkGLM(tbl)
 %
 %   Fits GLMs to the table in multiple ways. 
@@ -25,8 +25,8 @@ function [all,notime,nocells,automated] = SourceSinkGLM(tbl,tracetype)
 %% GLM fits
     if strcmp(tracetype,'FT'), dtype = 'binomial'; linkfx = 'logit'; 
     elseif strcmp(tracetype,'rawtrace'), dtype = 'normal'; linkfx = 'identity'; end
-    all = fitglm(tbl,'distribution',dtype,'link',linkfx);
-    notime = fitglm(tbl(:,2:end),'distribution',dtype,'link',linkfx);
+    %all = fitglm(tbl,'distribution',dtype,'link',linkfx);
+    %notime = fitglm(tbl(:,2:end),'distribution',dtype,'link',linkfx);
     nocells = fitglm(tbl(:,[1,end]),'distribution',dtype,'link',linkfx);
     automated = stepwiseglm(tbl,'linear',...
          'upper','linear',...
