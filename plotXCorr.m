@@ -32,9 +32,17 @@ function plotXCorr(R,source,sink,lags)
     sigplot = R.smoothed{source,sink}.*single(R.sig{source,sink});
     sigplot(sigplot==0) = nan;
     plot(lags,sigplot,'g','linewidth',3);                      %Significant.
-
+    
+    %Peak. 
+    [~,peakind] = max(R.smoothed{source,sink});
+    peak = lags(peakind); 
+    YLim = get(gca,'ylim');
+    l = line([peak peak],YLim,'color','k','linestyle','--','linewidth',2);
+   
+    label(l,[num2str(peak*1000),' ms'],'location','top');
+    
     xlabel('Lags [s]');
     ylabel('Trial Averaged Cross-Correlation');
-    title(['Neuron ',num2str(source),' to Neuron ',num2str(sink)]);
-    %ylim([-1,1]);
+    title(['Neuron ',num2str(source),' x Neuron ',num2str(sink)]);
+    ylim(YLim);
 end

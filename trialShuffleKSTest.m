@@ -62,7 +62,7 @@ function [p,el] = trialShuffleKSTest(graphData,neuron,varargin)
     
 %% Do trial shuffle. 
     %Get treadmill spread for each connection.
-    [~,~,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,graphData,neuron,'inds',inds);
+    [~,~,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,graphData.A,neuron,'inds',inds);
     
     for e=el 
         %If treadmill-target latency is variable...

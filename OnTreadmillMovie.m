@@ -1,4 +1,4 @@
-function OnTreadmillMovie(MD,clim,movietype,varargin)
+function OnTreadmillMovie(md,clim,movietype,varargin)
 %OnTreadmillMovie(animal,date,session,clim,movietype)
 %       
 %   Makes two synced AVIs. ImagingMovie_movietype is the calcium imaging

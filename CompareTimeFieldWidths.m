@@ -72,23 +72,23 @@ function [xModTFWidths,iModTFWidths] = CompareTimeFieldWidths(md,plotit)
         set(gca,'ticklength',[0 0]); 
         
         %Bar plot. 
-        xModMean = mean(xModTFWidths);  xJitter = 1-(0.1*randn(nXMods,1));
-        iModMean = mean(iModTFWidths);  iJitter = 2-(0.1*randn(nIMods,1));
+        xModMean = mean(xModTFWidths);  xJitter = 2-(0.1*randn(nXMods,1));
+        iModMean = mean(iModTFWidths);  iJitter = 1-(0.1*randn(nIMods,1));
         xSEM = std(xModTFWidths)/sqrt(nXMods);
         iSEM = std(iModTFWidths)/sqrt(nIMods); 
         
         subplot(2,2,[2,4]); 
         hold on;
-        bar(1,xModMean,'facecolor','w','linewidth',2,'edgecolor','b');
-        bar(2,iModMean,'facecolor','w','linewidth',2,'edgecolor','r');
+        bar(1,iModMean,'facecolor','w','linewidth',2,'edgecolor','r');
+        bar(2,xModMean,'facecolor','w','linewidth',2,'edgecolor','b');
        
         %Scatter individual points. 
-        scatter([xJitter; iJitter],[xModTFWidths'; iModTFWidths'],15,...
+        scatter([iJitter; xJitter],[iModTFWidths'; xModTFWidths'],15,...
             'markeredgecolor',[0.7 0.7 0.7]);
-        errorbar(1,xModMean,xSEM,'b','linewidth',2);
-        errorbar(2,iModMean,iSEM,'r','linewidth',2);
+        errorbar(1,iModMean,xSEM,'r','linewidth',2);
+        errorbar(2,xModMean,iSEM,'b','linewidth',2);
         set(gca,'xtick',[1 2],...
-            'xticklabel',{'Externally modulated','Internally modulated'},...
+            'xticklabel',{'Cell modulated','Treadmill modulated'},...
             'ticklength',[0 0]);
         ylabel('MAD of Temporal Field [s]');
         

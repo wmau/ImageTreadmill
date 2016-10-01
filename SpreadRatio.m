@@ -1,4 +1,4 @@
-function [ratio,cellSpread,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,graphData,neuron,varargin)
+function [ratio,cellSpread,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,A,neuron,varargin)
 %[ratio,cellSpread,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,graphData,neuron,varargin)
 %
 %
@@ -6,11 +6,11 @@ function [ratio,cellSpread,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,gra
 %% Grab inputs.
     p = inputParser;
     p.addRequired('md',@(x) isstruct(x)); 
-    p.addRequired('graphData',@(x) isstruct(x));
+    p.addRequired('A',@(x) isnumeric(x) || islogical(x));
     p.addRequired('neuron',@(x) isnumeric(x) && isscalar(x)); 
-    p.addParameter('edgelist',find(graphData.A(:,neuron))',@(x) isnumeric(x));
+    p.addParameter('edgelist',find(A(:,neuron))',@(x) isnumeric(x));
     p.addParameter('inds',false);
-    p.parse(md,graphData,neuron,varargin{:});
+    p.parse(md,A,neuron,varargin{:});
     
     el = p.Results.edgelist; 
     md = p.Results.md; 
@@ -48,7 +48,7 @@ function [ratio,cellSpread,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,gra
     %treadmillSpread = mad(TMAlignedOnsets,1); 
 %%
     c=1;
-    mm=0;
+    mm=1;
     ratio = nan(1,nInitiators); 
     cellSpread = nan(1,nInitiators); 
     TMAlignedOnsets = cell(1,nInitiators);

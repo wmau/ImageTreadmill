@@ -46,7 +46,8 @@ function DATA = CompileMultiSessionData(MD,args)
                     'placefieldsnonan',...
                     'placefieldsunsmoothed',...
                     'occmaps',...
-                    'placefieldpvals'};
+                    'placefieldpvals',...
+                    'a'};
 
     %Check that the arguments match template. 
     for i=1:nArgs
@@ -140,6 +141,11 @@ function DATA = CompileMultiSessionData(MD,args)
         if any(strcmp('placefieldpvals',args))
             load(fullfile(pwd,'PlaceMaps.mat'),'pval');
             DATA.placefieldpvals{i} = 1-pval;
+        end
+        
+        if any(strcmp('a',args))
+            load(fullfile(pwd,'graphData_p.mat'),'A');
+            DATA.A{i} = A; 
         end
     end
     

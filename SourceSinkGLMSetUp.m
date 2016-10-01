@@ -24,6 +24,10 @@ function [X,y] = SourceSinkGLMSetUp(md,sources,sink,lags,tracetype)
             load('Pos_align.mat','FT');         %Load FT.
         elseif strcmp(tracetype,'rawtrace')
             load('Pos_align.mat','rawtrace');   %Load rawtrace.
+            
+            %Normalize to max. 
+            m = max(rawtrace,[],2);
+            rawtrace = rawtrace./repmat(m,1,size(rawtrace,2));
         end
         load('TimeCells.mat','TimeCells','T','TodayTreadmillLog'); 
 

@@ -37,7 +37,7 @@ function msVisualizeStagger(mapMD,md,neuron,A,varargin)
     nSessions = length(md);
        
     %Get data from all the sessions then find the corresponding cells. 
-    DATA = CompileMultiSessionData(md,{'ratebylap','ft','ttl','t'});
+    DATA = CompileMultiSessionData(md,{'ratebylap','ft','ttl','t','A'});
     targets = msMatchCells(mapMD,md,neuron);
     triggers = msMatchCells(mapMD,md,el);
     
@@ -124,7 +124,11 @@ function msVisualizeStagger(mapMD,md,neuron,A,varargin)
             %Histogram.
             histogram(-d,[0:0.25:10],'normalization','probability',...
                 'facecolor','y');
-            title(['P = ',num2str(ratio)]);
+            title(['TT = ',num2str(ratio)]);
+            if DATA.A{s}(triggers(s),targets(s))
+                title(['\color{green}TT = ',num2str(ratio)]);
+            end
+            
             legend({'Treadmill','Trigger'});
             xlabel('Latency from Target [s]'); 
             if s==1, ylabel('Proportion of Spikes'); end
@@ -133,8 +137,8 @@ function msVisualizeStagger(mapMD,md,neuron,A,varargin)
         end
             
         set(f,'PaperOrientation','landscape');
-        set(f,'PaperUnits','normalized');
-        set(f,'PaperPosition',[0 0 1 1]);
+%         set(f,'PaperUnits','normalized');
+%         set(f,'PaperPosition',[0 0 1 1]);
     end
         
 end

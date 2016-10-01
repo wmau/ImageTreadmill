@@ -58,7 +58,7 @@ for i=nNeurons:-1:2
     end
     
     if i==9
-        xlabel('Time [s]');
+        xlabel('Lag [s]');
     end
     
     ylim([-.3 .65]);
