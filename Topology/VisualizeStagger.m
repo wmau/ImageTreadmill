@@ -13,7 +13,9 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
     
     el = p.Results.edgelist; 
     Ap = p.Results.graphData.Ap;
-    nulld = p.Results.graphData.nulld;
+    prune_p = round(p.Results.graphData.prune_p,3);
+    timeShuffleNulls = p.Results.graphData.nulld;
+    trialShuffleNulls = p.Results.graphData.trialShuffleNulls;
     CC = p.Results.graphData.CC;
     %closest = p.Results.graphData.closest;
     plotcells = p.Results.plotcells;
@@ -21,6 +23,10 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
     
     if isfield(graphData,'prune_p')
         graphData.p = graphData.prune_p;
+    end
+    
+    if size(el,1) > size(el,2)
+        el = el'; 
     end
     
 %% Set up.
@@ -67,13 +73,13 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
     cellOffsetSpread = zeros(1,nInitiators);
     ratio = zeros(1,nInitiators);
     triggerRaster = cell(1,nInitiators);
+    edges = 0:0.2:10;
 %% Plot neurons.
     nTicks = 6;
     for e=el
         %% Raster - Neuron lagging. 
-        if plotcells, windowWidth = 1260; else windowWidth = 490; end
-        f = figure('Position',[185 70 windowWidth 700]);
-        if plotcells, subplot(3,5,1); else subplot(3,2,1); end
+        f = figure('Position',[185 70 490 700]);
+        subplot(3,2,1); 
         imagesc([0:T],...
             [1:nLaps],...
             ratebylap(:,:,e)); 
@@ -81,7 +87,7 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
         ylabel('Laps');
 
         %% Raster - Neuron leading. 
-        if plotcells, subplot(3,5,2); else subplot(3,2,2); end
+        subplot(3,2,2);
         imagesc([0:T],...
             [1:nLaps],...
             ratebylap(:,:,neuron)); 
@@ -95,7 +101,7 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
         [immediateRaster,d] = stripRaster(triggerRaster{i},targetRaster); 
        
         %Raster. 
-        if plotcells, subplot(3,5,6:7); else subplot(3,2,3:4); end
+        subplot(3,2,3:4);
         hold on;
         plotSpikeRaster(triggerRaster{i},'PlotType','vertline',...
             'LineFormat',lag,'VertSpikeHeight',1.5); 
@@ -109,54 +115,48 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
         ax.XTickLabel = linspace(0,T,nTicks);
         ax.YTick = [1:5:nLaps];
         set(gca,'ticklength',[0 0]);
-        hold off; ylabel('Laps'); xlabel('Time [s]'); 
+        hold off; ylabel('Laps'); xlabel('Time [s]'); title('Paired Raster');
 
         %% Temporal distance histogram. 
-        if plotcells, subplot(3,5,11); else subplot(3,2,5); end
-        histogram(-nulld{e,neuron},[0:0.2:10],'normalization','probability',...
-            'facecolor','c'); 
+        if plotcells, subplot(3,2,5); else subplot(3,2,5:6); end
         hold on;
-        histogram(-CC{e,neuron},[0:0.2:10],'normalization','probability',...
-            'facecolor','y'); 
-        hold off;
-        title({'Spike Time Latencies',...
-            ['P = ',num2str(Ap(e,neuron))]});
-        xlabel('Latency from Target [s]'); ylabel('Proportion of Spike Pairs');
-        legend({'Shuffled','Trigger'});
-        set(gca,'linewidth',1.5);
-
-        %% Activity relative to cell vs relative to treadmill.
-        %Only look at laps where both neurons were active. Immediate raster
-        %only has trues on laps where leadRaster was active. 
+                        
+        %Time shuffle distribution.
+        [timeNull,timeNullBins] = hist(-timeShuffleNulls{e,neuron},edges); 
+        timeNull = timeNull./length(timeShuffleNulls{e,neuron});
+        stairs(timeNullBins,timeNull,'-.','linewidth',2,'color','c'); 
+        
+        %Trial shuffle distribution.
+        [trialNull,trialNullBins] = hist(-trialShuffleNulls{e,neuron},edges);
+        trialNull = trialNull./length(trialShuffleNulls{e,neuron});
+        stairs(trialNullBins,trialNull,'-.','linewidth',2,'color','b');
+        
+        %Treadmill latency.
         TMAlignedOnsets = TMLatencies(immediateRaster,targetRaster);
-
-        %Spread of responses relative to treadmill start. 
-        treadmillOffsetSpread = mad(TMAlignedOnsets,1);
+        [tmlat,tmlatBins] = hist(TMAlignedOnsets,edges);
+        tmlat = tmlat./length(TMAlignedOnsets);
+        stairs(tmlatBins,tmlat,':','linewidth',2,'color',[.6 .6 .6]);
         
-        if plotcells, subplot(3,5,12); else subplot(3,2,6); end
-        histogram(TMAlignedOnsets,[0:0.2:10],'normalization','probability',...
-            'facecolor','k');
-        hold on;      
+        %MAD ratio.
+        ratio(i) = round(mad(d,1)/ mad(TMAlignedOnsets,1),2);
         
-        %Get spread. 
-        cellOffsetSpread(i) = mad(d,1);
+        %Real latency distribution.
+        [emp,empBins] = hist(-CC{e,neuron},edges);
+        emp = emp./length(CC{e,neuron});
+        stairs(empBins,emp,'linewidth',2,'color','k'); 
         
-        %Ratio between cell-to-cell vs cell-to-treadmill.
-        ratio(i) =  cellOffsetSpread(i) / treadmillOffsetSpread;
-        
-        %Histogram.
-        histogram(-d,[0:0.2:10],'normalization','probability',...
-            'facecolor','y');
-        title({'Trigger-Target vs. Treadmill-Target',...
-            ['TT Score = ',num2str(ratio(i))],...
-            ['P = ',num2str(graphData.p(e,neuron))]});
-        legend({'Treadmill','Trigger'});
-        xlabel('Latency from Target [s]')
+        %Labels.
+        title('Spike Time Latencies');
+        xlabel('Latency from Target [s]'); ylabel('Proportion of Latencies');
+        legend({['Time shuffle p = ',num2str(Ap(e,neuron))],...
+            ['Trial shuffle p = ',num2str(prune_p(e,neuron))],...
+            ['Trdmll-trgt MAD ratio = ',num2str(ratio(i))],...
+            'Trggr-trgt'},'fontsize',6);
         set(gca,'linewidth',1.5);
-        
+
         %% Anatomical topology.
         if plotcells
-            subplot(3,5,[3:5,8:10,14:15]);
+            subplot(3,2,6);
             PlotNeurons(md,[1:NumNeurons],'k',1);
             hold on;
             PlotNeurons(md,neuron,'r',2);

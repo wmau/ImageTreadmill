@@ -1,4 +1,4 @@
-function [p,el] = trialShuffleKSTest(graphData,neuron,varargin)
+function [p,el,trialShuffleNulls] = trialShuffleKSTest(graphData,neuron,varargin)
 %[p,el] = trialShuffleKSTest(graphData,neuron,varargin)
 %
 %   Perform randomized trial shuffles for treadmill run epochs where two
@@ -64,6 +64,7 @@ function [p,el] = trialShuffleKSTest(graphData,neuron,varargin)
     %Get treadmill spread for each connection.
     [~,~,treadmillSpread,TMAlignedOnsets] = SpreadRatio(md,graphData.A,neuron,'inds',inds);
     
+    trialShuffleNulls = cell(1,length(el)); 
     for e=el 
         %If treadmill-target latency is variable...
         if treadmillSpread(c) > 0 && mode(TMAlignedOnsets{c})~=0
@@ -93,6 +94,9 @@ function [p,el] = trialShuffleKSTest(graphData,neuron,varargin)
             
             %Do KS test after B shuffles. 
             [~,p(c)] = kstest2(latencies,null); 
+            
+            %Save the null distribution.
+            trialShuffleNulls{c} = null; 
             
             c=c+1; 
         end

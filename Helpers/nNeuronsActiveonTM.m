@@ -12,6 +12,7 @@ function [n,neurons] = nNeuronsActiveonTM(md)
 %
 %       neurons: neurons active. 
 %
+
 %% Set up.
     cd(md.Location);
     load('TimeCells.mat','TodayTreadmillLog','T');

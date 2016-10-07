@@ -58,7 +58,7 @@ function [xModTFWidths,iModTFWidths] = CompareTimeFieldWidths(md,plotit)
         stairs(x,y,'color','r','linewidth',2);      %Histogram.
         ylabel('Proportion of Cells'); 
         set(gca,'ticklength',[0 0]); 
-        legend({'Externally modulated','Internally modulated'});
+        legend({'Treadmill modulated','Cell modulated'});
         
         %ECDF. 
         subplot(2,2,3);
@@ -70,27 +70,35 @@ function [xModTFWidths,iModTFWidths] = CompareTimeFieldWidths(md,plotit)
         xlabel('MAD of Temporal Field [s]'); 
         ylabel('Cumulative Proportion of Cells'); 
         set(gca,'ticklength',[0 0]); 
+             
+%         xModMean = mean(xModTFWidths);  
+        xJitter = 1-(0.1*randn(nXMods,1));
+%         iModMean = mean(iModTFWidths); 
+        iJitter = 2-(0.1*randn(nIMods,1));
+%         xSEM = std(xModTFWidths)/sqrt(nXMods);
+%         iSEM = std(iModTFWidths)/sqrt(nIMods); 
         
-        %Bar plot. 
-        xModMean = mean(xModTFWidths);  xJitter = 2-(0.1*randn(nXMods,1));
-        iModMean = mean(iModTFWidths);  iJitter = 1-(0.1*randn(nIMods,1));
-        xSEM = std(xModTFWidths)/sqrt(nXMods);
-        iSEM = std(iModTFWidths)/sqrt(nIMods); 
-        
+        %Boxplot stuff.
+        grps = [zeros(1,nXMods), ones(1,nIMods)];
         subplot(2,2,[2,4]); 
         hold on;
-        bar(1,iModMean,'facecolor','w','linewidth',2,'edgecolor','r');
-        bar(2,xModMean,'facecolor','w','linewidth',2,'edgecolor','b');
-       
+        boxplot([xModTFWidths,iModTFWidths],grps,'Labels',...
+            {'Treadmill','Cell'},'color','k','symbol','k');
+         
+%         bar(1,iModMean,'facecolor','w','linewidth',2,'edgecolor','r');
+%         bar(2,xModMean,'facecolor','w','linewidth',2,'edgecolor','b');
+%        
         %Scatter individual points. 
-        scatter([iJitter; xJitter],[iModTFWidths'; xModTFWidths'],15,...
+        scatter([xJitter; iJitter],[xModTFWidths'; iModTFWidths'],5,...
             'markeredgecolor',[0.7 0.7 0.7]);
-        errorbar(1,iModMean,xSEM,'r','linewidth',2);
-        errorbar(2,xModMean,iSEM,'b','linewidth',2);
-        set(gca,'xtick',[1 2],...
-            'xticklabel',{'Cell modulated','Treadmill modulated'},...
-            'ticklength',[0 0]);
+%         errorbar(1,iModMean,xSEM,'r','linewidth',2);
+%         errorbar(2,xModMean,iSEM,'b','linewidth',2);
+%         set(gca,'xtick',[1 2],...
+%             'xticklabel',{'Cell modulated','Treadmill modulated'},...
+%             'ticklength',[0 0]);
+        set(gca,'ticklength',[0 0]);
         ylabel('MAD of Temporal Field [s]');
+        xlabel('Modulation');
         
     end
 end

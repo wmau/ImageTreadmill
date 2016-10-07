@@ -1,4 +1,4 @@
-function plotXCorr(R,source,sink,lags)
+function plotXCorr(R,source,sink,lags,labels,controls)
 %
 %
 %
@@ -14,7 +14,7 @@ function plotXCorr(R,source,sink,lags)
     timeErrBar = zeros([size(R.timeShuffled{source,sink}.mu),2]);
     timeErrBar(1,:,1) = abs(R.timeShuffled{source,sink}.upper' - R.timeShuffled{source,sink}.mu');
     timeErrBar(1,:,2) = abs(R.timeShuffled{source,sink}.lower' - R.timeShuffled{source,sink}.mu'); 
-    timeLine.col = {'r'};
+    timeLine.col = {'c'};
     
 %     RErrBar = zeros([size(R.timeShuffled{source,sink}.mu),2]);
 %     RErrBar(1,:,1) = abs(R.CI{source,sink}(1,:)' - R.smoothed{source,sink}');
@@ -22,10 +22,13 @@ function plotXCorr(R,source,sink,lags)
     Rline.col = {'k'};
     
     %Plot.
-    figure;
+    %figure;
     hold on;
-    mseb(lags,R.trialShuffled{source,sink}.mu',trialErrBar,trialLine,1);    %Shuffled.
-    mseb(lags,R.timeShuffled{source,sink}.mu',timeErrBar,timeLine,1);
+    
+    if controls
+        mseb(lags,R.trialShuffled{source,sink}.mu',trialErrBar,trialLine,1);    %Shuffled.
+        mseb(lags,R.timeShuffled{source,sink}.mu',timeErrBar,timeLine,1);
+    end
         
     %plot(lags,R.smoothed{source,sink},'k','linewidth',3);     %CCG.
     mseb(lags,R.smoothed{source,sink},R.CI{source,sink},Rline,1);
@@ -33,16 +36,23 @@ function plotXCorr(R,source,sink,lags)
     sigplot(sigplot==0) = nan;
     plot(lags,sigplot,'g','linewidth',3);                      %Significant.
     
-    %Peak. 
-    [~,peakind] = max(R.smoothed{source,sink});
-    peak = lags(peakind); 
+    %Peak.  
+    peak = round(nanmean(lags(R.sig{source,sink})),3);
+    
+    if isnan(peak)
+        [~,peakind] = max(R.smoothed{source,sink});
+        peak = lags(peakind); 
+    end
+    
+    %Draw line showing average time at which xcorr is significant. 
     YLim = get(gca,'ylim');
     l = line([peak peak],YLim,'color','k','linestyle','--','linewidth',2);
-   
     label(l,[num2str(peak*1000),' ms'],'location','top');
     
-    xlabel('Lags [s]');
-    ylabel('Trial Averaged Cross-Correlation');
-    title(['Neuron ',num2str(source),' x Neuron ',num2str(sink)]);
+    if labels
+        xlabel('Lags [s]');
+        ylabel('Trial Averaged Cross-Correlation');
+        title(['Neuron ',num2str(source),' x Neuron ',num2str(sink)]);
+    end
     ylim(YLim);
 end

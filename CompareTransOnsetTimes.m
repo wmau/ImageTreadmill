@@ -1,4 +1,4 @@
-function [tspikes,ntspikes] = CompareTransOnsetTimes(md)
+function [ispikes,xspikes] = CompareTransOnsetTimes(md)
 %
 %
 %
@@ -24,15 +24,15 @@ function [tspikes,ntspikes] = CompareTransOnsetTimes(md)
     nNonTargets = length(nontargets);
     
     %Preallocate. 
-    tspikes = cell(1,nTargets);
-    ntspikes = cell(1,nNonTargets); 
+    ispikes = cell(1,nTargets);
+    xspikes = cell(1,nNonTargets); 
     
     rasters = cell(1,nNeurons);
     for n=active
         rasters{n} = buildRaster(inds,FT,n);
     end
     
-    TSPIKES = []; NTSPIKES = [];
+    iSPIKES = []; xSPIKES = [];
     for t=1:nTargets
         triggers = find(A(:,targets(t)))';
         
@@ -45,9 +45,7 @@ function [tspikes,ntspikes] = CompareTransOnsetTimes(md)
             [spkLap,spkTime] = find(pRaster); 
             [spkLap,order] = sort(spkLap); 
             spkTime = spkTime(order); 
-            try
-            spkTime = spkTime./20 - latency; 
-            catch, keyboard; end
+            spkTime = spkTime./20 -.05 - latency; 
             
             spkalreadythere = ismember(spkTime,tspk);
             lapalreadythere = ismember(spkLap,lspk);
@@ -56,36 +54,48 @@ function [tspikes,ntspikes] = CompareTransOnsetTimes(md)
             
         end
         
-        tspikes{t} = tspk;
-        TSPIKES = [TSPIKES; tspikes{t}];
+        ispikes{t} = tspk;
+        iSPIKES = [iSPIKES; ispikes{t}];
     end
     
     for nt=1:nNonTargets
-        [~,ntspikes{nt}] = find(rasters{nontargets(nt)});
-        ntspikes{nt} = ntspikes{nt}./20;
-        NTSPIKES = [NTSPIKES; ntspikes{nt}];
+        [~,xspikes{nt}] = find(rasters{nontargets(nt)});
+        xspikes{nt} = xspikes{nt}./20 - 0.05;
+        xSPIKES = [xSPIKES; xspikes{nt}];
     end
+    nXSPIKES = length(xSPIKES); 
+    nISPIKES = length(iSPIKES);
     
     figure;
-    [n,b] = hist(TSPIKES,[0:.25:10]); 
-    n = n./length(TSPIKES);
+    [n,b] = hist(iSPIKES,[0:.25:10]); 
+    n = n./length(iSPIKES);
     stairs(b,n); 
     hold on;
-    [n,b] = hist(NTSPIKES,[0:.25:10]);
-    n = n./length(NTSPIKES);
+    [n,b] = hist(xSPIKES,[0:.25:10]);
+    n = n./length(xSPIKES);
     stairs(b,n); 
     xlabel('Treadmill Time Elapsed [s]'); 
     ylabel('Frequency'); 
     
+    %Boxplot stuff.
     figure;
-    bar([1,2],[mean(TSPIKES) mean(NTSPIKES)],.4,'facecolor','k'); hold on;
-    errorbar(1,mean(TSPIKES),1.96*std(TSPIKES)/sqrt(length(TSPIKES)),'k','linewidth',3)
-    errorbar(2,mean(NTSPIKES),1.96*std(NTSPIKES)/sqrt(length(NTSPIKES)),'k','linewidth',3)
-    set(gca,'xtick',[1 2],...
-        'xticklabel',{'Cell modulated','Treadmill modulated'},...
-        'ticklength',[0 0]);
-    xlim([0.5 2.5]);
-    ylabel('Treadmill Time Elapsed [s]'); 
+%     bar([1,2],[mean(TSPIKES) mean(NTSPIKES)],.4,'facecolor','k'); hold on;
+%     errorbar(1,mean(TSPIKES),1.96*std(TSPIKES)/sqrt(length(TSPIKES)),'k','linewidth',3)
+%     errorbar(2,mean(NTSPIKES),1.96*std(NTSPIKES)/sqrt(length(NTSPIKES)),'k','linewidth',3)
+%     set(gca,'xtick',[1 2],...
+%         'xticklabel',{'Cell modulated','Treadmill modulated'},...
+%         'ticklength',[0 0]);
+%     xlim([0.5 2.5]);
+    xJitter = 1-(0.1*randn(nXSPIKES,1));
+    iJitter = 2-(0.1*randn(nISPIKES,1));
+    grps = [zeros(length(xSPIKES),1);ones(length(iSPIKES),1)];
 
-    keyboard
+    hold on;
+    scatter([xJitter; iJitter],[xSPIKES; iSPIKES],3,...
+        'markeredgecolor',[.7 .7 .7]);
+    boxplot([xSPIKES;iSPIKES],grps,'color','k','whisker',0,'symbol','k',...
+        'Labels',{'Treadmill','Cell'});
+    ylabel('Treadmill Time Elapsed [s]'); 
+    xlabel('Modulation');
+    set(gca,'ticklength',[0 0]);
 end

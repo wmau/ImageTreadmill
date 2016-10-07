@@ -1,5 +1,5 @@
-function [nocells,automated] = SourceSinkGLM(tbl,tracetype)
-%[all,notime,nocells,automated] = SourceSinkGLM(tbl)
+function [wocells,wcells] = SourceSinkGLM(tbl,tracetype,stpws)
+%[all,notime,nocells,automated] = SourceSinkGLM(tbl,tracetype,stpws)
 %
 %   Fits GLMs to the table in multiple ways. 
 %       -Using all the regressors. 
@@ -14,10 +14,6 @@ function [nocells,automated] = SourceSinkGLM(tbl,tracetype)
 %       the last column is the response variable. 
 %
 %   OUTPUTS
-%       all: GLM containing all the predictors including time. 
-%
-%       notime: GLM containing all neural predictors, excluding time. 
-%
 %       nocells: GLM containing only time as a predictor. 
 %
 %       automated: 
@@ -27,10 +23,16 @@ function [nocells,automated] = SourceSinkGLM(tbl,tracetype)
     elseif strcmp(tracetype,'rawtrace'), dtype = 'normal'; linkfx = 'identity'; end
     %all = fitglm(tbl,'distribution',dtype,'link',linkfx);
     %notime = fitglm(tbl(:,2:end),'distribution',dtype,'link',linkfx);
-    nocells = fitglm(tbl(:,[1,end]),'distribution',dtype,'link',linkfx);
-    automated = stepwiseglm(tbl,'linear',...
-         'upper','linear',...
-         'distribution',dtype,...
-         'link',linkfx,...
-         'Criterion','AIC');
+    wocells = fitglm(tbl(:,[1,end]),'distribution',dtype,'link',linkfx);
+    
+    %If specified, run stepwise fit. Otherwise, fit all parameters. 
+    if stpws
+        wcells = stepwiseglm(tbl,'linear',...
+             'upper','linear',...
+             'distribution',dtype,...
+             'link',linkfx,...
+             'Criterion','AIC');
+    else
+        wcells = fitglm(tbl,'distribution',dtype,'link',linkfx);
+    end
 end

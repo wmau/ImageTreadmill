@@ -12,15 +12,15 @@ function [neurons,nocells,automated] = SourceOnlyGLMs(md,lags,tracetype)
     [X,y] = SourceSinkGLMSetUp(md,neurons,1,lags,tracetype); %Don't delete extra output here.
     
     nn=1;
-    all = cell(1,nNeurons);
-    notime = cell(1,nNeurons);
     nocells = cell(1,nNeurons);
     automated = cell(1,nNeurons);
     p = ProgressBar(nNeurons);
     for n=neurons
         [~,y] = SourceSinkGLMSetUp(md,[],n,0,tracetype);
         
+        %Get the source neurons.
         sources = find(A(:,n)); cols = 1;
+        %Find matches in the table.
         for s=sources'
             cols = [cols, find(~cellfun('isempty',regexp(X.Properties.VariableNames,['n',num2str(s),'lag'])))];
         end
@@ -32,7 +32,7 @@ function [neurons,nocells,automated] = SourceOnlyGLMs(md,lags,tracetype)
             fitTbl(:,end+1) = table(y);         %Add in response variable. 
 
             %Do the fit. 
-            [nocells{nn},automated{nn}] = SourceSinkGLM(fitTbl,tracetype);
+            [nocells{nn},automated{nn}] = SourceSinkGLM(fitTbl,tracetype,true);
         end
         
         nn=nn+1;

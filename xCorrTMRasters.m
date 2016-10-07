@@ -44,7 +44,7 @@ function [R,A,lags] = xCorrTMRasters(md,tracetype)
 
 %% Perform cross-correlations and permutation tests. 
     %Number of shuffle iterations and preallocate. 
-    B = 50;     
+    B = 100;     
     R.unsmoothed = cell(nNeurons);
     R.smoothed = cell(nNeurons);
     R.sig = cell(nNeurons);
@@ -77,7 +77,8 @@ function [R,A,lags] = xCorrTMRasters(md,tracetype)
                 %Convert into numeric.            
                 triggerRaster = single(rasters{trig}); 
                 targetRaster = single(rasters{targ});
-                
+
+%% Get cross correlation.                
                 switch tracetype
                     case 'FT'
                         %Trim laps. 
@@ -98,11 +99,18 @@ function [R,A,lags] = xCorrTMRasters(md,tracetype)
                         R.CI{trig,targ} = 1.96*std(R.unsmoothed{trig,targ})/sqrt(nLaps);
                 end
                 
+                %Bins in lags. 
+                lLags = length(lags);
+                
+                %Flip.
+                R.unsmoothed{targ,trig} = fliplr(R.unsmoothed{trig,targ});
+                R.smoothed{targ,trig} = fliplr(R.smoothed{trig,targ});
+                R.CI{targ,trig} = fliplr(R.CI{trig,targ});
+                
+%% Time shuffle test. 
                 %Preallocate permutation test variables. 
-                trialShuffleR = cell(1,B);                  %Trial shuffled lap-by-lap xcorr matrices.
                 timeShuffleR = cell(1,B);                   %Time shuffled lap-by-lap xcorr matrices.
-                trialShuffleMeans = zeros(B,length(lags));  %Tuning curves for trial shuffled data.
-                timeShuffleMeans = zeros(B,length(lags));   %Tuning curves for time shuffled data.
+                timeShuffleMeans = zeros(B,lLags);   %Tuning curves for time shuffled data.
                 for iter=1:B
                     %Deck-of-cards shuffle time. 
                     trigTimeShuffle = triggerRaster;
@@ -112,61 +120,79 @@ function [R,A,lags] = xCorrTMRasters(md,tracetype)
                     
                     %XCorr matrix.
                     timeShuffleR{iter} = xcorr_by_laps(trigTimeShuffle,targetRaster);
-                              
-                    %Shuffle laps.
-                    trigTrialShuff = triggerRaster(randperm(nLaps),:);
-                    
-                    %XCorr matrix. 
-                    trialShuffleR{iter} = xcorr_by_laps(trigTrialShuff,targetRaster);
-                    
+     
                     %Round xcorr values in FT mode. 
-                    if strcmp(tracetype,'FT')
-                        trialShuffleR{iter} = round(trialShuffleR{iter},3);
-                        timeShuffleR{iter} = round(timeShuffleR{iter},3);
-                    end
+                    if strcmp(tracetype,'FT'), timeShuffleR{iter} = round(timeShuffleR{iter},3); end
 
                     %Mean curves. 
-                    trialShuffleMeans(iter,:) = mean(trialShuffleR{iter});
                     timeShuffleMeans(iter,:) = mean(timeShuffleR{iter});
                 end
-                
+                         
                 %Sort for CIs.
-                trialShuffleMeans = sort(trialShuffleMeans);
                 timeShuffleMeans = sort(timeShuffleMeans);
                 
                 %Mean of all tuning curves plus confidence intervals.
-                R.trialShuffled{trig,targ}.mu = mean(trialShuffleMeans);
-                R.trialShuffled{trig,targ}.upper = trialShuffleMeans(round(.95*B),:);
-                R.trialShuffled{trig,targ}.lower = trialShuffleMeans(round(.05*B),:);
-                
-                %And the same for time shuffled data. 
                 R.timeShuffled{trig,targ}.mu = mean(timeShuffleMeans);
                 R.timeShuffled{trig,targ}.upper = timeShuffleMeans(round(.95*B),:);
                 R.timeShuffled{trig,targ}.lower = timeShuffleMeans(round(.05*B),:);
-                
-                %Smooth in FT mode. 
-                if strcmp(tracetype,'FT')
-                    R.trialShuffled{trig,targ}.mu = smooth(trialShuffleMeans{trig,targ}.mu)';
-                    R.trialShuffled{trig,targ}.upper = smooth(trialShuffleMeans{trig,targ}.upper)';
-                    R.trialShuffled{trig,targ}.lower = smooth(trialShuffleMeans{trig,targ}.lower)';
-                end
-                
+                                         
                 %Significance.
-                R.sigTrial{trig,targ} = sum(repmat(R.smoothed{trig,targ},B,1) <= trialShuffleMeans)./B;
                 R.sigTime{trig,targ} = sum(repmat(R.smoothed{trig,targ},B,1) <= timeShuffleMeans)./B;
-                R.sig{trig,targ} = R.sigTrial{trig,targ} < 0.01 & R.sigTime{trig,targ} < 0.01 & ...
-                    (R.smoothed{trig,targ} - R.CI{trig,targ}) > (R.trialShuffled{trig,targ}.upper) & ...
-                    (R.smoothed{trig,targ} - R.CI{trig,targ}) > (R.timeShuffled{trig,targ}.upper);
-                           
-                %Reverse everything for the opposite directionality here.
-                R.unsmoothed{targ,trig} = fliplr(R.unsmoothed{trig,targ});
-                R.smoothed{targ,trig} = fliplr(R.smoothed{trig,targ});
-                R.sig{targ,trig} = fliplr(R.sig{trig,targ});
-                R.CI{targ,trig} = fliplr(R.CI{trig,targ});
-                R.trialShuffled{targ,trig} = fliplr(R.trialShuffled{trig,targ});
-                R.timeShuffled{targ,trig} = fliplr(R.timeShuffled{trig,targ});
-                R.sigTrial{targ,trig} = fliplr(R.sigTrial{trig,targ});
+
+                %Reverse for opposite directionality.    
+                R.timeShuffled{targ,trig}.mu = fliplr(R.timeShuffled{trig,targ}.mu);
+                R.timeShuffled{targ,trig}.upper = fliplr(R.timeShuffled{trig,targ}.upper);
+                R.timeShuffled{targ,trig}.lower = fliplr(R.timeShuffled{trig,targ}.lower);
                 R.sigTime{targ,trig} = fliplr(R.sigTime{trig,targ});
+                
+%% Trial shuffle test.                 
+                R.trialShuffled{trig,targ}.mu = nan(1,lLags);
+                R.trialShuffled{trig,targ}.upper = nan(1,lLags);
+                R.trialShuffled{trig,targ}.lower = nan(1,lLags);
+                R.sigTrial{trig,targ} = nan(1,lLags);
+                R.sig{trig,targ} = false(1,lLags); 
+                
+                if any(R.sigTime{trig,targ} < 0.05)
+                    trialShuffleR = cell(1,B);
+                    trialShuffleMeans = zeros(B,lLags);
+                    for iter=1:B
+                        %Shuffle laps.
+                        trigTrialShuff = triggerRaster(randperm(nLaps),:);
+
+                        %XCorr matrix. 
+                        trialShuffleR{iter} = xcorr_by_laps(trigTrialShuff,targetRaster);
+                    
+                        %Round.
+                        if strcmp(tracetype,'FT'),  trialShuffleR{iter} = round(trialShuffleR{iter},3); end;
+                            
+                        %Mean curve.
+                        trialShuffleMeans(iter,:) = mean(trialShuffleR{iter});
+                    end
+                    
+                    %Sort for CIs. 
+                    trialShuffleMeans = sort(trialShuffleMeans); 
+
+                    %Mean of all tuning curves plus CIs.
+                    R.trialShuffled{trig,targ}.mu = mean(trialShuffleMeans);
+                    R.trialShuffled{trig,targ}.upper = trialShuffleMeans(round(.95*B),:);
+                    R.trialShuffled{trig,targ}.lower = trialShuffleMeans(round(.05*B),:);
+                    
+                    %Get significance for trial shuffles. 
+                    R.sigTrial{trig,targ} = sum(repmat(R.smoothed{trig,targ},B,1) <= trialShuffleMeans)./B;
+                    
+                    %Final significance logical.
+                    R.sig{trig,targ} = R.sigTrial{trig,targ} < 0.05 & R.sigTime{trig,targ} < 0.05 & ...
+                        (R.smoothed{trig,targ} - R.CI{trig,targ}) > (R.trialShuffled{trig,targ}.upper) & ...
+                        (R.smoothed{trig,targ} - R.CI{trig,targ}) > (R.timeShuffled{trig,targ}.upper);
+                end 
+                
+                %Reverse for opposite directionality.
+                R.trialShuffled{targ,trig}.mu = fliplr(R.trialShuffled{trig,targ}.mu);
+                R.trialShuffled{targ,trig}.upper = fliplr(R.trialShuffled{trig,targ}.upper);
+                R.trialShuffled{targ,trig}.lower = fliplr(R.trialShuffled{trig,targ}.lower);
+                R.sigTrial{targ,trig} = fliplr(R.sigTrial{trig,targ});
+                R.sig{targ,trig} = fliplr(R.sig{trig,targ});
+                      
             end     
         end
   
@@ -174,36 +200,35 @@ function [R,A,lags] = xCorrTMRasters(md,tracetype)
     end
     p.stop;
     
+    keyboard; 
 %% Build adjacency matrix. 
     %Time vector and preallocate. 
-    t = linspace(-T,T,length(lags)); 
+    t = linspace(-T,T,lLags); 
     A = zeros(nNeurons);
     window = 2; 
     for i=neurons   
         nonI = neurons(neurons>i);
         for j=nonI
-            if ~isempty(R.sig{i,j})
-                sigs = R.sig{i,j};              %Package.
-                tuningcurve = R.smoothed{i,j};  %Get the tuning curve so you can look for peak.
-                tuningcurve(~sigs) = nan;       %Only look at significant points. 
-                
-                %Define time window. 
-                tuningcurve(t < -window | t > window) = nan;
-                
-                if any(~isnan(tuningcurve))
-                    [~,peak] = max(tuningcurve); 
+            sigs = R.sig{i,j};      %Package.
+            %tuningcurve = R.smoothed{i,j};  %Get the tuning curve so you can look for peak.
+            %tuningcurve(~sigs) = nan;       %Only look at significant points. 
 
-                    %Place edges. 
-                    if t(peak) < 0
-                        A(i,j) = 1;                 %If peak xcorr is below 0, i connects to j.
-                    elseif t(peak) > 0
-                        A(j,i) = 1;                 %If peak xcorr is above 0, j connects to i. 
-                    elseif t(peak)==0 
-                        A(i,j) = 1;
-                        A(j,i) = 1; 
-                    end
-                end
+            %Define time window. 
+            %tuningcurve(t < -window | t > window) = nan;
+
+            %[~,peak] = max(tuningcurve); 
+            peak = mean(t(sigs));
+
+            %Place edges. 
+            if peak < 0 && peak > -window
+                A(i,j) = 1;                 %If peak xcorr is below 0, i connects to j.
+            elseif peak > 0 && peak < window
+                A(j,i) = 1;                 %If peak xcorr is above 0, j connects to i. 
+            elseif peak == 0
+                A(i,j) = 1;
+                A(j,i) = 1; 
             end
+
         end
     end
     
@@ -212,5 +237,4 @@ function [R,A,lags] = xCorrTMRasters(md,tracetype)
     
     save('XCorr.mat','R','A','lags','-v7.3');
     
-end
-        
+end     
