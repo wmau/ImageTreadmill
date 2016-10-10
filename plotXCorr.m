@@ -1,46 +1,45 @@
-function plotXCorr(R,source,sink,lags,labels,controls)
+function plotXCorr(R,src,snk,lags,labels,controls)
 %
 %
 %
 
-%%
+%% Check if src,snk is empty. 
+    if isempty(R{src,snk})
+        R = flipR(R,src,snk);
+    end
+    
+%% Set up lines. 
     %Set up error bars. 
-    trialErrBar = zeros([size(R.trialShuffled{source,sink}.mu),2]);
-    trialErrBar(1,:,1) = abs(R.trialShuffled{source,sink}.upper' - R.trialShuffled{source,sink}.mu');
-    trialErrBar(1,:,2) = abs(R.trialShuffled{source,sink}.lower' - R.trialShuffled{source,sink}.mu'); 
-%    errBar = smooth(R.shuffled{source,sink}.std)';
-    trialLine.col = {'b'};
+    trlErrBar = zeros([size(R{src,snk}.trlshff.mu),2]);
+    trlErrBar(1,:,1) = abs(R{src,snk}.trlshff.upper' - R{src,snk}.trlshff.mu');
+    trlErrBar(1,:,2) = abs(R{src,snk}.trlshff.lower' - R{src,snk}.trlshff.mu');     
     
-    timeErrBar = zeros([size(R.timeShuffled{source,sink}.mu),2]);
-    timeErrBar(1,:,1) = abs(R.timeShuffled{source,sink}.upper' - R.timeShuffled{source,sink}.mu');
-    timeErrBar(1,:,2) = abs(R.timeShuffled{source,sink}.lower' - R.timeShuffled{source,sink}.mu'); 
-    timeLine.col = {'c'};
+    tErrBar = zeros([size(R{src,snk}.tshff.mu),2]);
+    tErrBar(1,:,1) = abs(R{src,snk}.tshff.upper' - R{src,snk}.tshff.mu');
+    tErrBar(1,:,2) = abs(R{src,snk}.tshff.lower' - R{src,snk}.tshff.mu'); 
     
-%     RErrBar = zeros([size(R.timeShuffled{source,sink}.mu),2]);
-%     RErrBar(1,:,1) = abs(R.CI{source,sink}(1,:)' - R.smoothed{source,sink}');
-%     RErrBar(1,:,2) = abs(R.CI{source,sink}(2,:)' - R.smoothed{source,sink}'); 
+    trlLine.col = {'b'};
+    tLine.col = {'c'};
     Rline.col = {'k'};
-    
-    %Plot.
-    %figure;
+
+%% Make plot. 
+    figure;
     hold on;
-    
     if controls
-        mseb(lags,R.trialShuffled{source,sink}.mu',trialErrBar,trialLine,1);    %Shuffled.
-        mseb(lags,R.timeShuffled{source,sink}.mu',timeErrBar,timeLine,1);
+        mseb(lags,R{src,snk}.trlshff.mu',trlErrBar,trlLine,1);    %Shuffled.
+        mseb(lags,R{src,snk}.tshff.mu',tErrBar,tLine,1);
     end
         
-    %plot(lags,R.smoothed{source,sink},'k','linewidth',3);     %CCG.
-    mseb(lags,R.smoothed{source,sink},R.CI{source,sink},Rline,1);
-    sigplot = R.smoothed{source,sink}.*single(R.sig{source,sink});
+    mseb(lags,R{src,snk}.curve,R{src,snk}.CI,Rline,1);
+    sigplot = R{src,snk}.curve.*single(R{src,snk}.sig);
     sigplot(sigplot==0) = nan;
     plot(lags,sigplot,'g','linewidth',3);                      %Significant.
     
     %Peak.  
-    peak = round(nanmean(lags(R.sig{source,sink})),3);
+    peak = round(nanmean(lags(R{src,snk}.sig)),3);
     
     if isnan(peak)
-        [~,peakind] = max(R.smoothed{source,sink});
+        [~,peakind] = max(R{src,snk}.curve);
         peak = lags(peakind); 
     end
     
@@ -52,7 +51,7 @@ function plotXCorr(R,source,sink,lags,labels,controls)
     if labels
         xlabel('Lags [s]');
         ylabel('Trial Averaged Cross-Correlation');
-        title(['Neuron ',num2str(source),' x Neuron ',num2str(sink)]);
+        title(['Neuron ',num2str(src),' x Neuron ',num2str(snk)]);
     end
     ylim(YLim);
 end

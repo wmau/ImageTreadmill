@@ -200,7 +200,6 @@ function [R,A,lags] = xCorrTMRasters(md,tracetype)
     end
     p.stop;
     
-    keyboard; 
 %% Build adjacency matrix. 
     %Time vector and preallocate. 
     t = linspace(-T,T,lLags); 
