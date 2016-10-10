@@ -4,6 +4,7 @@ function xCorrTrdmllTraces(md,tracetype)
 %
 
 %% Set up.
+    tic; 
     cd(md.Location);
     switch tracetype
         case 'rawtrace'
@@ -143,5 +144,9 @@ function xCorrTrdmllTraces(md,tracetype)
     %Divide by frame rate.
     lags = lags./20;
     
-    save('XCorr.mat','R','A','lags','-v7.3');
+    elapsed = toc;
+    
+    save('XCorr.mat','R','A','lags','elapsed','-v7.3');
+    
+    
 end
