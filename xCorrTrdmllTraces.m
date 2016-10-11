@@ -111,6 +111,10 @@ function xCorrTrdmllTraces(md,tracetype)
     p.stop;
    
 %% Build adjacency matrix. 
+    %Get the lag vector again. 
+    [~,lags] = xcorr_by_laps(rasters{1},rasters{1});
+    lLags = length(lags);
+    
     %Time vector and preallocate. 
     t = linspace(-T,T,lLags); 
     A = zeros(nNeurons);
