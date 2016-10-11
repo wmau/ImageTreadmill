@@ -112,7 +112,7 @@ function xCorrTrdmllTraces(md,tracetype)
    
 %% Build adjacency matrix. 
     %Get the lag vector again. 
-    [~,lags] = xcorr_by_laps(rasters{1},rasters{1});
+    [~,lags] = xcorr_by_laps(rasters{active(1)},rasters{active(1)});
     lLags = length(lags);
     
     %Time vector and preallocate. 
