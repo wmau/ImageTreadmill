@@ -34,7 +34,7 @@ function xCorrTrdmllTraces(md,tracetype)
 
     nComparisons = nNeurons*nNeurons;
 %% Perform cross-correlations and permutation tests. 
-    B = 500;
+    B = 10;
     R = cell(nNeurons);
      
     nLaps = size(rasters{active(1)},1); 
@@ -103,8 +103,8 @@ function xCorrTrdmllTraces(md,tracetype)
                     (R{c}.curve - R{c}.CI) > R{c}.trlshff.upper & ...
                     (R{c}.curve - R{c}.CI) > R{c}.tshff.upper;
             else 
-                R{c}.sig = zeros(size(R{c}.sigt));
-                R{c}.sigtrls = zeros(size(R{c}.sigt));
+                R{c}.sig = false(size(R{c}.sigt));
+                R{c}.sigtrls = false(size(R{c}.sigt));
             end
         end
         
