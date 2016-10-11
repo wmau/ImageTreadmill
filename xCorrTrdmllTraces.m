@@ -34,7 +34,7 @@ function xCorrTrdmllTraces(md,tracetype)
 
     nComparisons = nNeurons*nNeurons;
 %% Perform cross-correlations and permutation tests. 
-    B = 10;
+    B = 500;
     R = cell(nNeurons);
      
     nLaps = size(rasters{active(1)},1); 
