@@ -34,13 +34,14 @@ function xCorrTrdmllTraces(md,tracetype)
 
     nComparisons = nNeurons*nNeurons;
 %% Perform cross-correlations and permutation tests. 
-    B = 100;
+    B = 10;
     R = cell(nNeurons);
      
     nLaps = size(rasters{active(1)},1); 
     resolution = 2;
     updateInc = round(nComparisons/(100/resolution));
     p = ProgressBar(100/resolution);
+    parpool(16);
     parfor c=1:nComparisons
         [src,snk] = ind2sub([nNeurons,nNeurons],c); 
         
@@ -101,6 +102,9 @@ function xCorrTrdmllTraces(md,tracetype)
                 R{c}.sig = R{c}.sigtrls < .05 & R{c}.sigt < .05 & ...
                     (R{c}.curve - R{c}.CI) > R{c}.trlshff.upper & ...
                     (R{c}.curve - R{c}.CI) > R{c}.tshff.upper;
+            else 
+                R{c}.sig = zeros(size(R{c}.sigt));
+                R{c}.sigtrls = zeros(size(R{c}.sigt));
             end
         end
         
@@ -109,7 +113,8 @@ function xCorrTrdmllTraces(md,tracetype)
         end
     end
     p.stop;
-   
+    delete(gcp); 
+    
 %% Build adjacency matrix. 
     %Get the lag vector again. 
     [~,lags] = xcorr_by_laps(rasters{active(1)},rasters{active(1)});
