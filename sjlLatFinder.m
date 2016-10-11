@@ -1,6 +1,17 @@
 function latencies = sjlLatFinder(srcRaster,snkRaster)
+%latencies = sjlLatFinder(srcRaster,snkRaster)
 %
+%   Finds latencies between transients based on Sam Levy's indexing trick. 
+%   Vectorize spike times, cell ID, and lap number and find instances where
+%   the diff of cell ID indicates a different neuron and the diff of laps
+%   indicates the same lap. 
 %
+%   INPUTS
+%       srcRaster and snkRaster: the first and second rasters (from FT)
+%       that you want to analyze.
+%
+%   OUTPUT
+%       latency: latency distribution. 
 %
 
 %% Initialize.
