@@ -42,5 +42,5 @@ function latencies = sjlLatFinder(srcRaster,snkRaster)
     diffCells = diff(cellID)==1; 
     latencies = diff(spktimes); 
     latencies = latencies(sameLap & diffCells)./20; 
-    latencies = latencies(latencies < 0);
+    latencies = latencies(latencies > 0);
 end
