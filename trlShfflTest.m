@@ -80,7 +80,6 @@ function [Atrl,Atrlpval,trlNullLats] = trlShfflTest(md,A,latencies)
     Atrl(Atrlpval < pcrit) = true;
     
     elapsed = toc;
-    keyboard;
             
-    save('TrialShuffle.mat','A','Atrlpval','trlNullLats','-v7.3');
+    save('TrialShuffle.mat','A','Atrlpval','trlNullLats','elapsed','-v7.3');
 end
