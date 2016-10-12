@@ -1,5 +1,5 @@
 function plotXCorr(R,src,snk,lags,labels,controls)
-%
+%plotXCorr(R,src,snk,lags,labels,controls)
 %
 %
 

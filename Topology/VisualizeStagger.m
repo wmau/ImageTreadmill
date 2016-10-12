@@ -12,9 +12,9 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
     p.parse(graphData,neuron,varargin{:});
     
     el = p.Results.edgelist; 
-    Ap = p.Results.graphData.Ap;
+    Apval = p.Results.graphData.Apval;
     prune_p = round(p.Results.graphData.prune_p,3);
-    timeShuffleNulls = p.Results.graphData.nulld;
+    timeShuffleNulls = p.Results.graphData.tNullLats;
     trialShuffleNulls = p.Results.graphData.trialShuffleNulls;
     CC = p.Results.graphData.CC;
     %closest = p.Results.graphData.closest;
@@ -148,7 +148,7 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
         %Labels.
         title('Spike Time Latencies');
         xlabel('Latency from Target [s]'); ylabel('Proportion of Latencies');
-        legend({['Time shuffle p = ',num2str(Ap(e,neuron))],...
+        legend({['Time shuffle p = ',num2str(Apval(e,neuron))],...
             ['Trial shuffle p = ',num2str(prune_p(e,neuron))],...
             ['Trdmll-trgt MAD ratio = ',num2str(ratio(i))],...
             'Trggr-trgt'},'fontsize',6);
