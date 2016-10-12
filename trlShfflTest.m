@@ -76,7 +76,7 @@ function [Atrl,Atrlpval,trlNullLats] = trlShfflTest(md,A,latencies)
     end
     delete(gcp);
     
-    Atrl = A; 
+    Atrl = false(nNeurons); 
     Atrl(Atrlpval < pcrit) = true;
     
     elapsed = toc;
