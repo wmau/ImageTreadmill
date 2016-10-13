@@ -22,7 +22,7 @@ function [r,lags]=xcorr_by_laps(triggerRaster,targetRaster)
     %XCorr. 
     r = zeros(nLaps,maxlag*2+1); 
     for l=1:nLaps
-        [r(l,:),lags] = xcorr(triggerRaster(l,:),targetRaster(l,:),maxlag,'coeff'); 
+        [r(l,:),lags] = xcorr(triggerRaster(l,:),targetRaster(l,:),maxlag,'unbiased'); 
     end
     
     %Lags is in frames. 
