@@ -15,7 +15,6 @@ function latencies = sjlLatFinder(srcRaster,snkRaster)
 %
 
 %% Initialize.
-    latencies = [];
     nLaps = size(srcRaster,1);
     
     %If empty rasters, quit. 
@@ -35,6 +34,11 @@ function latencies = sjlLatFinder(srcRaster,snkRaster)
         laps = [laps, l*ones(1,length(srcSpks)), l*ones(1,length(snkSpks))];
     end
     
+    %Sort.
+    [spktimes,order] = sort(spktimes);
+    cellID = cellID(order);
+    laps = laps(order);
+    
     %Only look at same lap spike timings between distinct cells. Take the
     %diffs of thet vectors then figure out which adjacent values were from
     %the same lap and different neurons. 
@@ -42,5 +46,4 @@ function latencies = sjlLatFinder(srcRaster,snkRaster)
     diffCells = diff(cellID)==1; 
     latencies = diff(spktimes); 
     latencies = latencies(sameLap & diffCells)./20; 
-    latencies = latencies(latencies > 0);
 end
