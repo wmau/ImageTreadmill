@@ -41,7 +41,7 @@ function xCorrTrdmllTraces(md,tracetype)
     resolution = 2;
     updateInc = round(nComparisons/(100/resolution));
     p = ProgressBar(100/resolution);
-    parpool(16);
+    parpool('local');
     parfor c=1:nComparisons
         [src,snk] = ind2sub([nNeurons,nNeurons],c); 
         
@@ -153,9 +153,11 @@ function xCorrTrdmllTraces(md,tracetype)
     %Divide by frame rate.
     lags = lags./20;
     
-    elapsed = toc;
-    
-    save('XCorr.mat','R','A','lags','elapsed','-v7.3');
-    
+%% Excise overlap.
+    [edgesRemoved,A] = ExciseOverlap(md,A);
+  
+%% Save.
+    elapsed = toc;   
+    save('XCorrUNBIASED.mat','R','A','lags','edgesRemoved','elapsed','-v7.3');
     
 end
