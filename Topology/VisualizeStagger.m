@@ -12,12 +12,11 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
     p.parse(graphData,neuron,varargin{:});
     
     el = p.Results.edgelist; 
-    Apval = p.Results.graphData.Apval;
-    prune_p = round(p.Results.graphData.prune_p,3);
+    Atpval = p.Results.graphData.Atpval;
+    Atrlpval = round(p.Results.graphData.Atrlpval,3);
     timeShuffleNulls = p.Results.graphData.tNullLats;
-    trialShuffleNulls = p.Results.graphData.trialShuffleNulls;
-    CC = p.Results.graphData.CC;
-    %closest = p.Results.graphData.closest;
+    trialShuffleNulls = p.Results.graphData.trlNullLats;
+    latencies = p.Results.graphData.latencies;
     plotcells = p.Results.plotcells;
     neuron = p.Results.neuron;
     
@@ -122,12 +121,12 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
         hold on;
                         
         %Time shuffle distribution.
-        [timeNull,timeNullBins] = hist(-timeShuffleNulls{e,neuron},edges); 
+        [timeNull,timeNullBins] = hist(timeShuffleNulls{e,neuron},edges); 
         timeNull = timeNull./length(timeShuffleNulls{e,neuron});
         stairs(timeNullBins,timeNull,'-.','linewidth',2,'color','c'); 
         
         %Trial shuffle distribution.
-        [trialNull,trialNullBins] = hist(-trialShuffleNulls{e,neuron},edges);
+        [trialNull,trialNullBins] = hist(trialShuffleNulls{e,neuron},edges);
         trialNull = trialNull./length(trialShuffleNulls{e,neuron});
         stairs(trialNullBins,trialNull,'-.','linewidth',2,'color','b');
         
@@ -141,15 +140,15 @@ function [triggerRaster,targetRaster,cellOffsetSpread,el] = VisualizeStagger(gra
         ratio(i) = round(mad(d,1)/ mad(TMAlignedOnsets,1),2);
         
         %Real latency distribution.
-        [emp,empBins] = hist(-CC{e,neuron},edges);
-        emp = emp./length(CC{e,neuron});
+        [emp,empBins] = hist(latencies{e,neuron},edges);
+        emp = emp./length(latencies{e,neuron});
         stairs(empBins,emp,'linewidth',2,'color','k'); 
         
         %Labels.
         title('Spike Time Latencies');
         xlabel('Latency from Target [s]'); ylabel('Proportion of Latencies');
-        legend({['Time shuffle p = ',num2str(Apval(e,neuron))],...
-            ['Trial shuffle p = ',num2str(prune_p(e,neuron))],...
+        legend({['Time shuffle p = ',num2str(Atpval(e,neuron))],...
+            ['Trial shuffle p = ',num2str(Atrlpval(e,neuron))],...
             ['Trdmll-trgt MAD ratio = ',num2str(ratio(i))],...
             'Trggr-trgt'},'fontsize',6);
         set(gca,'linewidth',1.5);

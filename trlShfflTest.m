@@ -1,6 +1,23 @@
 function [Atrl,Atrlpval,trlNullLats] = trlShfflTest(md,A,latencies)
+%[Atrl,Atrlpval,trlNullLats] = trlShfflTest(md,A,latencies)
 %
+%   Performs a trial shuffle and tests whether that produces a different
+%   latency distribution between two rasters (KS test). 
 %
+%   INPUTS
+%       md: session entry.
+%
+%       A: adjacency matrix. 
+%
+%       latencies: NxN cell array, distributions of cell to cell latencies. 
+%
+%   OUTPUTS
+%       Atrl: adjacency matrix after trial shuffle test. 
+%
+%       Atrlpval: p-value of KS test of the trial shuffled latencies vs
+%       real latencies.
+%
+%       trlNullLats: null distribution of trial shuffled latencies. 
 %
 
 %% Set up.
@@ -28,10 +45,11 @@ function [Atrl,Atrlpval,trlNullLats] = trlShfflTest(md,A,latencies)
     end
     
 %% Do trial shuffle test.
+    disp('Performing trial shuffles...');
     resolution = 2;
     updateInc = round(nNeurons/(100/resolution));
     p = ProgressBar(100/resolution);
-    tic;
+    
     parpool('local');
     for snk=1:nNeurons
         %If active on the treadmill...
@@ -76,10 +94,9 @@ function [Atrl,Atrlpval,trlNullLats] = trlShfflTest(md,A,latencies)
     end
     delete(gcp);
     
+    %Make adjacency matrix.
     Atrl = false(nNeurons); 
     Atrl(Atrlpval < pcrit) = true;
-    
-    elapsed = toc;
-            
-    save('TrialShuffle.mat','A','Atrlpval','trlNullLats','elapsed','-v7.3');
+                
+    %save('TrialShuffle.mat','Atrl','Atrlpval','trlNullLats','elapsed','-v7.3');
 end

@@ -6,9 +6,9 @@ function xCorrTrdmllTraces(md,tracetype)
 %% Set up.
     tic; 
     cd(md.Location);
+    load('Pos_align.mat',tracetype);
     switch tracetype
         case 'rawtrace'
-            load('Pos_align.mat','rawtrace');
             FT = rawtrace; clear rawtrace; 
         case 'difftrace' 
             FT = difftrace; clear difftrace;
