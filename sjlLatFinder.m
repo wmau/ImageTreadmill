@@ -15,26 +15,23 @@ function latencies = sjlLatFinder(srcRaster,snkRaster)
 %
 
 %% Initialize.
-   [nLaps,nBins] = size(srcRaster);
+   [~,nBins] = size(srcRaster);
     
     %If empty rasters, quit. 
     if ~any(srcRaster(:)) || ~any(snkRaster(:)), return; end;
 
 %% Vectorize spike times then find latencies. 
-    spktimes = [];
-    cellID = [];
-    laps = [];
-    for l=1:nLaps
-        sf = nBins*(l-1);
-        srcSpks = find(srcRaster(l,:))+sf;     %Source spike times.
-        snkSpks = find(snkRaster(l,:))+sf;     %Sink spike times.
-        
-        %Vectorize spike times, cell ID, and lap number.
-        spktimes = [spktimes, srcSpks, snkSpks];
-        cellID = [cellID, zeros(1,length(srcSpks)), ones(1,length(snkSpks))];   
-        laps = [laps, l*ones(1,length(srcSpks)), l*ones(1,length(snkSpks))];
-    end
+    [srcLaps,srcTimes] = find(srcRaster);
+    [snkLaps,snkTimes] = find(snkRaster); 
+
+    srcTimes = srcTimes + nBins*(srcLaps-1);        %Source spike times.
+    snkTimes = snkTimes + nBins*(snkLaps-1);        %Sink spike times.
     
+    %Vectorize.
+    spktimes = [srcTimes', snkTimes'];
+    cellID = [zeros(1,length(srcTimes)), ones(1,length(snkTimes))];
+    laps = [srcLaps', snkLaps'];
+
     %Sort.
     [spktimes,order] = sort(spktimes);
     cellID = cellID(order);

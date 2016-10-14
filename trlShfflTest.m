@@ -31,6 +31,7 @@ function [Atrl,Atrlpval,trlNullLats] = trlShfflTest(md,A,latencies)
     %Get roster of active neurons. 
     [~,active] = nNeuronsActiveonTM(md);
     nNeurons = size(FT,1); 
+    nComparisons = nNeurons * nNeurons;
     B = 500;
     pcrit = .01;
     
@@ -46,54 +47,49 @@ function [Atrl,Atrlpval,trlNullLats] = trlShfflTest(md,A,latencies)
     
 %% Do trial shuffle test.
     disp('Performing trial shuffles...');
-    resolution = 2;
-    updateInc = round(nNeurons/(100/resolution));
-    p = ProgressBar(100/resolution);
-    
     parpool('local');
-    for snk=1:nNeurons
-        %If active on the treadmill...
-        if ismember(snk,active)
-            %Get neurons that predict it.
-            el = find(A(:,snk))'; 
+    
+    resolution = 2;
+    updateInc = round(nComparisons/(100/resolution));
+    p = ProgressBar(100/resolution);
+    parfor c=1:nComparisons
+        [src,snk] = ind2sub([nNeurons,nNeurons],c);
         
-            %For each of these...
-            for src=el
-                %Preallocate a cell array for storing latencies derived
-                %from trial randomization.
-                trlShfflLats = cell(1,B); 
-                
-                %Find common laps.
-                [snkLaps,~] = find(rasters{snk});
-                [srcLaps,~] = find(rasters{src}); 
-                laps = intersect(snkLaps,srcLaps); 
-                nLaps = length(laps);          
-                snkTemp = rasters{snk}(laps,:);
-                srcTemp = rasters{src}(laps,:);
-                
-                %Do B trial shuffles and get latencies.
-                parfor i=1:B 
-                    srcShffl = srcTemp(randperm(nLaps),:);
-                    trlShfflLats{i} = sjlLatFinder(srcShffl,snkTemp);
-                end
-                      
-                %Dump into cell array. 
-                trlNullLats{src,snk} = cell2mat(trlShfflLats);
-                
-                %Get p-value of KS test. 
-                [~,Atrlpval(src,snk)] = kstest2(latencies{src,snk},...
-                    trlNullLats{src,snk});
+        if ismember(snk,active) && A(src,snk)
+            %Preallocate a cell array for storing latencies derived
+            %from trial randomization.
+            trlShfflLats = cell(1,B); 
+
+            %Find common laps.
+            [snkLaps,~] = find(rasters{snk});
+            [srcLaps,~] = find(rasters{src}); 
+            laps = intersect(snkLaps,srcLaps); 
+            nLaps = length(laps);          
+            snkTemp = rasters{snk}(laps,:);
+            srcTemp = rasters{src}(laps,:);
+
+            %Do B trial shuffles and get latencies.
+            for i=1:B 
+                srcShffl = srcTemp(randperm(nLaps),:);
+                trlShfflLats{i} = sjlLatFinder(srcShffl,snkTemp);
             end
-        end
+            
+            %Dump into cell array. 
+            trlNullLats{c} = cell2mat(trlShfflLats);
+
+            %Get p-value of KS test. 
+            [~,Atrlpval(c)] = kstest2(latencies{c},trlNullLats{c});
+        else
+            Atrlpval(c) = nan;
+        end        
         
         %Update progress bar. 
-        if round(snk/updateInc) == (snk/updateInc)
+        if round(c/updateInc) == (c/updateInc)
             p.progress;
         end
-
     end
     delete(gcp);
-    
+       
     %Make adjacency matrix.
     Atrl = false(nNeurons); 
     Atrl(Atrlpval < pcrit) = true;
