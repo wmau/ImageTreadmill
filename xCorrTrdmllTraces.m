@@ -158,6 +158,6 @@ function xCorrTrdmllTraces(md,tracetype)
   
 %% Save.
     elapsed = toc;   
-    save('XCorrUNBIASED.mat','R','A','lags','edgesRemoved','elapsed','-v7.3');
+    save('XCorrUNBIASED.mat','R','A','lags','edgesRemoved','elapsed','tracetype','-v7.3');
     
 end
