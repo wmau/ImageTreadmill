@@ -13,6 +13,7 @@ function mapMD = getMapMD(md)
 %
 
 %% Main body. 
+    initDir = pwd; 
     animals =   {md.Animal}; 
     dates =     {md.Date};
     sessions =  [md.Session]; 
@@ -53,4 +54,7 @@ function mapMD = getMapMD(md)
     %Otherwise, spit out the session entry containing the
     %batch_session_map.
     mapMD = mds(animalStrMatch);
+    
+    %Return to original directory. 
+    cd(initDir);
 end

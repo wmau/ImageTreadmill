@@ -1,7 +1,7 @@
 function matchMat = msMatchCells(mapMD,md,neurons)
+%matchMat = msMatchCells(mapMD,md,neurons)
 %
-%
-%
+%   
 
 %%
     load(fullfile(mapMD.Location,'batch_session_map.mat'));

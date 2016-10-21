@@ -47,7 +47,7 @@ function [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2,noi)
     MAProws = find(ismember(MAP(:,MAPcols(1)),noi));        %Indices for neurons of interest. 
     goodrows = MAProws(~any(MAP(MAProws,MAPcols)==0,2));    %Cut out neurons that weren't mapped in session 2. 
     noi = noi(ismember(noi,MAP(goodrows,MAPcols(1))));      %Exclude unmapped neurons. 
-    noi = intersect(noi,find(DATA.placefieldpvals{1}<0.05));
+    noi = intersect(noi,find(DATA.placefieldpvals{1}<0.05));%ONLY LOOK AT TCs WITH PLACEFIELDS.
     if size(noi,2) == 1, noi = noi'; end
     
     %Preallocate. 

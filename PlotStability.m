@@ -76,7 +76,7 @@ function PlotStability(mds,type,mid)
     sStability =    cell(1,nAnimals);       %TC x Sess x B matrix of stability scores per animal.
     STABILITY = 	cell(1,maxnSessions);   %Compiled stability scores, removing animal identity, only keeping date range. 
     sSTABILITY =    cell(1,maxnSessions);   %Same as above, but for shuffled data. 
-    B = 1000;
+    B = 500;
     
     figure; hold on; 
     for a=1:nAnimals
@@ -118,6 +118,7 @@ function PlotStability(mds,type,mid)
                 %Initialize.  
                 shuffledMat = cell(1,nSessions); 
                 shuffledMat{1} = normtilemat{1};
+                
         end
         
         %Sort by date. 
