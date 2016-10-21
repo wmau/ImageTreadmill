@@ -4,7 +4,7 @@ function checkSequencePreserve(mapMD,base,comp,Ts)
 %
 
 %%
-    [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts);
+    [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMD,base,comp,Ts);
     close all;
     
     [nTCs,nSessions] = size(sortedPeaks);

@@ -3,7 +3,7 @@ function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
 %
 %
 
-%%
+%% Parse inputs. 
     p = inputParser;
     p.addRequired('ref',@(x) isstruct(x));
     p.addRequired('ssn',@(x) isstruct(x)); 
@@ -15,7 +15,7 @@ function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
     corrtype = p.Results.corrtype;
     tracetype = p.Results.tracetype; 
     
-%% 
+%% Get mapped neurons.
     ssns = [ref,ssn];   
     DATA = CompileMultiSessionData(ssns,{'curves',tracetype});
    
@@ -26,10 +26,10 @@ function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
     
     nNeurons = length(DATA.curves{1}.tuning);
     corrStats = nan(nNeurons,2);
-    noi = matchMat(:,1)';
     
-    for n1 = noi
-        n2 = matchMat(matchMat(:,1)==n1,2);
+%% Do correlations.
+    for n1 = 1:size(matchMat,1)
+        n2 = matchMat(n1,2);
         
         switch tracetype
             case 'tuningcurve'

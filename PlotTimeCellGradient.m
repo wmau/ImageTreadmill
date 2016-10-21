@@ -1,4 +1,4 @@
-function PlotTimeCellGradient(md)
+function plotTimeCellGradient(md)
 %PlotTimeCellGradient(md)
 %
 %   Plots time cell ROIs in colors based on their rank in the sequence.

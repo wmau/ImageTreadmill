@@ -1,4 +1,4 @@
-function [R,A,lags] = xCorrTMRasters(md,tracetype)
+function [R,A,lags] = xCorrTrdmllRasters(md,tracetype)
 %
 %
 %

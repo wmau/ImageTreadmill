@@ -100,7 +100,7 @@ function PlotStability(mds,type,mid)
         %Get neurons across days and rank TCs according to the base
         %session.
         Ts = [DATA.t{mdIdx}];
-        [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMDs(a),baseMD,compMDs,Ts,false);
+        [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMDs(a),baseMD,compMDs,Ts,false);
         [nTCs,nSessions] = size(sortedPeaks);
         
         %Compute stability. 

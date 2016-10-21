@@ -1,4 +1,4 @@
-function multiLinearizedPFs(mapMD,base,comp)
+function msLinearizedPFs(mapMD,base,comp)
 %multiLinearizedPFs(mapMD,base,comp)
 %
 %   Plots the place fields of place cells in 'base' session then the

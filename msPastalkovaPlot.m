@@ -1,4 +1,4 @@
-function [normtilemat,sortedPeaks] = multiPastalkovaPlot(mapMD,base,comp,Ts,plotit)
+function [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMD,base,comp,Ts,plotit)
 %multiPastalkovaPlot(batch_session_map,base,comp,Ts)
 %
 %   Makes a figure with Pastalkova plots for multiple days ranking each

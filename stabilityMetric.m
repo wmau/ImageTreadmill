@@ -24,7 +24,7 @@ function [stability,mds] = stabilityMetric(mapMD,baseMD,compMDs,type)
     %Using the distance metric, find the distance between the peak of each
     %time cell to itself on other days. 
     if strcmp(type,'distance')
-        [~,sortedPeaks] = multiPastalkovaPlot(mapMD,baseMD,compMDs,Ts,false); 
+        [~,sortedPeaks] = msPastalkovaPlot(mapMD,baseMD,compMDs,Ts,false); 
 
         nTCs = size(sortedPeaks,1);
         stability = nan(nTCs,nSessions); 

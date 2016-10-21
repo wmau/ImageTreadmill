@@ -1,4 +1,4 @@
-function plotMultiTimeCells(mapMD,MD,Ts,varargin)
+function msPlotTimeCells(mapMD,MD,Ts,varargin)
 %plotMultiTimeCells(MAPlocation,MD,Ts)
 %
 %   Plots time cells across multiple sessions. Use left and right arrow
@@ -119,7 +119,7 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
         thisRow = uniqueRows(i);       
         neurons = MAP(thisRow,MAPinds);     %Neurons in this row. 
         cmax = zeros(1,nSessions); 
-        pfExist = logical(zeros(1,nSessions)); 
+        pfExist = false(1,nSessions); 
 
         %For each session, plot its ratebylap. If subplot has a title,
         %neuron was mapped, but inactive on stem. 
@@ -203,7 +203,7 @@ function plotMultiTimeCells(mapMD,MD,Ts,varargin)
                 Ylim = get(gca,'ylim');
         
                 %If there are enough laps, plot significance asterisks. 
-                if sum(any(RATEBYLAP{thisSession}(:,:,n),2)) > critLaps(thisSession)
+                if sum(any(RATEBYLAP{thisSession}(:,:,n),2)) > critLaps(thisSession) && ismember(n,TIMECELLS{thisSession})
                     %Significance asterisks. 
                     [SIGX,SIGY] = significance_asterisks(t{thisSession},CURVES{thisSession}.sig{n},...
                         CURVES{thisSession}.smoothed{n},bins{thisSession});
