@@ -33,12 +33,14 @@ function plotTimeCells(md,T,varargin)
     p.addParameter('dotplot',false,@(x) islogical(x)); 
     p.addParameter('placefield',false,@(x) islogical(x));
     p.addParameter('TimeCells',TimeCells,@(x) isnumeric(x)); 
+    p.addParameter('singletraces',false,@(x) ischar(x));
     
     p.parse(md,T,varargin{:});
     
     dotplot = p.Results.dotplot; 
     pf = p.Results.placefield; 
     TimeCells = p.Results.TimeCells;
+    singletraces = p.Results.singletraces;
 %%
     if pf            
         %Load place maps. 
@@ -52,7 +54,17 @@ function plotTimeCells(md,T,varargin)
         pval = 1-pval; 
     end
     
+    if singletraces
+        try
+            traces = load(fullfile(path,'TreadmillTraces.mat'),singletraces);
+        catch
+            TreadmillTraces(md);
+            traces = load(fullfile(path,'TreadmillTraces.mat'),singletraces);
+        end
+    end
+    
     %Extract the elements in structs. 
+    traces = traces.(singletraces);
     x = movies.x;
     y = movies.y; 
     aviFrame = movies.t;
@@ -85,6 +97,7 @@ function plotTimeCells(md,T,varargin)
     bins = [1:0.001:nBins]';
     t = linspace(0,T,length(bins));     %Time vector, smoothed.
     tCI = linspace(0,T,length(curves.ci{TimeCells(thisNeuron)}(1,:)));  %Time vector for CI interpolation.
+    tTraces = linspace(0,T,size(traces,2));
     
     %Simplify the matrix and get rid of nans if any. 
     ratebylap = ratebylap(delays==T & complete,:,:);               %Laps that match delay duration. 
@@ -139,22 +152,33 @@ function plotTimeCells(md,T,varargin)
             end
             
             subplot(2,2,3:4);   %Tuning curve.
+                yyaxis right; 
+                plot(tTraces,traces(:,:,TimeCells(thisNeuron)),...
+                    '-','color',[.7 .7 .7 .2],'linewidth',2);
+                    xlabel('Time [s]','fontsize',16);  
+                    set(gca,'ticklength',[0 0],'fontsize',18,'ycolor',[.7 .7 .7]);
+                    ylim([min(min(traces(:,:,TimeCells(thisNeuron)))), ...
+                        max(max(traces(:,:,TimeCells(thisNeuron))))]);
+                    
+                yyaxis left; 
+                hold on;
                 plot(t,curves.smoothed{TimeCells(thisNeuron)},'-r','linewidth',5);
-                hold on; 
                 plot(t,CImean,'-b','linewidth',2);
                 plot(t,CIu,'--b',t,CIl,'--b');
-                Ylim = get(gca,'ylim');
-                xlim([0,T]);
+                    Ylim = get(gca,'ylim');
                 plot(SIGX,SIGY+Ylim(2)*sf,'go','linewidth',4);
-                hold off;
-                    xlabel('Time [s]','fontsize',16); ylabel('Rate','fontsize',16); 
+                    xlim([0,T]);
+                    ylabel('Rate','fontsize',16);
+                    axis tight;
                     yLims = get(gca,'ylim');
-                    ylim([0, yLims(2)]);
-                    set(gca,'ticklength',[0 0],'fontsize',18);
+                    ylim([0, yLims(2)*(1+sf)]);
+                    set(gca,'ycolor','r');
+                hold off;       
 
             %Scroll through neurons.
             [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),f);
-
+            close all;
+            
         end
 %% Alternation
     else

@@ -27,16 +27,17 @@ function [I,sigI,nsigI,tCorr,pCorr] = plotStableTempInfo(mapMD,MD1,MD2,type,plot
     s = TimeCellRemapRate(mapMD,MD1,MD2,[10 10]);
     sig = false(length(pCorr),1);
     nsig = false(length(pCorr),1);
+    
 %% Get stable neurons. 
     load(fullfile(MD1.Location,'TemporalInfo.mat'),'I'); 
     load(fullfile(MD1.Location,'PlaceMaps.mat'),'pval'); 
     
     if strcmp(type,'time')
-        %sig = tCorr(:,2) < 0.05;
-        %nsig = tCorr(:,2) > 0.05;
+        sig = tCorr(:,2) < 0.05;
+        nsig = tCorr(:,2) > 0.05;
         
-        sig(TimeCells(s(:,2)==1)) = true;
-        nsig(TimeCells(s(:,2)~=1)) = true; 
+        %sig(TimeCells(s(:,2)==1)) = true;
+        %nsig(TimeCells(s(:,2)~=1)) = true; 
     elseif strcmp(type,'place')
         sig = pCorr(:,2) < 0.05;
         nsig = pCorr(:,2) > 0.05;
