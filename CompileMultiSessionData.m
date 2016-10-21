@@ -47,7 +47,10 @@ function DATA = CompileMultiSessionData(MD,args)
                     'placefieldsunsmoothed',...
                     'occmaps',...
                     'placefieldpvals',...
-                    'a'};
+                    'a',...
+                    'rawtrdmll',...
+                    'difftrdmll',...
+                    'tracetrdmll'};
 
     %Check that the arguments match template. 
     for i=1:nArgs
@@ -143,9 +146,28 @@ function DATA = CompileMultiSessionData(MD,args)
             DATA.placefieldpvals{i} = 1-pval;
         end
         
+        %ADJACENCY MATRIX.
         if any(strcmp('a',args))
             load(fullfile(pwd,'graphData_p.mat'),'A');
             DATA.A{i} = A; 
+        end
+        
+        %RAW TRACES ON TREADMILL.
+        if any(strcmp('rawtrdmll',args))
+            load(fullfile(pwd,'TreadmillTraces.mat'),'rawtrdmll');
+            DATA.rawtrdmll{i} = rawtrdmll; 
+        end
+        
+        %DIFFERENTIAL TRACES ON TREADMILL.
+        if any(strcmp('difftrdmll',args))
+            load(fullfile(pwd,'TreadmillTraces.mat'),'difftrdmll');
+            DATA.difftrdmll{i} = difftrdmll; 
+        end
+        
+        %Z-SCORE TRACES ON TREADMILL.
+        if any(strcmp('tracetrdmll',args))
+            load(fullfile(pwd,'TreadmillTraces.mat'),'tracetrdmll');
+            DATA.tracetrdmll{i} = tracetrdmll; 
         end
     end
     
