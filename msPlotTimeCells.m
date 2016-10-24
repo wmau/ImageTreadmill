@@ -1,5 +1,5 @@
-function msPlotTimeCells(mapMD,MD,Ts,varargin)
-%plotMultiTimeCells(MAPlocation,MD,Ts)
+function msPlotTimeCells(md,varargin)
+%msPlotTimeCells(MD,Ts,varargin)
 %
 %   Plots time cells across multiple sessions. Use left and right arrow
 %   keys to scroll, esc to exit. 
@@ -13,24 +13,28 @@ function msPlotTimeCells(mapMD,MD,Ts,varargin)
 %       each session. 
 %
 
+%% Parse inputs.
+    p = inputParser;
+    p.addRequired('md',@(x) isstruct(x));
+    p.addParameter('timecells',[]);
+    p.addParameter('pf',false,@(x) islogical(x));
+    
+    p.parse(md,varargin{:});
+    timecells = p.Results.timecells;
+    pf = p.Results.pf;
+
 %% Organization. 
     initDir = pwd; 
+    mapMD = getMapMD(md(1));
     load(fullfile(mapMD.Location,'batch_session_map.mat')); 
-    
-    pf=false; 
-    if ~isempty(varargin)
-        if any(strcmp('placefield',varargin))
-            pf = logical(varargin{find(strcmp('placefield',varargin))+1}); 
-        end
-    end
-    
+     
     if pf, nCols=3;  
     else nCols=2; end
     
     %Partition the session data.
-    nSessions = length(MD);
-    dates = {MD.Date}; 
-    sessions = [MD.Session];
+    nSessions = length(md);
+    dates = {md.Date}; 
+    sessions = [md.Session];
     
     %Setting up for titling the plots. 
     dateTitles = dates;
@@ -40,6 +44,7 @@ function msPlotTimeCells(mapMD,MD,Ts,varargin)
   
 %% Gather all time cell data. 
     args = {'timecells',...
+            't',...
             'ratebylap',...
             'curves',...
             'delays',...
@@ -50,13 +55,14 @@ function msPlotTimeCells(mapMD,MD,Ts,varargin)
         args{end+1} = 'placefieldpvals';
     end
         
-    DATA = CompileMultiSessionData(MD,args);
+    DATA = CompileMultiSessionData(md,args);
     
     TIMECELLS = DATA.timecells; 
     RATEBYLAP = DATA.ratebylap; 
     CURVES = DATA.curves; 
     DELAYS = DATA.delays; 
     COMPLETE = DATA.complete; 
+    Ts = cell2mat(DATA.t); 
     if pf
         PFS = DATA.placefields; 
         OCCMAPS = DATA.occmaps; 
@@ -85,9 +91,14 @@ function msPlotTimeCells(mapMD,MD,Ts,varargin)
         %session. 
         rows{i} = find(ismember(MAP(:,MAPinds(i)),TIMECELLS{i}));
     end
-    
-    %All the row indices of MAP that have time cells. 
-    uniqueRows = unique(cell2mat(rows)); 
+ 
+    if ~isempty(timecells)
+        %Only look at select cells.
+        rows = find(ismember(MAP(:,1),timecells));
+    else 
+        %All the row indices of MAP that have time cells. 
+        rows = unique(cell2mat(rows));
+    end
     
 %% Plot. 
     keepgoing = 1;                  
@@ -116,7 +127,7 @@ function msPlotTimeCells(mapMD,MD,Ts,varargin)
     f = figure('Position',[520    80   525   720]); 
     while keepgoing                   
         %Get the row index. 
-        thisRow = uniqueRows(i);       
+        thisRow = rows(i);       
         neurons = MAP(thisRow,MAPinds);     %Neurons in this row. 
         cmax = zeros(1,nSessions); 
         pfExist = false(1,nSessions); 
@@ -252,7 +263,7 @@ function msPlotTimeCells(mapMD,MD,Ts,varargin)
         set(curveAX,'XLim',curveXLims,'YLim',curveYLims);
         
         %Scroll through neurons. 
-        [keepgoing,i] = scroll(i,length(uniqueRows),f);
+        [keepgoing,i] = scroll(i,length(rows),f);
 
     end
     

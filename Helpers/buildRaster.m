@@ -1,4 +1,4 @@
-function raster = buildRaster(inds,FT,neuron) 
+function raster = buildRaster(inds,FT,neuron,varargin) 
 %raster = buildRaster(nTrials,inds,FT,neuron)
 %
 %   Builds raster of calcium transient onset times at the native sampling
@@ -12,6 +12,16 @@ function raster = buildRaster(inds,FT,neuron)
 %
 %       neuron: Scalar, row index of FT specifying which neuron.
 %
+
+%% Input parser.
+    p = inputParser; 
+    p.addRequired('inds',@(x) isnumeric(x));
+    p.addRequired('FT')
+    p.addRequired('neuron',@(x) isscalar(x));
+    p.addParameter('sprs',true,@(x) islogical(x));
+    
+    p.parse(inds,FT,neuron,varargin{:});
+    sprs = p.Results.sprs;
 
 %% Build raster. 
     nTrials = size(inds,1);                             %Number of trials.
@@ -31,7 +41,11 @@ function raster = buildRaster(inds,FT,neuron)
     
     for t=1:nTrials
         lapRaster = [0 FT(neuron,inds(t,1):inds(t,2))]; %Take column difference of binary FT. 
-        raster(t,:) = diff(lapRaster);          
+        if sprs
+            raster(t,:) = diff(lapRaster);      
+        else 
+            raster(t,:) = lapRaster(2:end);
+        end
     end
     raster(raster == -1) = 0;                           %Erase offsets. 
     raster = logical(raster);                           %Turn into logical. 

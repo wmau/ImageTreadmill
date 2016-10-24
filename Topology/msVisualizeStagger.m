@@ -38,8 +38,8 @@ function msVisualizeStagger(mapMD,md,neuron,A,varargin)
        
     %Get data from all the sessions then find the corresponding cells. 
     DATA = CompileMultiSessionData(md,{'ratebylap','ft','ttl','t','A'});
-    targets = msMatchCells(mapMD,md,neuron);
-    triggers = msMatchCells(mapMD,md,el);
+    targets = msMatchCells(mapMD,md,neuron,false);
+    triggers = msMatchCells(mapMD,md,el,false);
     
     %Line format for second neuron raster.
     lead.Color = 'r';
