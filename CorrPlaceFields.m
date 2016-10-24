@@ -20,22 +20,21 @@ function corrStats = CorrPlaceFields(ref,ssn,noi,varargin)
     DATA = CompileMultiSessionData(ssns,{pftype});
    
     mapMD = getMapMD(ref);                      %Find reference map.
-    matchMat = msMatchCells(mapMD,ssns,noi);    %Match cells.
-    matchMat(matchMat(:,2)==0,:) = [];          %Get rid of unmatched neurons.
-    matchMat(isnan(matchMat(:,2)),:) = [];      %Get rid of unmatched neurons.
-    
+    matchMat = msMatchCells(mapMD,ssns,noi,true);    %Match cells.
+
     nNeurons = length(DATA.(pftype){1});
     corrStats = nan(nNeurons,2);
     
 %% Do correlations.
-    for n1 = 1:size(matchMat,1)
-        n2 = matchMat(n1,2);
+    for i = 1:size(matchMat,1)
+        n1 = matchMat(i,1);
+        n2 = matchMat(i,2);
         
         %Placefields. 
-        pf1 = DATA.(pftype){n1};
-        pf2 = DATA.(pftype){n2};
+        pf1 = DATA.(pftype){1}{n1}(:);
+        pf2 = DATA.(pftype){2}{n2}(:);
         
         %Correlation.
-        [corrStats(n1,1),corrStats(n2,2)] = corr(pf1,pf2,'type',corrtype);
+        [corrStats(n1,1),corrStats(n1,2)] = corr(pf1,pf2,'type',corrtype);
     end
 end
