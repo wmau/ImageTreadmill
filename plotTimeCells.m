@@ -124,7 +124,8 @@ function plotTimeCells(md,T,varargin)
                 curves.smoothed{TimeCells(thisNeuron)},bins);
 
             %Plot. 
-            f = figure(50); 
+            f = figure(50);
+            f.Position = [550 180 360 565];
             if dotplot
                 subplot(2,2,1);     %Dotplot. 
                     plot(x,y,x(treadmillruns & FT(TimeCells(thisNeuron),:)),y(treadmillruns & FT(TimeCells(thisNeuron),:)),'r.','MarkerSize',16);
@@ -142,8 +143,7 @@ function plotTimeCells(md,T,varargin)
                     imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps'); 
                         title(['Neuron #',num2str(TimeCells(thisNeuron))])
-            else
-                f.Position = [550 180 510 565];
+            else              
                 subplot(2,2,1:2);   %Raster. 
                     imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps','fontsize',18); c = colorbar; c.Position(1) = 0.92;
@@ -155,8 +155,9 @@ function plotTimeCells(md,T,varargin)
                 yyaxis right; 
                 plot(tTraces,traces(:,:,TimeCells(thisNeuron)),...
                     '-','color',[.7 .7 .7 .2],'linewidth',2);
-                    xlabel('Time [s]','fontsize',16);  
-                    set(gca,'ticklength',[0 0],'fontsize',18,'ycolor',[.7 .7 .7]);
+                    xlabel('Time [s]','fontsize',16); ylabel('\deltaF./\deltat');
+                    set(gca,'fontsize',18,...
+                        'ycolor',[.7 .7 .7],'linewidth',4,'tickdir','out');
                     ylim([min(min(traces(:,:,TimeCells(thisNeuron)))), ...
                         max(max(traces(:,:,TimeCells(thisNeuron))))]);
                     
@@ -184,7 +185,7 @@ function plotTimeCells(md,T,varargin)
     else
         while keepgoing
             f = figure(50); 
-            f.Position = [540    90   560   700];
+            f.Position = [550 180 360 565];
                 subplot(3,2,1:2);
                     plot(x,y,x(treadmillruns & FT(TimeCells(thisNeuron),:)),y(treadmillruns & FT(TimeCells(thisNeuron),:)),'r.','MarkerSize',16);
                     axis off; title(['Neuron #',num2str(TimeCells(thisNeuron))]);

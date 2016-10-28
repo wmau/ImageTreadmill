@@ -15,28 +15,25 @@ function centroids = getNeuronCentroids(MD,varargin)
 
 %% Obtain neuron centroids.
     cd(MD.Location); 
-    
-    %Minimum transient length input into TENASPIS. 
-    if nargin>3
-        min_trans_length = varargin{1}; 
-    end
-
+ 
     %Load neuron masks. 
-    try
-        if exist('min_trans_length','var')
-            load(fullfile(pwd,['ProcOut_minlength_',num2str(min_trans_length),'.mat']),'NeuronImage');
-        else
-            load(fullfile(pwd,'FinalOutput.mat'),'NeuronImage');
-        end
-    catch
-        disp('ProcOut.mat not found. Run TENASPIS!'); 
-    end
+    load(fullfile(pwd,'FinalOutput.mat'),'NeuronImage');
+    nNeurons = length(NeuronImage);
+    
+    %Parse inputs.
+    p = inputParser;
+    p.addRequired('MD',@(x) isstruct(x));
+    p.addParameter('neurons',1:nNeurons,@(x) isnumeric(x));
+    
+    p.parse(MD,varargin{:});
+    neurons = p.Results.neurons;
     
     %Get the centroid of the mask. 
-    props = cellfun(@regionprops,NeuronImage); 
+    props = cellfun(@(x) regionprops(x,'Centroid'),NeuronImage(neurons)); 
     temp = extractfield(props,'Centroid'); 
     
     %Every other element is an X or Y coordinate. 
-    centroids = [temp(1:2:end)', temp(2:2:end)'];
+    centroids = nan(nNeurons,2);
+    centroids(neurons,:) = [temp(1:2:end)', temp(2:2:end)'];
    
 end

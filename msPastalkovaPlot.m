@@ -43,11 +43,7 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMD,base,comp,Ts,plotit)
 
 %% Find relevant indices in batch_session_map. 
     %Find the columns in MAP 
-    [MAP,MAPcols] = FilterMAPDates(batch_session_map,dates,sessionNums);
-    
-    %Find row indices from the batch_session_map that correspond to time
-    %cells in base. 
-    MAProws = find(ismember(MAP(:,MAPcols(1)),TIMECELLS{1}));
+    matchMat = msMatchCells(mapMD,sessions,TIMECELLS{1},1);
     
 %% Create the figure. 
     %Number of time bins for each session.
@@ -63,16 +59,12 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMD,base,comp,Ts,plotit)
     for i=1:nSessions
         if i==1         %For the base session...
             %Get the index that references FT from MAP. 
-            neurons = MAP(MAProws,MAPcols(i)); 
-            missing = neurons==0;
+            neurons = matchMat(:,i); 
             nTimeCells = length(neurons);
             sortedPeaks = nan(nTimeCells,nSessions);
-            
-            %Matrix with responses that tile delay. 
-            tilemat = zeros(nTimeCells,nBins(i));
-                  
+               
             %Fill in matrix. 
-            tilemat(~missing,:) = cell2mat(CURVES{i}.tuning(neurons(~missing)));  
+            tilemat = cell2mat(CURVES{i}.tuning(neurons));  
             
             %Find peaks and where they are. Then normalize to peaks and
             %sort based on peaks. 
@@ -99,11 +91,13 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMD,base,comp,Ts,plotit)
             
             %Get the index that references FT from MAP, but in the order
             %specified by above. 
-            neurons = MAP(MAProws(order),MAPcols(i)); 
-            missing = neurons==0;
+            neurons = matchMat(order,i); 
+            missing = neurons==0 | isnan(neurons);
             
             %Fill in matrix. 
-            tilemat(~missing,:) = cell2mat(CURVES{i}.tuning(neurons(~missing)));         
+            try
+            tilemat(~missing,:) = cell2mat(CURVES{i}.tuning(neurons(~missing))); 
+            catch, keyboard; end
             
             %Normalize. 
             peaks = max(tilemat,[],2); 

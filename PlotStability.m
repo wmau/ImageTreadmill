@@ -30,6 +30,7 @@ function PlotStability(mds,type,mid)
     %What animals are in md?
     animals = unique({mds.Animal}); 
     nAnimals = length(animals); 
+    colors = parula(nAnimals);
     
     %Compile data from each session. 
     DATA = CompileMultiSessionData(mds,{'t'});
@@ -168,7 +169,7 @@ function PlotStability(mds,type,mid)
         end
         
         %Plot animal points. 
-        scat = scatter(dayrank{a},meanStability{a},'d'); alpha(scat,0.5);
+        scat = scatter(dayrank{a},meanStability{a},80,colors(a,:),'d'); alpha(scat,0.5);
     end
     
     %Calculate shuffle control mean and CI.
@@ -193,8 +194,11 @@ function PlotStability(mds,type,mid)
     smoothCI(:,2) = pchip(DaysFromRef,ci(:,2),smoothDays);          %Upper bound CI.
     
     %Plot.
-    plot(smoothDays,smoothMean,'r','linewidth',2); 
-    l = boundedline(smoothDays,smoothShuffMean,smoothCI,'alpha');
+    plot(smoothDays,smoothMean,'k','linewidth',2); 
+    omit = smoothDays > -1 & smoothDays < 1;    
+    smoothShuffMean(omit) = nan; 
+    smoothCI(omit,:) = nan;
+    l = boundedline(smoothDays,smoothShuffMean,smoothCI,'alpha','nan','gap');
         l.Color = [.5 .5 1]; l.LineStyle = '--'; 
         xlabel('Days from Reference'); 
         ylabel('Stability Score'); 

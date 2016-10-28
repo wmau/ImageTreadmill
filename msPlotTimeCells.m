@@ -53,6 +53,7 @@ function msPlotTimeCells(md,varargin)
         args{end+1} = 'placefields'; 
         args{end+1} = 'occmaps'; 
         args{end+1} = 'placefieldpvals';
+        args{end+1} = 'ttl';
     end
         
     DATA = CompileMultiSessionData(md,args);
@@ -67,6 +68,7 @@ function msPlotTimeCells(md,varargin)
         PFS = DATA.placefields; 
         OCCMAPS = DATA.occmaps; 
         PVALS = DATA.placefieldpvals; 
+        TTL = DATA.ttl;
     end
     
 %% Find the indices in batch_session_map that correspond to the specified sessions. 
@@ -139,11 +141,28 @@ function msPlotTimeCells(md,varargin)
             
             %PLACE FIELD. 
             if ~isnan(n) && n~=0 && pf
+                cd(md(thisSession).Location); 
+                load('Pos_align.mat','x_adj_cm','y_adj_cm','xmin','ymin','xmax','ymax');
+                x = ymin:ymax; 
+                y = xmin:xmax; 
+                
+                %Get sections. 
+                direction = TTL{thisSession}.direction;         
+                sections = sections_treadmill(x_adj_cm,y_adj_cm,direction,false); 
+                
                 f.Position = [-1300 -40 520 180*nSessions];
                 	pfAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols-2);
-                    h = imagesc(PFS{thisSession}{n}); 
+                    h = imagesc(x,y,PFS{thisSession}{n}); 
                     set(h,'alphadata',~isnan(PFS{thisSession}{n}));
                     axis off; colormap hot; freezeColors; 
+                    hold on; 
+                    rectangle(  'position',[sections.center.y(1),...
+                                sections.center.x(1),...
+                                sections.center.y(3)-sections.center.y(2),...
+                                sections.center.x(2)-sections.center.x(1)],...
+                                'edgecolor',[139 69 19]./255,...
+                                'linewidth',2,...
+                                'linestyle','--');
                     
                     %Peak place field. 
                     cmax(thisSession) = max(PFS{thisSession}{n}(:));            

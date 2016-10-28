@@ -35,7 +35,6 @@ function boxScatterplot(x,grps,varargin)
 %
 %           position: vector specifying the position of the figure. 
 %
-%
 
 %% Set up. 
     p = inputParser; 
