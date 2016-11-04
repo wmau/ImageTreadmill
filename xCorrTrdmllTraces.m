@@ -13,10 +13,7 @@ function xCorrTrdmllTraces(md,tracetype,corrType)
         case 'difftrace' 
             FT = difftrace; clear difftrace;
     end
-    
-    %Unbiased cross-correlation.
-    corrType = 'unbiased'; 
-    
+      
     %Normalize by max.
     m = max(FT,[],2);
     FT = FT./repmat(m,1,size(FT,2));
