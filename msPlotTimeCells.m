@@ -156,6 +156,7 @@ function msPlotTimeCells(md,varargin)
                     set(h,'alphadata',~isnan(PFS{thisSession}{n}));
                     axis off; colormap hot; freezeColors; 
                     hold on; 
+                    
                     rectangle(  'position',[sections.center.y(1),...
                                 sections.center.x(1),...
                                 sections.center.y(3)-sections.center.y(2),...
@@ -163,6 +164,7 @@ function msPlotTimeCells(md,varargin)
                                 'edgecolor',[139 69 19]./255,...
                                 'linewidth',2,...
                                 'linestyle','--');
+
                     
                     %Peak place field. 
                     cmax(thisSession) = max(PFS{thisSession}{n}(:));            
@@ -171,6 +173,8 @@ function msPlotTimeCells(md,varargin)
                     title(['p=',num2str(PVALS{thisSession}(n))]);
                     
                     pfExist(thisSession) = true; 
+                    
+                    colorbar;
             end
             
             %Occupancy map. 
@@ -246,7 +250,7 @@ function msPlotTimeCells(md,varargin)
                 xlabel('Time [s]'); ylabel('Rate');
                 yLims = get(gca,'ylim');
                 ylim([0,yLims(2)]); xlim([0,t{thisSession}(end)]);
-                set(gca,'ticklength',[0 0]);
+                set(gca,'tickdir','out','linewidth',4);
                 hold off; freezeColors
             else
                 %Flat line. 

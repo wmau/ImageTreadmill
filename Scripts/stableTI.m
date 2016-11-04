@@ -5,8 +5,8 @@ colors = parula(nAnimals);
 
 %Partition temporal information scores into stable vs unstable based on
 %time field or place field correlation.
-[stblTimeI,stblTimeN] = COMPILETIs(fulldataset,'time'); 
-[stblPlaceI,stblPlaceN] = COMPILETIs(fulldataset,'place'); 
+[stblTimeI,stblTimeN] = COMPILETIs(fulldataset,'time','time'); 
+[stblPlaceI,stblPlaceN] = COMPILETIs(fulldataset,'place','time'); 
 
 %Stable time fields.
 sI_t = cell2mat(stblTimeI.stable')';
@@ -44,6 +44,26 @@ for a = 1:nAnimals
     u = u+stblPlaceN.unstable(a);
 end
 
+%%
+[stblPlaceSpatialInfo,stblPlaceSpatialN] = COMPILETIs(fulldataset,'place','place');
+ssI_p = cell2mat(stblPlaceSpatialInfo.stable')';
+ussI_p = cell2mat(stblPlaceSpatialInfo.unstable')';
+grps_pp = [zeros(1,length(ssI_p)), ones(1,length(ussI_p))];
+animalColors_pp_stable = nan(length(ssI_p),3);
+animalColors_pp_unstable = nan(length(ussI_p),3); 
+s = 1;
+u = 1;
+for a = 1:nAnimals
+    animalColors_pp_stable(s:s+stblPlaceSpatialN.stable(a)-1,:) = repmat(colors(a,:),...
+        stblPlaceSpatialN.stable(a),1);
+    animalColors_pp_unstable(u:u+stblPlaceSpatialN.unstable(a)-1,:) = repmat(colors(a,:),...
+        stblPlaceSpatialN.unstable(a),1); 
+    
+    s = s+stblPlaceSpatialN.stable(a);
+    u = u+stblPlaceSpatialN.unstable(a);
+end
+
+%%
 fPos = [520 350 300 450];
 boxScatterplot([sI_t,usI_t],grps_t,'xLabels',{'Stable','Unstable'},...
     'yLabel','Temporal Information [bits/sec]','position',fPos,...
@@ -51,4 +71,8 @@ boxScatterplot([sI_t,usI_t],grps_t,'xLabels',{'Stable','Unstable'},...
  
 boxScatterplot([sI_p,usI_p],grps_p,'xLabels',{'Stable','Unstable'},...
     'yLabel','Temporal Information [bits/sec]','position',fPos,...
+    'circleColors',[animalColors_p_stable;animalColors_p_unstable]);
+
+boxScatterplot([ssI_p,ussI_p],grps_pp,'xLabels',{'Stable','Unstable'},...
+    'yLabel','Spatial Information [bits/sec]','position',fPos,...
     'circleColors',[animalColors_p_stable;animalColors_p_unstable]);

@@ -43,7 +43,7 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMD,base,comp,Ts,plotit)
 
 %% Find relevant indices in batch_session_map. 
     %Find the columns in MAP 
-    matchMat = msMatchCells(mapMD,sessions,TIMECELLS{1},1);
+    matchMat = msMatchCells(mapMD,sessions,TIMECELLS{1},false);
     
 %% Create the figure. 
     %Number of time bins for each session.
@@ -73,7 +73,7 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMD,base,comp,Ts,plotit)
             [~,order] = sort(peakInds); 
             normtilemat{i} = normtilemat{i}(order,:); 
             
-            %For plotting line. 
+            %For plotting line.
             [~,sortedPeaks(:,i)] = max(normtilemat{i},[],2); 
             conversionfactor = nBins(i)/Ts(i);
             sortedPeaks(:,i) = sortedPeaks(:,i)./conversionfactor;

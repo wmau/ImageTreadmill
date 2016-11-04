@@ -40,14 +40,14 @@ function boxScatterplot(x,grps,varargin)
     p = inputParser; 
     p.addRequired('x',@(x) isnumeric(x));
     p.addRequired('grps',@(x) isnumeric(x));
-    p.addParameter('xLabels',@(x) ischar(x));
-    p.addParameter('yLabel',@(x) ischar(x)); 
+    p.addParameter('xLabels',{'Group 1','Group 2'},@(x) iscell(x));
+    p.addParameter('yLabel','Metric',@(x) ischar(x)); 
     p.addParameter('boxColor','k',@(x) ischar(x) || isnumeric(x));
     p.addParameter('circleSize',10,@(x) isnumeric(x)); 
     p.addParameter('circleColors',[.7 .7 .7],@(x) ischar(x) || isnumeric(x));
     p.addParameter('transparency',.5,@(x) isscalar(x)); 
     p.addParameter('sf',.05,@(x) isscalar(x));
-    p.addParameter('position',[520 378 560 420],@(x) isnumeric(x)); 
+    p.addParameter('position',[520 350 300 450],@(x) isnumeric(x)); 
     
     p.parse(x,grps,varargin{:});
     xLabels = p.Results.xLabels; 
@@ -96,6 +96,6 @@ function boxScatterplot(x,grps,varargin)
     alpha(scat,transparency);
     boxplot(x,grps,'color',boxColor,'symbol','k','labels',xLabels);
     ylabel(yLabel);
-    set(gca,'ticklength',[0 0]);
+    set(gca,'tickdir','out');
     
 end

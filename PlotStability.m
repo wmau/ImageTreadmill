@@ -169,7 +169,7 @@ function PlotStability(mds,type,mid)
         end
         
         %Plot animal points. 
-        scat = scatter(dayrank{a},meanStability{a},80,colors(a,:),'d'); alpha(scat,0.5);
+        scat = scatter(dayrank{a},meanStability{a},200,colors(a,:),'d','filled'); alpha(scat,0.5);
     end
     
     %Calculate shuffle control mean and CI.
@@ -202,6 +202,6 @@ function PlotStability(mds,type,mid)
         l.Color = [.5 .5 1]; l.LineStyle = '--'; 
         xlabel('Days from Reference'); 
         ylabel('Stability Score'); 
-        set(gca,'ticklength',[0 0]); 
+        set(gca,'tickdir','out','linewidth',4); 
 
 end
