@@ -1,5 +1,5 @@
-function [AllI,nNeurons] = COMPILETIs(mds,celltype)
-%[AllI,nNeurons] = COMPILETIs(mds,celltype)
+function [AllI,nNeurons] = COMPILETIs(mds,celltype,infotype)
+%[AllI,nNeurons] = COMPILETIs(mds,celltype,infotype)
 %
 %   
 
@@ -22,7 +22,13 @@ function [AllI,nNeurons] = COMPILETIs(mds,celltype)
         ssns = find(strcmp(animals{a},{mds.Animal})); 
         for s = ssns(1:end-1)
             cd(mds(s).Location);
-            load('TemporalInfo.mat','I');
+            
+            if strcmp(infotype,'time');
+                load('TemporalInfo.mat','I');
+            elseif strcmp(infotype,'place')
+                load('SpatialInfo.mat','spatialI');
+                I = spatialI';
+            end
             load('TimeCells.mat','TimeCells');
             load('PlaceMaps.mat','pval');
             load('PFstats.mat','PFnumhits');
