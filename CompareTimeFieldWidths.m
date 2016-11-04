@@ -7,7 +7,7 @@ function [xModTFWidths,iModTFWidths] = CompareTimeFieldWidths(md,plotit)
     cd(md.Location); 
     load('Pos_align.mat','FT'); 
     load('TimeCells.mat','TimeCells','T','TodayTreadmillLog'); 
-    load('graphData_p.mat','A'); 
+    load('GRAPH.mat','A'); 
     
     %Make treadmill run indices even.
     inds = TodayTreadmillLog.inds; 

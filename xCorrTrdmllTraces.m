@@ -1,4 +1,4 @@
-function xCorrTrdmllTraces(md,tracetype)
+function xCorrTrdmllTraces(md,tracetype,corrType)
 %
 %
 %
@@ -13,6 +13,9 @@ function xCorrTrdmllTraces(md,tracetype)
         case 'difftrace' 
             FT = difftrace; clear difftrace;
     end
+    
+    %Unbiased cross-correlation.
+    corrType = 'unbiased'; 
     
     %Normalize by max.
     m = max(FT,[],2);
@@ -47,7 +50,7 @@ function xCorrTrdmllTraces(md,tracetype)
         
 %% Time shuffle. 
         if src<snk && ismember(src,active) && ismember(snk,active)
-            [R{c}.trials,lags] = xcorr_by_laps(rasters{src},rasters{snk});
+            [R{c}.trials,lags] = xcorr_by_laps(rasters{src},rasters{snk},corrType);
             R{c}.curve = mean(R{c}.trials);
             R{c}.CI = 1.96*std(R{c}.trials)/sqrt(nLaps);
             
@@ -158,6 +161,7 @@ function xCorrTrdmllTraces(md,tracetype)
   
 %% Save.
     elapsed = toc;   
-    save('XCorrUNBIASED.mat','R','A','lags','edgesRemoved','elapsed','tracetype','-v7.3');
+    save('XCorr.mat','R','A','lags','edgesRemoved','elapsed',...
+        'corrType','tracetype','-v7.3');
     
 end
