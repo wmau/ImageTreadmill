@@ -83,7 +83,7 @@ function xCorrTrdmllTraces(md,tracetype,corrType)
                     tempsrc = rasters{src}(randperm(nLaps),:);
 
                     %Cross correlation.
-                    trlshfftrials = xcorr_by_laps(tempsrc,rasters{snk});
+                    trlshfftrials = xcorr_by_laps(tempsrc,rasters{snk},corrType);
                     trlshffcurves(i,:) = mean(trlshfftrials);
                 end
                 
@@ -117,7 +117,7 @@ function xCorrTrdmllTraces(md,tracetype,corrType)
     
 %% Build adjacency matrix. 
     %Get the lag vector again. 
-    [~,lags] = xcorr_by_laps(rasters{active(1)},rasters{active(1)});
+    [~,lags] = xcorr_by_laps(rasters{active(1)},rasters{active(1)},corrType);
     lLags = length(lags);
     
     %Time vector and preallocate. 
