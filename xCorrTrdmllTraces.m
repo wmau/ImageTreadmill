@@ -59,7 +59,7 @@ function xCorrTrdmllTraces(md,tracetype,corrType)
                 tempsrc = permuteTime(tempsrc); 
                 
                 %Cross correlation then take the mean. 
-                tshfftrials = xcorr_by_laps(tempsrc,rasters{snk});
+                tshfftrials = xcorr_by_laps(tempsrc,rasters{snk},corrType);
                 tshffcurves(i,:) = mean(tshfftrials);
             end
             
