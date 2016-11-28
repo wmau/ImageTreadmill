@@ -21,28 +21,25 @@ function NeuronDetectMovie(md,movietype,clim,varargin)
 %
 
 %% Setup.
-    cd(md.Location); 
+    cd(md.Location);        
     
     p = inputParser;
     p.addRequired('md',@(x) isstruct(x));
     p.addRequired('movietype',@(x) ischar(x));
     p.addRequired('clim',@(x) isnumeric(x)); 
-    p.addParameter('halfwindow',10,@(x) isscalar(x)); 
+    p.addParameter('halfwindow',0,@(x) isscalar(x)); 
     p.addParameter('alt_input','FinalOutput.mat',@(x) ischar(x)); 
-    p.addParameter('noi',@(x) isnumeric(x));
     p.parse(md,movietype,clim,varargin{:});
     
     HalfWindow = p.Results.halfwindow;
     alt_input = p.Results.alt_input;
     
-    load(fullfile(md.Location,alt_input),'FT');
-    load(fullfile(md.Location,'ProcOut.mat'),'FT');
-    try
-        highlight = p.Results.noi;
-    catch
-        highlight = 1:size(FT,1);
-    end
+    load(fullfile(md.Location,alt_input),'FT','NeuronImage');  
     
+    p.addParameter('noi',1:size(FT,1),@(x) isnumeric(x));
+    p.parse(md,movietype,clim,varargin{:});
+    highlight = p.Results.noi;
+ 
     %Type of processed movie.
     movietype = lower(movietype); 
     switch movietype
@@ -65,6 +62,8 @@ function NeuronDetectMovie(md,movietype,clim,varargin)
                 end
                 delete SMovie.h5
             end
+            
+            HalfWindow = 10;
 
         case 'smoothed'
             cd('ICmovie_smoothed-Objects'); 

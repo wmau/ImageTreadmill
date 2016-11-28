@@ -1,5 +1,5 @@
-function [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMD,base,comp,Ts,plotit)
-%multiPastalkovaPlot(batch_session_map,base,comp,Ts)
+function [normtilemat,sortedPeaks] = msPastalkovaPlot(base,comp,Ts,plotit)
+%[normtilemat,sortedPeaks] = msPastalkovaPlot(base,comp,Ts,plotit)
 %
 %   Makes a figure with Pastalkova plots for multiple days ranking each
 %   plot the same way as the sorted plot for the 'base' session. 
@@ -18,12 +18,13 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMD,base,comp,Ts,plotit)
 %
 
 %% Preliminary steps. 
-    cd(mapMD.Location); load(fullfile(pwd,'batch_session_map.mat')); 
-    
     sessions = [base,comp];             %Concatenate sessions. 
     dates = {sessions.Date};            %Dates
     sessionNums = [sessions.Session];   %Session numbers.
     nSessions = length(sessions);       %Number of sessions. 
+    
+    mapMD = getMapMD(sessions);
+    cd(mapMD.Location); load(fullfile(pwd,'batch_session_map.mat')); 
     
     %Get time cell indices and tuning curves. 
     DATA = CompileMultiSessionData(sessions,{'timecells','curves'}); 
@@ -95,10 +96,8 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMD,base,comp,Ts,plotit)
             missing = neurons==0 | isnan(neurons);
             
             %Fill in matrix. 
-            try
             tilemat(~missing,:) = cell2mat(CURVES{i}.tuning(neurons(~missing))); 
-            catch, keyboard; end
-            
+
             %Normalize. 
             peaks = max(tilemat,[],2); 
             normtilemat{i} = tilemat./repmat(peaks,1,nBins(i)); 

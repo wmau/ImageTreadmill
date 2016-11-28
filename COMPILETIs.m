@@ -31,10 +31,11 @@ function [AllI,nNeurons] = COMPILETIs(mds,celltype,infotype)
             end
             load('TimeCells.mat','TimeCells');
             load('PlaceMaps.mat','pval');
-            load('PFstats.mat','PFnumhits');
+            load('PFstats.mat','PFnumhits','MaxPF');
             
             %Get all time cells with a viable place field. 
-            noi = intersect(TimeCells,find(pval'>.95 & any(PFnumhits > 4,2)));
+            idx = sub2ind(size(PFnumhits), 1:size(PFnumhits,1), MaxPF);
+            noi = intersect(TimeCells,find(pval>.95 & PFnumhits(idx) > 4));
             
             if strcmp(celltype,'time')
                 %Get correlation coefficients and p-values. 

@@ -1,6 +1,5 @@
 function tuningStatus = TCRemap(ref,ssn)
-%[sametuning,TIMECELLS,CURVES] =
-%TimeCellRemapRate(batch_session_map,base,comp,Ts)
+%tuningStatus = TCRemap(ref,ssn)
 %
 %   Finds how time cells in one sessions are consistent across other days. 
 %
