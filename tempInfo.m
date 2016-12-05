@@ -21,7 +21,7 @@ function [I,sig] = tempInfo(MD)
     nNeurons = size(FT,1);
     
     %Number of shuffles. 
-    B = 1000;
+    B = 500;
     
     %Build binned spike raster. 
     inds = TrimTrdmllInds(TodayTreadmillLog,T);
@@ -29,17 +29,18 @@ function [I,sig] = tempInfo(MD)
     ratebylap = cell(nNeurons,1);
     edges = [0:20:T*20];
     for n=1:nNeurons
-        rasters{n} = buildRaster(inds,FT,n,'sprs',false);
+        rasters{n} = buildRaster(inds,FT,n,'onsets',false);
         ratebylap{n} = zeros(size(rasters{n},1),length(edges)-1);
-        for l=1:size(rasters{n},1)
-            
+        for l=1:size(rasters{n},1)          
             ts = find(rasters{n}(l,:));         
             ratebylap{n}(l,:) = histcounts(ts,edges);
         end
     end
     
 %% Compute temporal information and permutation test. 
-    I = zeros(nNeurons,1);              %Preallocate empirical temporal information.
+    I = zeros(nNeurons,1);              %Preallocate empirical temporal information [bits/sec].
+    lambda = zeros(nNeurons,1);         %Preallocate firing rate. 
+    spec = zeros(nNeurons,1);           %Preallocate specificity [bits/spike].
     surrogate = zeros(nNeurons,B);      %Preallocate surrogate data. 
     
     %parpool('local');
@@ -48,7 +49,7 @@ function [I,sig] = tempInfo(MD)
     p = ProgressBar(100/resolution);
     parfor n=1:nNeurons
         %Empirical temporal information. 
-        I(n) = tempInfoOneNeuron(ratebylap{n});
+        [I(n),spec(n),lambda(n)] = tempInfoOneNeuron(ratebylap{n});
         
         for i=1:B
             %Card shuffle. 
@@ -73,17 +74,19 @@ function [I,sig] = tempInfo(MD)
     %Significant neurons. 
     sig = pval<0.05 & I>0;
     
-    save('TemporalInfo.mat','I','sig');
+    save('TemporalInfo.mat','I','spec','lambda','sig');
     cd(currdir); 
 end
 
-function I = tempInfoOneNeuron(raster)
+function [I,spec,lambda] = tempInfoOneNeuron(raster)
     [nLaps,nBins,~] = size(raster);
     
-    p = 1/nBins;                                    %Probability occupancy in time (uniform).
+    p = 1/nBins;                               %Probability occupancy in time (uniform).
     lambda_i = mean(raster);                   %Mean rate at this time bin. (multiply by 4 because 0.25 time bins)
     lambda = sum(sum(raster))/(nLaps*nBins);   %Mean rate. 
     
     %Temporal information.
     I = nansum(p.*lambda_i.*log2(lambda_i./lambda));
+    
+    spec = I/lambda;
 end
