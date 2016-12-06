@@ -1,59 +1,55 @@
-function [I,sig] = tempInfo(MD)
+function tempInfo(MD)
 %[I,sig] = tempInfo(MD)
 %
-%   Calculates the temporal information of all the neurons in a session. 
+%   Calculates the Shannon mutual information I(X,K) between the random
+%   variables spike count [0,1] and time via the equations: 
 %
-%   INPUT
-%       MD: Session entry. 
+%   (1) I_time(ti) = sum[k>=0](P_k|ti * log2(P_k|ti / P_k)) 
 %
-%   OUPUTS
-%       I: Temporal information.
+%   (2) MI = sum[i=1->N](P_xi * I_time(ti)
 %
-%       sig: Significantly high temporal information, compared to permuted
-%       data. 
+%   where
+%       P_ti is the probability the mouse is in time bin ti,
+%       (1/(T*20)).*ones(1,T*20)
+%       
+%       P_k is the probability of observe k spikes,
+%       sum(rasters{n}(:))./ prod(size(rasters{n})
+%
+%       P_k|ti is the conditional probability of observing k spikes at time
+%       ti, mean(rasters{n})
 %
 
-%% Set up.
-    currdir = pwd; 
+
+%% Load.
     cd(MD.Location); 
     load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','T');
     load(fullfile(pwd,'Pos_align.mat'),'FT');
     nNeurons = size(FT,1);
-    
-    %Number of shuffles. 
     B = 500;
     
+%% Build spike raster.    
     %Build binned spike raster. 
     inds = TrimTrdmllInds(TodayTreadmillLog,T);
     rasters = cell(nNeurons,1);
-    ratebylap = cell(nNeurons,1);
-    edges = [0:20:T*20];
     for n=1:nNeurons
         rasters{n} = buildRaster(inds,FT,n,'onsets',false);
-        ratebylap{n} = zeros(size(rasters{n},1),length(edges)-1);
-        for l=1:size(rasters{n},1)          
-            ts = find(rasters{n}(l,:));         
-            ratebylap{n}(l,:) = histcounts(ts,edges);
-        end
     end
     
 %% Compute temporal information and permutation test. 
-    I = zeros(nNeurons,1);              %Preallocate empirical temporal information [bits/sec].
-    lambda = zeros(nNeurons,1);         %Preallocate firing rate. 
-    spec = zeros(nNeurons,1);           %Preallocate specificity [bits/spike].
-    surrogate = zeros(nNeurons,B);      %Preallocate surrogate data. 
+    MI = zeros(nNeurons,1);             %Preallocate empirical temporal information [bits/sec].
+    Isec = zeros(nNeurons,1);           %Preallocate firing rate. 
+    Ispk = zeros(nNeurons,1);           %Preallocate specificity [bits/spike].
     
-    %parpool('local');
     resolution = 2;
     updateInc = round(nNeurons/(100/resolution));
     p = ProgressBar(100/resolution);
     parfor n=1:nNeurons
         %Empirical temporal information. 
-        [I(n),spec(n),lambda(n)] = tempInfoOneNeuron(ratebylap{n});
+        [MI(n),Isec(n),Ispk(n)] = tempInfoOneNeuron(rasters{n});
         
         for i=1:B
             %Card shuffle. 
-            ratebylapShift = permuteTime(ratebylap{n});
+            ratebylapShift = permuteTime(rasters{n});
             
             %Compute temporal information of permuted ratebylap. 
             surrogate(n,i) = tempInfoOneNeuron(ratebylapShift);
@@ -65,28 +61,35 @@ function [I,sig] = tempInfo(MD)
         end
     end
     p.stop;
-    %delete(gcp);
     
     %P-value of temporal information being significantly better than
     %shuffled data. 
-    pval = sum(surrogate>repmat(I,[1,B]),2)/B;
+    pval = sum(surrogate>repmat(MI,[1,B]),2)/B;
     
     %Significant neurons. 
-    sig = pval<0.05 & I>0;
+    sig = pval<0.05 & MI>0;
     
-    save('TemporalInfo.mat','I','spec','lambda','sig');
-    cd(currdir); 
+    save('TemporalInfo.mat','MI','Isec','Ispk','sig');
 end
 
-function [I,spec,lambda] = tempInfoOneNeuron(raster)
+function [MI,Isec,Ispk,Itime] = tempInfoOneNeuron(raster)
     [nLaps,nBins,~] = size(raster);
     
-    p = 1/nBins;                               %Probability occupancy in time (uniform).
-    lambda_i = mean(raster);                   %Mean rate at this time bin. (multiply by 4 because 0.25 time bins)
-    lambda = sum(sum(raster))/(nLaps*nBins);   %Mean rate. 
+    P_t = 1/nBins;                          %Probability occupancy in time (uniform).
+    P_1t = mean(raster);                    %Mean rate at this time bin. (multiply by 4 because 0.25 time bins)
+    P_0t = 1-P_1t;
     
-    %Temporal information.
-    I = nansum(p.*lambda_i.*log2(lambda_i./lambda));
+    %Probability of spiking and not spiking.
+    P_k1 = sum(sum(raster))/(nLaps*nBins);  
+    P_k0 = 1-P_k1;                  
     
-    spec = I/lambda;
+    %Mutual information.
+    I_k1 = P_1t.*log(P_1t./P_k1);
+    I_k0 = P_0t.*log(P_0t./P_k0);
+    Itime = I_k1 + I_k0; 
+    MI = nansum(P_t.*Itime);
+    
+    %Information content.
+    Isec = nansum(P_t.*P_1t.*log2(P_1t./P_k1));      %bits/sec
+    Ispk = Isec/P_k1;                                %bits/spk
 end

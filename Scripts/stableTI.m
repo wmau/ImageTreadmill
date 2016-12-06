@@ -5,8 +5,8 @@ colors = parula(nAnimals);
 
 %Partition temporal information scores into stable vs unstable based on
 %time field or place field correlation.
-[stblTimeI,stblTimeN] = COMPILETIs(fulldataset,'time','time'); 
-[stblPlaceI,stblPlaceN] = COMPILETIs(fulldataset,'place','time'); 
+[stblTimeI,stblTimeN] = PartitionStats(fulldataset,'time','TI'); 
+[stblPlaceI,stblPlaceN] = PartitionStats(fulldataset,'place','TI'); 
 
 %Stable time fields.
 sI_t = cell2mat(stblTimeI.stable')';
@@ -45,7 +45,7 @@ for a = 1:nAnimals
 end
 
 %%
-[stblPlaceSpatialInfo,stblPlaceSpatialN] = COMPILETIs(fulldataset,'place','place');
+[stblPlaceSpatialInfo,stblPlaceSpatialN] = PartitionStats(fulldataset,'place','SI');
 ssI_p = cell2mat(stblPlaceSpatialInfo.stable')';
 ussI_p = cell2mat(stblPlaceSpatialInfo.unstable')';
 grps_pp = [zeros(1,length(ssI_p)), ones(1,length(ussI_p))];
@@ -66,13 +66,22 @@ end
 %%
 fPos = [520 350 300 450];
 boxScatterplot([sI_t,usI_t],grps_t,'xLabels',{'Stable','Unstable'},...
-    'yLabel','Temporal Information [bits/sec]','position',fPos,...
+    'yLabel','Temporal Information [bits]','position',fPos,...
     'circleColors',[animalColors_t_stable;animalColors_t_unstable]);
+[~,kp] = kstest2(sI_t,usI_t);
+tp = ranksum(sI_t,usI_t);
+title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
  
 boxScatterplot([sI_p,usI_p],grps_p,'xLabels',{'Stable','Unstable'},...
-    'yLabel','Temporal Information [bits/sec]','position',fPos,...
+    'yLabel','Temporal Information [bits]','position',fPos,...
     'circleColors',[animalColors_p_stable;animalColors_p_unstable]);
+[~,kp] = kstest2(sI_p,usI_p);
+tp = ranksum(sI_p,usI_p);
+title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
 
 boxScatterplot([ssI_p,ussI_p],grps_pp,'xLabels',{'Stable','Unstable'},...
-    'yLabel','Spatial Information [bits/sec]','position',fPos,...
+    'yLabel','Spatial Information [bits]','position',fPos,...
     'circleColors',[animalColors_p_stable;animalColors_p_unstable]);
+[~,kp] = kstest2(ssI_p,ussI_p);
+tp = ranksum(ssI_p,ussI_p);
+title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
