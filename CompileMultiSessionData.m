@@ -45,7 +45,7 @@ function DATA = CompileMultiSessionData(MD,args)
                     'placefields',...
                     'placefieldsnonan',...
                     'placefieldsunsmoothed',...
-                    'occmaps',...
+                    'runoccmaps',...
                     'placefieldpvals',...
                     'a',...
                     'rawtrdmll',...
@@ -119,9 +119,9 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %PLACE FIELDS version 2, no NaNs. 
         if any(strcmp('placefieldsnonan',args))
-            load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','OccMap'); 
+            load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','RunOccMap'); 
             for j=1:length(TMap_gauss)
-                TMap_gauss{j}(OccMap==0) = 0;
+                TMap_gauss{j}(RunOccMap==0) = 0;
             end
             DATA.placefieldsnonan{i} = TMap_gauss;  
         end
@@ -133,11 +133,11 @@ function DATA = CompileMultiSessionData(MD,args)
         end
         
         %OCCUPANCY MAP.
-        if any(strcmp('occmaps',args))
-            load(fullfile(pwd,'PlaceMaps.mat'),'OccMap');
-            OccMap(OccMap==0) = NaN;
-            OccMap(OccMap>0) = 0;     
-            DATA.occmaps{i} = OccMap;
+        if any(strcmp('runoccmaps',args))
+            load(fullfile(pwd,'PlaceMaps.mat'),'RunOccMap');
+            RunOccMap(RunOccMap==0) = NaN;
+            RunOccMap(RunOccMap>0) = 0;     
+            DATA.runoccmaps{i} = RunOccMap;
         end
         
         %PLACE FIELD P-VALUE.

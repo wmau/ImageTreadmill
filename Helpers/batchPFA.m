@@ -1,4 +1,4 @@
-function batchPFA(MDs,excluderuns)
+function batchPFA(MDs,excluderuns,cmperbin)
 %
 %
 %
@@ -20,7 +20,7 @@ function batchPFA(MDs,excluderuns)
         end
         
         CalculatePlacefields(MDs(s),'exclude_frames',excludeframes,'minspeed',3,...
-            'alt_inputs','FinalOutput.mat');
+            'alt_inputs','FinalOutput.mat','cmperbin',cmperbin,'HalfWindow',0);
     end
     
 end
