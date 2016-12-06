@@ -1,7 +1,8 @@
 function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
 %corrStats = CorrTrdmllTrace(ref,ssn,noi,corrtype)
 %
-%
+%   Performs correlation on time field tuning curves. Also see
+%   CorrPlaceFields. 
 
 %% Parse inputs. 
     p = inputParser;

@@ -18,10 +18,10 @@ function raster = buildRaster(inds,FT,neuron,varargin)
     p.addRequired('inds',@(x) isnumeric(x));
     p.addRequired('FT')
     p.addRequired('neuron',@(x) isscalar(x));
-    p.addParameter('sprs',true,@(x) islogical(x));
+    p.addParameter('onsets',true,@(x) islogical(x));
     
     p.parse(inds,FT,neuron,varargin{:});
-    sprs = p.Results.sprs;
+    onsets = p.Results.onsets;
 
 %% Build raster. 
     nTrials = size(inds,1);                             %Number of trials.
@@ -41,7 +41,7 @@ function raster = buildRaster(inds,FT,neuron,varargin)
     
     for t=1:nTrials
         lapRaster = [0 FT(neuron,inds(t,1):inds(t,2))]; %Take column difference of binary FT. 
-        if sprs
+        if onsets
             raster(t,:) = diff(lapRaster);      
         else 
             raster(t,:) = lapRaster(2:end);
