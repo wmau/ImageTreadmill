@@ -1,5 +1,5 @@
-function [TCounts,TMap_gauss,TMap_unsmoothed] = ...
-    MakePlacefield(spkpos,xEdges,yEdges,RunOccMap,varargin)
+function [TMap_unsmoothed,TCounts,varargout] = ...
+    MakePlacefield(FT,pos,xEdges,yEdges,RunOccMap,varargin)
 %[TCounts,TMap_gauss,TMap_unsmoothed] = ...
 %    MakePlacefield(spkpos,xEdges,yEdges,RunOccMap,varargin)
 %
@@ -7,7 +7,9 @@ function [TCounts,TMap_gauss,TMap_unsmoothed] = ...
 %   to make place fields for one cell.
 %
 %   INPUTS
-%       spkpos: 3xF (F = # frames) where the first row is FT from Tenaspis
+%       FT: logical vector (for one neuron). 
+%
+%       pos: 2xF (F = # frames) where the first row is FT from Tenaspis
 %       output, the second row is x position, and the third row is y
 %       position. All of these should be filtered by isrunning.
 %   
@@ -32,35 +34,47 @@ function [TCounts,TMap_gauss,TMap_unsmoothed] = ...
 
 %% Parse inputs.
     p = inputParser;
-    p.addRequired('spkpos');
+    p.addRequired('FT');
+    p.addRequired('pos');
     p.addParameter('gauss_std',2.5,@(x) isscalar(x)); 
     p.addParameter('cmperbin',1,@(x) isscalar(x)); 
+    p.addParameter('smooth',true,@(x) islogical(x)); 
     
-    p.parse(spkpos,varargin{:}); 
+    p.parse(FT,pos,varargin{:}); 
     
     gauss_std = p.Results.gauss_std; 
     cmperbin = p.Results.cmperbin;
-    FT = logical(spkpos(1,:));
-    x = spkpos(2,:);
-    y = spkpos(3,:);
+    smth = p.Results.smooth;
+    x = pos(1,:);
+    y = pos(2,:);
     
 %% Make place field.
-    gauss_std = gauss_std/cmperbin; 
-    
-    sm = fspecial('gaussian',[round(8*gauss_std,0),round(8*gauss_std)],gauss_std); 
-    
-    TCounts = hist2(y(FT),x(FT),yEdges,xEdges); 
+    if any(FT)
+        TCounts = hist2(y(FT),x(FT),yEdges,xEdges); 
+    else
+        TCounts = zeros(size(RunOccMap));
+    end
     Tsum = sum(TCounts(:)); 
     
     %Normalize. 
     TMap_unsmoothed = TCounts./RunOccMap; 
     TMap_unsmoothed(isnan(TMap_unsmoothed)) = 0;
     
-    %Smooth. 
-    TMap_gauss = imfilter(TMap_unsmoothed,sm);
-    TMap_gauss = TMap_gauss.*Tsum./sum(TMap_gauss(:)); 
+    if smth
+        %Make smoothing kernel.
+        gauss_std = gauss_std/cmperbin; 
+        sm = fspecial('gaussian',[round(8*gauss_std,0),round(8*gauss_std)],gauss_std); 
+        
+        %Smooth. 
+        TMap_gauss = imfilter(TMap_unsmoothed,sm);
+        TMap_gauss = TMap_gauss.*Tsum./sum(TMap_gauss(:)); 
+        
+        %Dump into varargout.
+        TMap_gauss(RunOccMap==0) = nan;
+        varargout{1} = TMap_gauss; 
+    end
     
     %Where the mouse didn't run, make nan. 
     TMap_unsmoothed(RunOccMap==0) = nan;
-    TMap_gauss(RunOccMap==0) = nan;
+    
 end

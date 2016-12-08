@@ -1,14 +1,26 @@
 function batchPFA(MDs,excluderuns,cmperbin)
+%batchPFA(MDs,excluderuns,cmperbin)
 %
+%   Performs batch place field analysis on multiple sessions. Wrapper
+%   function for Placefields. Excludes epochs of treadmill running. 
 %
+%   INPUTS
+%       MDs: sessions to analyze.
+%
+%       excluderuns: logical for excluding treadmill run epochs.
+%
+%       cmperbin: I normally use 1. 
 %
 
-%%
+%% For each session, get indices of treadmill running and run Placefields. 
     nSessions = length(MDs); 
     
     for s=1:nSessions
+        disp(['Analyzing ',MDs(s).Animal,' on ',MDs(s).Date,', sesssion ',...
+            num2str(MDs(s).Session),'...']);
         cd(MDs(s).Location); 
         
+        %Get indices of treadmill run.
         excludeframes = [];
         if excluderuns            
             load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog'); 
@@ -19,6 +31,7 @@ function batchPFA(MDs,excluderuns,cmperbin)
             end
         end
         
+        %Make place fields. 
         Placefields(MDs(s),'exclude_frames',excludeframes,...
             'Tenaspis_output','FinalOutput.mat','cmperbin',cmperbin);
     end

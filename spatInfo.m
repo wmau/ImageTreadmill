@@ -1,4 +1,4 @@
-function spatInfo(md)
+function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,savetodisk)
 % spatInfo(md)
 %
 %   Calculates the Shannon mutual information I(X,K) between the random
@@ -19,18 +19,9 @@ function spatInfo(md)
 %       pixel xi, TMap_unsmoothed
 %
 
-%% Load.
-    cd(md.Location);
-    load('PlaceMaps.mat','TMap_unsmoothed','RunOccMap','isrunning','cmperbin',...
-        'frames_use_ind');
-    load('Pos_align.mat','FT');
-    
-%% Set up variables. 
-    %Get good frames and good pixels. 
-    okframes = frames_use_ind & isrunning;      %Running, but not on treadmill.
-        
+%% Set up variables.         
     %Number of frames and neurons. 
-    nFrames = sum(okframes); 
+    nFrames = sum(RunOccMap(:)); 
     nNeurons = size(FT,1);
     
     %Get dwell map. 
@@ -39,7 +30,7 @@ function spatInfo(md)
     P_x = P_x(okpix);                           %Only take good pixels.
     
     %Get probability of spiking and not spiking for each neuron.
-    P_k1 = sum(FT(:,okframes),2)./nFrames;
+    P_k1 = sum(FT,2)./nFrames;
     P_k0 = 1-P_k1;
     
 %% Compute information metrics. 
@@ -53,8 +44,8 @@ function spatInfo(md)
     for n=1:nNeurons
         %Get probability of spike given location, TMap, only taking good
         %pixels. 
-        P_1x{n} = TMap_unsmoothed{n}(:);    P_1x{n} = P_1x{n}(okpix);
-        P_0x{n} = 1-TMap_unsmoothed{n}(:);  P_0x{n} = P_0x{n}(okpix);
+        P_1x{n} = TMaps_unsmoothed{n}(:);    P_1x{n} = P_1x{n}(okpix);
+        P_0x{n} = 1-TMaps_unsmoothed{n}(:);  P_0x{n} = P_0x{n}(okpix);
         
         %Compute positional information for k=1 and k=0.
         I_k1 = P_1x{n}.*log(P_1x{n}./P_k1(n));
@@ -71,5 +62,7 @@ function spatInfo(md)
         Ispk(n) = Isec(n) ./ P_k1(n);                           %bits/spk    
     end
     
-    save('SpatialInfo.mat','MI','Isec','Ispk','Ipos','okframes','okpix');
+    if savetodisk
+        save('SpatialInfo.mat','MI','Isec','Ispk','Ipos','okpix');
+    end
 end
