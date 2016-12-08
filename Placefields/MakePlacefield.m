@@ -9,7 +9,7 @@ function [TCounts,TMap_gauss,TMap_unsmoothed] = ...
 %   INPUTS
 %       spkpos: 3xF (F = # frames) where the first row is FT from Tenaspis
 %       output, the second row is x position, and the third row is y
-%       position.
+%       position. All of these should be filtered by isrunning.
 %   
 %       xEdges & yEdges: output from MakeOccMap.
 %

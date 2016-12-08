@@ -46,7 +46,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
                 stat = MI; 
             elseif strcmp(statType,'SI')
                 load('SpatialInfo.mat','MI','Ispk','Isec');
-                stat = MI';
+                stat = MI;
             elseif strcmp(statType,'FR')
 %                 load('Pos_align.mat','FT');
 %                 [n,f] = size(FT);

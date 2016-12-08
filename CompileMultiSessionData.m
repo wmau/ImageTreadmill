@@ -50,7 +50,10 @@ function DATA = CompileMultiSessionData(MD,args)
                     'a',...
                     'rawtrdmll',...
                     'difftrdmll',...
-                    'tracetrdmll'};
+                    'tracetrdmll',...
+                    'si',...
+                    'ti',...
+                    'placecells'};
 
     %Check that the arguments match template. 
     for i=1:nArgs
@@ -168,6 +171,26 @@ function DATA = CompileMultiSessionData(MD,args)
         if any(strcmp('tracetrdmll',args))
             load(fullfile(pwd,'TreadmillTraces.mat'),'tracetrdmll');
             DATA.tracetrdmll{i} = tracetrdmll; 
+        end
+        
+        %SPATIAL INFORMATION
+        if any(strcmp('si',args))
+            load(fullfile(pwd,'SpatialInfo.mat'),'MI');
+            DATA.si{i} = MI; 
+        end
+        
+        %TEMPORAL INFORMATION.
+        if any(strcmp('ti',args))
+            load(fullfile(pwd,'TemporalInfo.mat'),'MI');
+            DATA.ti{i} = MI; 
+        end
+        
+        %PLACE CELLS.
+        if any(strcmp('placecells',args))
+            load(fullfile(pwd,'PlaceMaps.mat'),'pval');
+            load(fullfile(pwd,'PFstats.mat'),'PFnumhits','MaxPF');
+            idx = sub2ind(size(PFnumhits), 1:size(PFnumhits,1), MaxPF);
+            DATA.placecells{i} = find(pval > .99 & PFnumhits(idx) > 4)'; 
         end
     end
     

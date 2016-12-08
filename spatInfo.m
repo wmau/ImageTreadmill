@@ -44,10 +44,12 @@ function spatInfo(md)
     
 %% Compute information metrics. 
     %Preallocate.
-    P_1x = cell(1,nNeurons);        %Probability of spike given location.
-    P_0x = cell(1,nNeurons);        %Probability of ~spike given location.
-    Ipos = cell(1,nNeurons);        %Positional information vector for each neuron.
-    MI = zeros(1,nNeurons);         %Mutual information for each neuron.
+    P_1x = cell(nNeurons,1);        %Probability of spike given location.
+    P_0x = cell(nNeurons,1);        %Probability of ~spike given location.
+    Ipos = cell(nNeurons,1);        %Positional information vector for each neuron.
+    MI = zeros(nNeurons,1);         %Mutual information for each neuron.
+    Isec = zeros(nNeurons,1);       %Information content (bits/sec).
+    Ispk = zeros(nNeurons,1);       %Information content (bits/spk).
     for n=1:nNeurons
         %Get probability of spike given location, TMap, only taking good
         %pixels. 

@@ -19,8 +19,8 @@ function batchPFA(MDs,excluderuns,cmperbin)
             end
         end
         
-        CalculatePlacefields(MDs(s),'exclude_frames',excludeframes,'minspeed',3,...
-            'alt_inputs','FinalOutput.mat','cmperbin',cmperbin,'HalfWindow',0);
+        Placefields(MDs(s),'exclude_frames',excludeframes,...
+            'Tenaspis_output','FinalOutput.mat','cmperbin',cmperbin);
     end
     
 end
