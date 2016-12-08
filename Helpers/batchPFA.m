@@ -1,4 +1,4 @@
-function batchPFA(MDs,excluderuns,cmperbin)
+function batchPFA(MDs,excluderuns)
 %batchPFA(MDs,excluderuns,cmperbin)
 %
 %   Performs batch place field analysis on multiple sessions. Wrapper
@@ -16,7 +16,7 @@ function batchPFA(MDs,excluderuns,cmperbin)
     nSessions = length(MDs); 
     
     for s=1:nSessions
-        disp(['Analyzing ',MDs(s).Animal,' on ',MDs(s).Date,', sesssion ',...
+        disp(['Analyzing ',MDs(s).Animal,' on ',MDs(s).Date,', session ',...
             num2str(MDs(s).Session),'...']);
         cd(MDs(s).Location); 
         
@@ -33,7 +33,7 @@ function batchPFA(MDs,excluderuns,cmperbin)
         
         %Make place fields. 
         Placefields(MDs(s),'exclude_frames',excludeframes,...
-            'Tenaspis_output','FinalOutput.mat','cmperbin',cmperbin);
+            'Tenaspis_data','FinalOutput.mat');
     end
     
 end
