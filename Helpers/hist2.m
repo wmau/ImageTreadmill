@@ -1,4 +1,4 @@
-function histmat  = hist2(x, y, xedges, yedges)
+function [histmat,xbin,ybin] = hist2(x, y, xedges, yedges)
 % function histmat  = hist2(x, y, xedges, yedges)
 %
 % Extract 2D histogram data containing the number of events

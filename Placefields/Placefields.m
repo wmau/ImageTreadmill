@@ -44,7 +44,7 @@ function Placefields(MD,varargin)
     ip.addParameter('exclude_frames',[],@(x) isnumeric(x)); 
     ip.addParameter('cmperbin',1,@(x) isscalar(x)); 
     ip.addParameter('minspeed',3,@(x) isscalar(x)); 
-    ip.addParameter('B',5000,@(x) isscalar(x));
+    ip.addParameter('B',1000,@(x) isscalar(x));
     ip.addParameter('aligned',true,@(x) islogical(x));
     ip.addParameter('Pos_data','Pos_align.mat',@(x) ischar(x));
     ip.addParameter('Tenaspis_data','FinalOutput.mat',@(x) ischar(x)); 
@@ -91,7 +91,8 @@ function Placefields(MD,varargin)
 %% Get occupancy map. 
     lims = [xmin xmax;
             ymin ymax];
-    [OccMap,RunOccMap,xEdges,yEdges] = MakeOccMap(x,y,lims,good,isrunning,cmperbin);
+    [OccMap,RunOccMap,xEdges,yEdges,xBin,yBin] = ...
+        MakeOccMap(x,y,lims,good,isrunning,cmperbin);
 
     %Don't need non-isrunning epochs anymore. 
     x = x(isrunning);
@@ -152,5 +153,6 @@ function Placefields(MD,varargin)
     p.stop; 
     
     save('Placefields.mat','OccMap','RunOccMap','TCounts','TMap_gauss',...
-        'TMap_unsmoothed','minspeed','isrunning','cmperbin','exclude_frames','pval'); 
+        'TMap_unsmoothed','minspeed','isrunning','cmperbin','exclude_frames',...
+        'xEdges','yEdges','xBin','yBin','pval'); 
 end
