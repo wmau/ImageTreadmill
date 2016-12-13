@@ -1,5 +1,5 @@
 function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,savetodisk)
-% spatInfo(md)
+% [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,savetodisk)
 %
 %   Calculates the Shannon mutual information I(X,K) between the random
 %   variables spike count [0,1] and position via the equations: 
@@ -18,6 +18,14 @@ function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,save
 %       P_k|xi is the conditional probability of observing k spikes in
 %       pixel xi, TMap_unsmoothed
 %
+%   INPUTS
+%       TMaps_unsmoothed: cell array of unsmoothed TMaps, output of
+%       MakePlacefield. Usually this is a TMap per neuron, but can also be
+%       an array of shuffled TMaps. 
+%
+%       RunOccMap: spatial occupancy map during running.
+%
+%       FT: logical of 
 
 %% Set up variables.         
     %Number of frames and neurons. 
@@ -26,7 +34,8 @@ function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,save
     
     %Get dwell map. 
     P_x = RunOccMap(:)./nFrames;
-    okpix = RunOccMap(:) > 4 & P_x < .05;       %Dwell must be for more than 4 frames, but less than 5% of total session.
+    okpix = RunOccMap(:) > 4;
+    %okpix = RunOccMap(:) > 4 & P_x < .05;       %Dwell must be for more than 4 frames, but less than 5% of total session.
     P_x = P_x(okpix);                           %Only take good pixels.
     
     %Get probability of spiking and not spiking for each neuron.

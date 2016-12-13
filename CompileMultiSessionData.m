@@ -84,7 +84,8 @@ function DATA = CompileMultiSessionData(MD,args)
         %TIME CELLS. 
         if any(strcmp('timecells',args))
             load(fullfile(pwd,'TimeCells.mat'),'TimeCells');
-            DATA.timecells{i} = TimeCells; 
+            load(fullfile(pwd,'TemporalInfo.mat'),'sig');
+            DATA.timecells{i} = intersect(find(sig),TimeCells); 
         end
         
         %RASTERS.
@@ -145,8 +146,8 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %PLACE FIELD P-VALUE.
         if any(strcmp('placefieldpvals',args))
-            load(fullfile(pwd,'PlaceMaps.mat'),'pval');
-            DATA.placefieldpvals{i} = 1-pval;
+            load(fullfile(pwd,'Placefields.mat'),'pval');
+            DATA.placefieldpvals{i} = pval;
         end
         
         %ADJACENCY MATRIX.
@@ -187,10 +188,10 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %PLACE CELLS.
         if any(strcmp('placecells',args))
-            load(fullfile(pwd,'PlaceMaps.mat'),'pval');
-            load(fullfile(pwd,'PFstats.mat'),'PFnumhits','MaxPF');
-            idx = sub2ind(size(PFnumhits), 1:size(PFnumhits,1), MaxPF);
-            DATA.placecells{i} = find(pval > .99 & PFnumhits(idx) > 4)'; 
+            load(fullfile(pwd,'Placefields.mat'),'pval');
+            load(fullfile(pwd,'PlacefieldStats.mat'),'PFnHits','bestPF');
+            idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
+            DATA.placecells{i} = find(pval < .01 & PFnHits(idx) > 4); 
         end
     end
     

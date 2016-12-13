@@ -9,11 +9,11 @@ colors = parula(nAnimals);
 [stblPlaceI,stblPlaceN] = PartitionStats(fulldataset,'place','TI'); 
 
 %Stable time fields.
-sI_t = cell2mat(stblTimeI.stable')';
-usI_t = cell2mat(stblTimeI.unstable')';
-grps_t = [zeros(1,length(sI_t)), ones(1,length(usI_t))];
-animalColors_t_stable = nan(length(sI_t),3);
-animalColors_t_unstable = nan(length(usI_t),3); 
+sTI_t = cell2mat(stblTimeI.stable')';
+usTI_t = cell2mat(stblTimeI.unstable')';
+grps_t = [zeros(1,length(sTI_t)), ones(1,length(usTI_t))];
+animalColors_t_stable = nan(length(sTI_t),3);
+animalColors_t_unstable = nan(length(usTI_t),3); 
 s = 1;
 u = 1;
 for a = 1:nAnimals
@@ -27,11 +27,11 @@ for a = 1:nAnimals
 end
     
 %Stable place fields.
-sI_p = cell2mat(stblPlaceI.stable')';
-usI_p = cell2mat(stblPlaceI.unstable')';
-grps_p = [zeros(1,length(sI_p)), ones(1,length(usI_p))];
-animalColors_p_stable = nan(length(sI_p),3);
-animalColors_p_unstable = nan(length(usI_p),3); 
+sTI_p = cell2mat(stblPlaceI.stable')';
+usTI_p = cell2mat(stblPlaceI.unstable')';
+grps_p = [zeros(1,length(sTI_p)), ones(1,length(usTI_p))];
+animalColors_p_stable = nan(length(sTI_p),3);
+animalColors_p_unstable = nan(length(usTI_p),3); 
 s = 1; 
 u = 1;
 for a = 1:nAnimals
@@ -46,11 +46,11 @@ end
 
 %%
 [stblPlaceSpatialInfo,stblPlaceSpatialN] = PartitionStats(fulldataset,'place','SI');
-ssI_p = cell2mat(stblPlaceSpatialInfo.stable')';
-ussI_p = cell2mat(stblPlaceSpatialInfo.unstable')';
-grps_pp = [zeros(1,length(ssI_p)), ones(1,length(ussI_p))];
-animalColors_pp_stable = nan(length(ssI_p),3);
-animalColors_pp_unstable = nan(length(ussI_p),3); 
+sSI_p = cell2mat(stblPlaceSpatialInfo.stable')';
+usSI_p = cell2mat(stblPlaceSpatialInfo.unstable')';
+grps_pp = [zeros(1,length(sSI_p)), ones(1,length(usSI_p))];
+animalColors_pp_stable = nan(length(sSI_p),3);
+animalColors_pp_unstable = nan(length(usSI_p),3); 
 s = 1;
 u = 1;
 for a = 1:nAnimals
@@ -63,25 +63,51 @@ for a = 1:nAnimals
     u = u+stblPlaceSpatialN.unstable(a);
 end
 
+[stblTimeSpatialInfo,stblTimeSpatialN] = PartitionStats(fulldataset,'time','SI');
+sSI_t = cell2mat(stblTimeSpatialInfo.stable')';
+usSI_t = cell2mat(stblTimeSpatialInfo.unstable')';
+grps_sp = [zeros(1,length(sSI_t)), ones(1,length(usSI_t))];
+animalColors_sp_stable = nan(length(sSI_t),3);
+animalColors_sp_unstable = nan(length(usSI_t),3); 
+s = 1;
+u = 1;
+for a = 1:nAnimals
+    animalColors_sp_stable(s:s+stblTimeSpatialN.stable(a)-1,:) = repmat(colors(a,:),...
+        stblTimeSpatialN.stable(a),1);
+    animalColors_sp_unstable(u:u+stblTimeSpatialN.unstable(a)-1,:) = repmat(colors(a,:),...
+        stblTimeSpatialN.unstable(a),1); 
+    
+    s = s+stblTimeSpatialN.stable(a);
+    u = u+stblTimeSpatialN.unstable(a);
+end
+
+
 %%
 fPos = [520 350 300 450];
-boxScatterplot([sI_t,usI_t],grps_t,'xLabels',{'Stable','Unstable'},...
+boxScatterplot([sTI_t,usTI_t],grps_t,'xLabels',{'Stable','Unstable'},...
     'yLabel','Temporal Information [bits]','position',fPos,...
     'circleColors',[animalColors_t_stable;animalColors_t_unstable]);
-[~,kp] = kstest2(sI_t,usI_t);
-tp = ranksum(sI_t,usI_t);
+[~,kp] = kstest2(sTI_t,usTI_t);
+tp = ranksum(sTI_t,usTI_t);
 title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
  
-boxScatterplot([sI_p,usI_p],grps_p,'xLabels',{'Stable','Unstable'},...
+boxScatterplot([sTI_p,usTI_p],grps_p,'xLabels',{'Stable','Unstable'},...
     'yLabel','Temporal Information [bits]','position',fPos,...
     'circleColors',[animalColors_p_stable;animalColors_p_unstable]);
-[~,kp] = kstest2(sI_p,usI_p);
-tp = ranksum(sI_p,usI_p);
+[~,kp] = kstest2(sTI_p,usTI_p);
+tp = ranksum(sTI_p,usTI_p);
 title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
 
-boxScatterplot([ssI_p,ussI_p],grps_pp,'xLabels',{'Stable','Unstable'},...
+boxScatterplot([sSI_p,usSI_p],grps_pp,'xLabels',{'Stable','Unstable'},...
     'yLabel','Spatial Information [bits]','position',fPos,...
-    'circleColors',[animalColors_p_stable;animalColors_p_unstable]);
-[~,kp] = kstest2(ssI_p,ussI_p);
-tp = ranksum(ssI_p,ussI_p);
+    'circleColors',[animalColors_pp_stable;animalColors_pp_unstable]);
+[~,kp] = kstest2(sSI_p,usSI_p);
+tp = ranksum(sSI_p,usSI_p);
+title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
+
+boxScatterplot([sSI_t,usSI_t],grps_sp,'xLabels',{'Stable','Unstable'},...
+    'yLabel','Spatial Information [bits]','position',fPos,...
+    'circleColors',[animalColors_sp_stable;animalColors_sp_unstable]);
+[~,kp] = kstest2(sSI_t,usSI_t);
+tp = ranksum(sSI_t,usSI_t);
 title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});

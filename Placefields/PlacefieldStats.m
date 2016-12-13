@@ -32,7 +32,7 @@ function PlacefieldStats(md)
 %       bestPF: vector indexing the column corresponding to the place field
 %       with the highest activation.
 %
-%%
+%% Set up.
     cd(md.Location);
     load('Placefields.mat','TMap_gauss','xBin','yBin','isrunning');
     load('Pos_align.mat','FT');
@@ -69,8 +69,6 @@ function PlacefieldStats(md)
     PFepochs = cell(nNeurons,maxNPFs);
     PFnEpochs = zeros(nNeurons,maxNPFs);
     PFactive = cell(nNeurons,maxNPFs);
-    PFnHits = zeros(nNeurons,maxNPFs);
-    PFpcthits = zeros(nNeurons,maxNPFs);
     bestPF = ones(nNeurons,1);
     
     for n=1:nNeurons
@@ -100,6 +98,8 @@ function PlacefieldStats(md)
         
         %Get peak activation.
         [~,peakPix] = max(TMap_gauss{n}(:));
+        
+        %If there's a place field...
         if ~all(cellfun('isempty',PFpixels(n,:)))
             %Find each place field it corresponds to.
             bestPF(n) = find(cellfun(@(x) ismember(peakPix,x),PFpixels(n,:)));

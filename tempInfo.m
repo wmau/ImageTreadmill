@@ -25,7 +25,10 @@ function tempInfo(MD)
     load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','T');
     load(fullfile(pwd,'Pos_align.mat'),'FT');
     nNeurons = size(FT,1);
-    B = 500;
+    B = 1000;
+    totalLaps = sum(TodayTreadmillLog.complete);
+    prop = 0.25;
+    crit = round(prop*totalLaps);
     
 %% Build spike raster.    
     %Build binned spike raster. 
@@ -64,12 +67,14 @@ function tempInfo(MD)
     
     %P-value of temporal information being significantly better than
     %shuffled data. 
-    pval = sum(surrogate>repmat(MI,[1,B]),2)/B;
+    pval = sum(surrogate>=repmat(MI,[1,B]),2)/B;
+    [nLapsActive,~] = cellfun(@find,rasters,'unif',0);
+    nLapsActive = cellfun('length',cellfun(@unique,nLapsActive,'unif',0));
     
     %Significant neurons. 
-    sig = pval<0.05 & MI>0;
+    sig = pval<0.01 & MI>0 & nLapsActive>crit;
     
-    save('TemporalInfo.mat','MI','Isec','Ispk','sig');
+    save('TemporalInfo.mat','MI','Isec','Ispk','pval','sig');
 end
 
 function [MI,Isec,Ispk,Itime] = tempInfoOneNeuron(raster)
