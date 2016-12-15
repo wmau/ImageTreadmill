@@ -31,7 +31,7 @@ function tuningStatus = TCRemap(ref,ssn)
     
 %% Find the indices in MAP corresponding to sessions of interest.
     mapMD = getMapMD(ref);
-    matchMat = msMatchCells(mapMD,ssns,TIMECELLS{1},true);  
+    matchMat = msMatchCells(mapMD,ssns,TIMECELLS{1},false);  
     
 %% Indicate whether a neuron has remapped or not. 
     %Find time resolution of the tuning curves. 
@@ -71,43 +71,46 @@ function tuningStatus = TCRemap(ref,ssn)
         for s=2:nSessions
             %Second neuron.
             n2 = matchMat(i,s);
-            
-            %Significance curve of comparison session.
-            compSig = CURVES{s}.sig{n2};
+            if isnan(n2) || n2==0
+                tuningStatus(n1,s) = nan;
+            else
+                %Significance curve of comparison session.  
+                compSig = CURVES{s}.sig{n2};
 
-            %Find humps in the significance curve of the comparison
-            %session. 
-            ccComp = bwconncomp(compSig);
-            nHumps = length(ccComp.PixelIdxList); 
+                %Find humps in the significance curve of the comparison
+                %session. 
+                ccComp = bwconncomp(compSig);
+                nHumps = length(ccComp.PixelIdxList); 
 
-            %Get bin numbers corresponding to the middle of the hump. 
-            compBins = zeros(nHumps,1);
-            for h=1:nHumps
-                compBins(h) = round(mean(ccComp.PixelIdxList{h}));
-            end
+                %Get bin numbers corresponding to the middle of the hump. 
+                compBins = zeros(nHumps,1);
+                for h=1:nHumps
+                    compBins(h) = round(mean(ccComp.PixelIdxList{h}));
+                end
 
-            %All possible combinations. 
-            [b,c] = meshgrid(baseBins,compBins); 
+                %All possible combinations. 
+                [b,c] = meshgrid(baseBins,compBins); 
 
-            %Grid of time field comparisons within the binWindow. 
-            sameTimeField = abs(b-c) <= binWindow; 
-            sameTimeField = sameTimeField(:);               %This needs to be vectorized for any() to work. 
-            differentTimeField = abs(b-c) > binWindow;
-            differentTimeField = differentTimeField(:);              
+                %Grid of time field comparisons within the binWindow. 
+                sameTimeField = abs(b-c) <= binWindow; 
+                sameTimeField = sameTimeField(:);               %This needs to be vectorized for any() to work. 
+                differentTimeField = abs(b-c) > binWindow;
+                differentTimeField = differentTimeField(:);              
 
-            %Subtract. Order of these if statements matters here! 
-            %If no longer a time cell from lack of a response or not
-            %listed in TIMECELLS, -1. 
-            if isempty(b) || ~ismember(n2,TIMECELLS{s})
-                tuningStatus(n1,s) = -1; 
-            %If sigcurve of the two sessions are within binWindow
-            %bins, 1.               
-            elseif any(sameTimeField)
-                tuningStatus(n1,s) = 1; 
-            %If comparison sigcurve is still a time cell, but encodes a
-            %different time, 0.
-            elseif any(differentTimeField)
-                tuningStatus(n1,s) = 0;                                 
+                %Subtract. Order of these if statements matters here! 
+                %If no longer a time cell from lack of a response or not
+                %listed in TIMECELLS, -1. 
+                if isempty(b) || ~ismember(n2,TIMECELLS{s})
+                    tuningStatus(n1,s) = -1; 
+                %If sigcurve of the two sessions are within binWindow
+                %bins, 1.               
+                elseif any(sameTimeField)
+                    tuningStatus(n1,s) = 1; 
+                %If comparison sigcurve is still a time cell, but encodes a
+                %different time, 0.
+                elseif any(differentTimeField)
+                    tuningStatus(n1,s) = 0;                                 
+                end
             end
 
         end

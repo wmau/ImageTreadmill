@@ -11,41 +11,38 @@ disp('Partitioning spatial information based on spatial stability.');
 [~,sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = ClassifyStability(fulldataset,'place','SI');
 
 B = length(sTimeTIshuffle);
-edges = [.2:.02:.8];
+l = .05 * B; 
+u = .95 * B;
+sTimeTIshuffle = sort(sTimeTIshuffle);
+sPlaceSIshuffle = sort(sPlaceSIshuffle);
+sPlaceTIshuffle = sort(sPlaceTIshuffle);
+sTimeSIshuffle = sort(sTimeSIshuffle); 
 
-figure;
-    subplot(2,2,1);
-    histogram(sTimeTIshuffle,edges,'normalization','probability','edgecolor','none'); 
-    xlim([.2 .8]);
-    yLim = get(gca,'ylim');
-    line([.5 .5],[0 yLim(2)],'color','k','linewidth',2,'linestyle','--');
-    line([sTimeTIaccuracy sTimeTIaccuracy],[0 yLim(2)],'color','r','linewidth',2);
-    ylabel(['p = ',num2str(sTimeTIp)]);
-    title('Temporal Stability Categorization from TIs');
-    
-    subplot(2,2,2);
-    histogram(sTimeSIshuffle,edges,'normalization','probability','edgecolor','none'); 
-    xlim([.2 .8]);
-    yLim = get(gca,'ylim');
-    line([.5 .5],[0 yLim(2)],'color','k','linewidth',2,'linestyle','--');
-    line([sTimeSIaccuracy sTimeSIaccuracy],[0 yLim(2)],'color','r','linewidth',2);
-    ylabel(['p = ',num2str(sTimeSIp)]);
-    title('Temporal Stability Categorization from SIs');
-    
-    subplot(2,2,3);
-    histogram(sPlaceTIshuffle,edges,'normalization','probability','edgecolor','none'); 
-    xlim([.2 .8]);
-    yLim = get(gca,'ylim');
-    line([.5 .5],[0 yLim(2)],'color','k','linewidth',2,'linestyle','--');
-    line([sPlaceTIaccuracy sPlaceTIaccuracy],[0 yLim(2)],'color','r','linewidth',2);
-    ylabel(['p = ',num2str(sPlaceTIp)]);
-    title('Spatial Stability Categorization from TIs');
-    
-    subplot(2,2,4);
-    histogram(sPlaceSIshuffle,edges,'normalization','probability','edgecolor','none'); 
-    xlim([.2 .8]);
-    yLim = get(gca,'ylim');
-    line([.5 .5],[0 yLim(2)],'color','k','linewidth',2,'linestyle','--');
-    line([sPlaceSIaccuracy sPlaceSIaccuracy],[0 yLim(2)],'color','r','linewidth',2);
-    ylabel(['p = ',num2str(sPlaceSIp)]);
-    title('Stable Stability Categorization from SIs');
+%%
+    acc = [sTimeTIaccuracy sPlaceSIaccuracy sPlaceTIaccuracy sTimeSIaccuracy]';
+    e = [   sTimeTIshuffle(l)-mean(sTimeTIshuffle), sTimeTIshuffle(u)-mean(sTimeTIshuffle);...
+            sPlaceSIshuffle(l)-mean(sPlaceSIshuffle),sPlaceSIshuffle(u)-mean(sPlaceSIshuffle);...
+            sPlaceTIshuffle(l)-mean(sPlaceTIshuffle),sPlaceTIshuffle(u)-mean(sPlaceTIshuffle);...
+            sTimeSIshuffle(l)-mean(sTimeSIshuffle),sTimeSIshuffle(u)-mean(sTimeSIshuffle)];
+    e = abs(e);
+    x = 1:4; 
+    y = [   mean(sTimeTIshuffle),...
+            mean(sPlaceSIshuffle),...
+            mean(sPlaceTIshuffle),...
+            mean(sTimeSIshuffle)];
+    figure; hold on;
+    for i=1:4
+        b(i) = bar(i,acc(i),.5);
+    end
+    [b([1,4]).FaceColor] = deal([0 .5 .5]);
+    [b([2,3]).FaceColor] = deal([0.5765 0.4392 0.8588]);
+    [b([2,4]).EdgeColor] = deal([0.5765 0.4392 0.8588]);
+    [b([1,3]).EdgeColor] = deal([0 .5 .5]);
+    [b.LineWidth] = deal(3);
+    [h,p]=boundedline(x,y,e,'alpha');
+    h.LineWidth = 2;
+    h.Color = [.7 .7 .7];
+    p.FaceColor = [.7 .7 .7];
+    ylim([0.3 0.7]);
+    set(gca,'tickdir','out','linewidth',2,'xtick',[]);
+    ylabel('Accuracy');

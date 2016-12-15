@@ -1,6 +1,30 @@
 function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,predictor)
 %[Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,predictor)
 %
+%   Trains a support vector machine on classifying stability in time or
+%   space based on temporal or spatial information. Next, it trains B SVMs
+%   on the same problem, but with shuffled stability labels. Then it
+%   performs 10-fold cross validation on the real and shuffled data. 
+%
+%   INPUTS
+%       mds: Session entries.
+%
+%       stabilityCriterion: Criterion for whether a neuron is labeled
+%       stable. Can be either 'time' or 'place.
+%
+%       predictor: Statistic to use for categorization. Can be either 'SI'
+%       or 'TI'.
+%
+%   OUTPUTS
+%       Mdl: Output model trained to labeled neurons as either stable or
+%       unstable based on a predictor. 
+%
+%       accuracy: Accuracy based on 10-fold cross validation.
+%
+%       shuffle: Distribution of accuracies for models trained on shuffled
+%       labels. 
+%
+%       p: P-value of accuracy relative to shuffle. 
 %
 
 %% Set up.
@@ -36,7 +60,7 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
     p = ProgressBar(B);
     parfor i=1:B
         rMdl = fitcsvm(X,stable(randperm(length(stable))),'KernelFunction',...
-            'rbf','Standardize',true);
+            'gaussian','Standardize',true);
         rCV = crossval(rMdl); 
         shuffle(i) = 1-kfoldLoss(rCV); 
         

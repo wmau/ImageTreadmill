@@ -86,6 +86,7 @@ function DATA = CompileMultiSessionData(MD,args)
             load(fullfile(pwd,'TimeCells.mat'),'TimeCells');
             load(fullfile(pwd,'TemporalInfo.mat'),'sig');
             DATA.timecells{i} = intersect(find(sig),TimeCells); 
+            %DATA.timecells{i} = TimeCells;
         end
         
         %RASTERS.

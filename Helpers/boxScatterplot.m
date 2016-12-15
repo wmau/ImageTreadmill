@@ -97,5 +97,7 @@ function boxScatterplot(x,grps,varargin)
     boxplot(x,grps,'color',boxColor,'symbol','k','labels',xLabels);
     ylabel(yLabel);
     set(gca,'tickdir','out');
+    boxProps = get(gca,'Children');
+    [boxProps(1).Children.LineWidth] = deal(2);
     
 end
