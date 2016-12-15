@@ -34,9 +34,9 @@ function NeuronDetectMovie(md,movietype,clim,varargin)
     HalfWindow = p.Results.halfwindow;
     alt_input = p.Results.alt_input;
     
-    load(fullfile(md.Location,alt_input),'FT','NeuronImage');  
+    load(fullfile(md.Location,alt_input),'PSAbool','NeuronImage');  
     
-    p.addParameter('noi',1:size(FT,1),@(x) isnumeric(x));
+    p.addParameter('noi',1:size(PSAbool,1),@(x) isnumeric(x));
     p.parse(md,movietype,clim,varargin{:});
     highlight = p.Results.noi;
  
@@ -85,7 +85,7 @@ function NeuronDetectMovie(md,movietype,clim,varargin)
     nFrames = info.Dataspace.Size(3); 
     
     %For plotting. 
-    nNeurons = size(FT,1); 
+    nNeurons = size(PSAbool,1); 
     colors = rand(nNeurons,3); 
     outlines = cellfun(@bwboundaries,NeuronImage,'unif',0); 
     
@@ -96,10 +96,10 @@ function NeuronDetectMovie(md,movietype,clim,varargin)
     %Write movie. 
     for i=1:nFrames
         %Get frame.
-        frame = loadframe(h5file,i+HalfWindow,info); 
+        frame = LoadFrames(h5file,i+HalfWindow); 
 
         %Find active neurons. 
-        active = find(FT(:,i));
+        active = find(PSAbool(:,i));
         
         %Display the imaging movie frame. 
         set(0,'currentfigure',ifigure); 

@@ -72,11 +72,11 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     TodayTreadmillLog = AlignTreadmilltoTracking(TodayTreadmillLog,TodayTreadmillLog.RecordStartTime);
     
     %Get calcium imaging data. 
-    load(neuraldata,'FT');
+    load(neuraldata,'PSAbool');
     
     %Get rate by lap matrix. 
     disp('Getting time responses for each neuron...');
-    [ratebylap,x,y,time_interp,aviFrame,FT,TodayTreadmillLog] = getLapResponses(md,FT,TodayTreadmillLog,halfwindow);  
+    [ratebylap,x,y,time_interp,aviFrame,PSAbool,TodayTreadmillLog] = getLapResponses(md,PSAbool,TodayTreadmillLog,halfwindow);  
     
     alternation = strcmp(TodayTreadmillLog.direction,'alternation');
     
@@ -153,7 +153,7 @@ function [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells
     movies.y = y;
     movies.t = time_interp;
     movies.aviFrame = aviFrame;
-    movies.FT = FT;
+    movies.FT = PSAbool;
     
     %Get indices of neurons that pass the test. 
     TimeCells = intersect(find(any(cellfun(@any,sigcurve),2)),goodlaps);   %Lap criterion.
