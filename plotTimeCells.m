@@ -64,7 +64,9 @@ function plotTimeCells(md,T,varargin)
     end
     
     %Extract the elements in structs. 
-    traces = traces.(singletraces);
+    if singletraces
+        traces = traces.(singletraces);
+    end
     x = movies.x;
     y = movies.y; 
     aviFrame = movies.t;
@@ -97,7 +99,9 @@ function plotTimeCells(md,T,varargin)
     bins = [1:0.001:nBins]';
     t = linspace(0,T,length(bins));     %Time vector, smoothed.
     tCI = linspace(0,T,length(curves.ci{TimeCells(thisNeuron)}(1,:)));  %Time vector for CI interpolation.
-    tTraces = linspace(0,T,size(traces,2));
+    if singletraces
+        tTraces = linspace(0,T,size(traces,2));
+    end
     
     %Simplify the matrix and get rid of nans if any. 
     ratebylap = ratebylap(delays==T & complete,:,:);               %Laps that match delay duration. 
@@ -153,13 +157,15 @@ function plotTimeCells(md,T,varargin)
             
             subplot(2,2,3:4);   %Tuning curve.
                 yyaxis right; 
-                plot(tTraces,traces(:,:,TimeCells(thisNeuron)),...
-                    '-','color',[.7 .7 .7 .2],'linewidth',2);
-                    xlabel('Time [s]','fontsize',16); ylabel('\deltaF./\deltat');
-                    set(gca,'fontsize',18,...
-                        'ycolor',[.7 .7 .7],'linewidth',4,'tickdir','out');
-                    ylim([min(min(traces(:,:,TimeCells(thisNeuron)))), ...
-                        max(max(traces(:,:,TimeCells(thisNeuron))))]);
+                if singletraces
+                    plot(tTraces,traces(:,:,TimeCells(thisNeuron)),...
+                        '-','color',[.7 .7 .7 .2],'linewidth',2);
+                        xlabel('Time [s]','fontsize',16); ylabel('\deltaF./\deltat');
+                        set(gca,'fontsize',18,...
+                            'ycolor',[.7 .7 .7],'linewidth',4,'tickdir','out');
+                        ylim([min(min(traces(:,:,TimeCells(thisNeuron)))), ...
+                            max(max(traces(:,:,TimeCells(thisNeuron))))]);
+                end
                     
                 yyaxis left; 
                 hold on;
