@@ -133,13 +133,13 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %PLACE FIELDS version 3, unsmoothed. 
         if any(strcmp('placefieldsunsmoothed',args))
-            load(fullfile(pwd,'PlaceMaps.mat'),'TMap_unsmoothed'); 
+            load(fullfile(pwd,'Placefields.mat'),'TMap_unsmoothed'); 
             DATA.placefieldsunsmoothed{i} = TMap_unsmoothed;  
         end
         
         %OCCUPANCY MAP.
         if any(strcmp('runoccmaps',args))
-            load(fullfile(pwd,'PlaceMaps.mat'),'RunOccMap');
+            load(fullfile(pwd,'Placefields.mat'),'RunOccMap');
             RunOccMap(RunOccMap==0) = NaN;
             RunOccMap(RunOccMap>0) = 0;     
             DATA.runoccmaps{i} = RunOccMap;

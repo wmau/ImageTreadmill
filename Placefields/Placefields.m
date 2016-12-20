@@ -63,12 +63,12 @@ function Placefields(MD,varargin)
 %% Set up.
     if aligned
         load('Pos_align.mat',...
-            'FT','x_adj_cm','y_adj_cm','speed','xmin','xmax','ymin','ymax'); 
+            'PSAbool','x_adj_cm','y_adj_cm','speed','xmin','xmax','ymin','ymax'); 
         x = x_adj_cm; y = y_adj_cm; clear x_adj_cm y_adj_cm;
     else
         load('Pos.mat','xpos_interp','ypos_interp');
-        load(Tenaspis_data,'FT'); 
-        [x,y,speed,FT] = AlignImagingToTracking(MD.Pix2CM,FT,0);
+        load(Tenaspis_data,'PSAbool'); 
+        [x,y,speed,PSAbool] = AlignImagingToTracking(MD.Pix2CM,PSAbool,0);
         xmin = min(x); ymin = min(y); 
         xmax = max(x); ymax = max(y);
         
@@ -77,11 +77,11 @@ function Placefields(MD,varargin)
         %this.
         exclude_frames = exclude_frames - (FToffset-1);
         exclude_frames(exclude_frames < 0) = [];
-        exclude_frames(exclude_frames > size(FT,2)) = [];
+        exclude_frames(exclude_frames > size(PSAbool,2)) = [];
     end
     
     %Basic variables. 
-    [nNeurons,nFrames] = size(FT); 
+    [nNeurons,nFrames] = size(PSAbool); 
     velocity = convtrim(speed,ones(1,2*20))./(2*20);    %Smooth velocity (cm/s).
     good = true(1,nFrames);                             %Frames that are not excluded.
     good(exclude_frames) = false;
@@ -97,7 +97,7 @@ function Placefields(MD,varargin)
     %Don't need non-isrunning epochs anymore. 
     x = x(isrunning);
     y = y(isrunning);
-    FT = logical(FT(:,isrunning));
+    PSAbool = logical(PSAbool(:,isrunning));
     nGood = length(x); 
     
 %% Construct place field and compute mutual information.
@@ -109,12 +109,12 @@ function Placefields(MD,varargin)
     parfor n=1:nNeurons    
         %Make place field.
         [TMap_unsmoothed{n},TCounts{n},TMap_gauss{n}] = ...
-            MakePlacefield(FT(n,:),pos,xEdges,yEdges,RunOccMap,...
+            MakePlacefield(PSAbool(n,:),pos,xEdges,yEdges,RunOccMap,...
             'cmperbin',cmperbin,'smooth',true);
     end
     
     %Compute mutual information.
-    MI = spatInfo(TMap_unsmoothed,RunOccMap,FT,true);
+    MI = spatInfo(TMap_unsmoothed,RunOccMap,PSAbool,true);
     
 %% Get statistical significance of place field using mutual information.
     %Preallocate. 
@@ -132,7 +132,7 @@ function Placefields(MD,varargin)
         shifts = randi([0 nGood],B,1); 
         for i=1:B
             %Circular shift. 
-            shuffled = circshift(FT(n,:),[0 shifts(i)]);
+            shuffled = circshift(PSAbool(n,:),[0 shifts(i)]);
             
             %Make place field from shifted transient vector. 
             rTMap{i} = MakePlacefield(shuffled,pos,xEdges,yEdges,...
@@ -141,7 +141,7 @@ function Placefields(MD,varargin)
         end
 
         %Calculate mutual information of randomized vectors. 
-        rMI = spatInfo(rTMap,RunOccMap,repmat(FT(n,:),[B,1]),false); 
+        rMI = spatInfo(rTMap,RunOccMap,repmat(PSAbool(n,:),[B,1]),false); 
 
         %Get p-value. 
         pval(n) = 1-(sum(MI(n)>rMI)/B); 

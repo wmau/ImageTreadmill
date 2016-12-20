@@ -1,4 +1,4 @@
-function [ratebylap,x,y,time_interp,aviFrame,FT,TodayTreadmillLog] = getLapResponses(MD,FT,TodayTreadmillLog,halfwindow)
+function [ratebylap,x,y,time_interp,aviFrame,PSAbool,TodayTreadmillLog] = getLapResponses(MD,PSAbool,TodayTreadmillLog,halfwindow)
 %[ratebylap,delays,x,y,time_interp,aviFrame,FT] = getLapResponses(animal,date,sessionNum,FT,TodayTreadmillLog)
 %
 %   Get the lap by lap responses for each neuron during treadmill run. 
@@ -37,11 +37,11 @@ function [ratebylap,x,y,time_interp,aviFrame,FT,TodayTreadmillLog] = getLapRespo
     
     %Align FT. 
     try
-        load(fullfile(pwd,'Pos_align.mat'),'FT','x_adj_cm','y_adj_cm','time_interp','aviFrame');
+        load(fullfile(pwd,'Pos_align.mat'),'PSAbool','x_adj_cm','y_adj_cm','time_interp','aviFrame');
         x = x_adj_cm; y = y_adj_cm; 
         clear x_adj_cm y_adj_cm;
     catch
-        [x,y,~,FT,~,~,aviFrame,time_interp] = AlignImagingToTracking(MD.Pix2CM,FT,halfwindow);
+        [x,y,~,PSAbool,~,~,aviFrame,time_interp] = AlignImagingToTracking(MD.Pix2CM,PSAbool,halfwindow);
     end
     
     %Get treadmill run epochs. 
@@ -64,7 +64,7 @@ function [ratebylap,x,y,time_interp,aviFrame,FT,TodayTreadmillLog] = getLapRespo
     
 %% Bin time responses. 
     %Initialize.  
-    nNeurons = size(FT,1); 
+    nNeurons = size(PSAbool,1); 
     tResolution = 0.25;                                     %seconds
     nBins = TodayTreadmillLog.delaysetting/tResolution;     %Vector specifying number of bins per lap
     nRuns = TodayTreadmillLog.numRuns;
@@ -105,7 +105,7 @@ function [ratebylap,x,y,time_interp,aviFrame,FT,TodayTreadmillLog] = getLapRespo
                 t = linspace(tStart,tEnd,nFramesBetween(lapnum)+1); 
                 
                 %Times where there was a spike. 
-                tspk = t(FT(thisNeuron,inds(lapnum,1):inds(lapnum,2))==1);
+                tspk = t(PSAbool(thisNeuron,inds(lapnum,1):inds(lapnum,2))==1);
 
                 %Edges for histogram.
                 edges = linspace(0,TodayTreadmillLog.delaysetting(lapnum),nBins(lapnum));

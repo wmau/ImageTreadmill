@@ -7,13 +7,13 @@ function TMTrackingMovie(md,varargin)
     cd(md.Location);
     
     load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','movies');
-    load(fullfile(pwd,'FinalOutput.mat'),'FT'); 
+    load(fullfile(pwd,'FinalOutput.mat'),'PSAbool'); 
     
     Pix2CM = md.Pix2CM; sf = 0.6246;
-    [x,y,~,~,FToffset,~,~,~] = AlignImagingToTracking(Pix2CM,FT,10); 
-    x = x./Pix2CM*sf; 
-    y = y./Pix2CM*sf; 
-    treadmillInds = getTreadmillEpochs(TodayTreadmillLog,movies.t); 
+    [x,y,~,~,offset] = AlignImagingToTracking(Pix2CM,PSAbool,0); 
+    x = x./Pix2CM.*sf; 
+    y = y./Pix2CM.*sf; 
+    treadmillInds = TodayTreadmillLog.inds; 
     nRuns = size(treadmillInds,1);
     
     %Tracking movie. 
@@ -30,12 +30,12 @@ function TMTrackingMovie(md,varargin)
     tInc = 0; 
     for thisEpoch = 1:nRuns
         if TodayTreadmillLog.complete(thisEpoch)
-            sFrame = treadmillInds(thisEpoch,1) + FToffset;
-            eFrame = treadmillInds(thisEpoch,2) + FToffset; 
+            sFrame = treadmillInds(thisEpoch,1) + offset;
+            eFrame = treadmillInds(thisEpoch,2) + offset; 
             
             for i=sFrame:eFrame
                 %AVI file reads using time, not frames. 
-                trackingread.currentTime = movies.aviFrame(treadmillInds(thisEpoch,1)) + tInc; 
+                trackingread.currentTime = movies.t(treadmillInds(thisEpoch,1)) + tInc; 
                 
                 %Get frame. 
                 frame = readFrame(trackingread); 
@@ -44,7 +44,7 @@ function TMTrackingMovie(md,varargin)
                 set(0,'currentfigure',tfigure); 
                 imagesc(flipud(frame)); 
                 hold on;
-                t = findclosest(trackingread.currentTime,movies.t); 
+                t = findclosest(trackingread.currentTime,movies.aviFrame); 
                 plot(x(t),y(t),'r.'); hold off; 
                 annotation(gcf,'textbox',[0.6, 0.8, 0.2, 0.07],'String',...
                 {['t = ',num2str(round(tInc,1)),' seconds']},'Color','red',...

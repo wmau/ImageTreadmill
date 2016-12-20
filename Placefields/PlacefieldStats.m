@@ -35,8 +35,8 @@ function PlacefieldStats(md)
 %% Set up.
     cd(md.Location);
     load('Placefields.mat','TMap_gauss','xBin','yBin','isrunning');
-    load('Pos_align.mat','FT');
-    FT = FT(:,isrunning);
+    load('Pos_align.mat','PSAbool');
+    PSAbool = PSAbool(:,isrunning);
     
 %% Get basic properties of the placefields
     nNeurons = length(TMap_gauss);
@@ -92,7 +92,7 @@ function PlacefieldStats(md)
                 e = PFepochs{n,p}(epoch,2);
                 
                 %Get activations during traversal epochs.
-                PFactive{n,p}(epoch) = any(FT(n,s:e));                             
+                PFactive{n,p}(epoch) = any(PSAbool(n,s:e));                             
             end
         end
         

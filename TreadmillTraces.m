@@ -1,4 +1,4 @@
-function [rawtrdmll,difftrdmll,tracetrdmll] = TreadmillTraces(md)
+function [RawTrdmll,DFDTTrdmll,LPtrdmll] = TreadmillTraces(md)
 %[rawtrdmll,difftrdmll,tracetrdmll] = TreadmillTraces(md)
 %
 %
@@ -6,23 +6,23 @@ function [rawtrdmll,difftrdmll,tracetrdmll] = TreadmillTraces(md)
 %%
     cd(md.Location);
     load('TimeCells.mat','TimeCells','TodayTreadmillLog','T');
-    load('Pos_align.mat','rawtrace','difftrace','trace');
+    load('Pos_align.mat','RawTrace','DFDTtrace','LPtrace');
     
     [inds,nRuns] = TrimTrdmllInds(TodayTreadmillLog,T); 
-    nNeurons = size(rawtrace,1);
+    nNeurons = size(RawTrace,1);
     
-    rawtrdmll = nan(nRuns,T*20,nNeurons);
-    difftrdmll = nan(nRuns,T*20,nNeurons);
-    tracetrdmll = nan(nRuns,T*20,nNeurons);
+    RawTrdmll = nan(nRuns,T*20,nNeurons);
+    DFDTTrdmll = nan(nRuns,T*20,nNeurons);
+    LPtrdmll = nan(nRuns,T*20,nNeurons);
     window = ones(10,1)/10;
     for n=1:nNeurons
-        rawtrdmll(:,:,n) = buildRasterTrace(inds,rawtrace,n);
-        difftrdmll(:,:,n) = buildRasterTrace(inds,difftrace,n);
+        RawTrdmll(:,:,n) = buildRasterTrace(inds,RawTrace,n);
+        DFDTTrdmll(:,:,n) = buildRasterTrace(inds,DFDTtrace,n);
         for l=1:nRuns
-            difftrdmll(l,:,n) = convtrim(difftrdmll(l,:,n),window);
+            DFDTTrdmll(l,:,n) = convtrim(DFDTTrdmll(l,:,n),window);
         end
-        tracetrdmll(:,:,n) = buildRasterTrace(inds,trace,n);
+        LPtrdmll(:,:,n) = buildRasterTrace(inds,LPtrace,n);
     end
     
-    save('TreadmillTraces','rawtrdmll','difftrdmll','tracetrdmll');
+    save('TreadmillTraces','RawTrdmll','DFDTTrdmll','LPtrdmll');
 end

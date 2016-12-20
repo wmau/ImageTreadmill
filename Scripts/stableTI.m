@@ -1,5 +1,5 @@
 %Full data set.
-fulldataset = [MD(215:2:221) MD(253:256) MD(274:278) MD(287:291)];
+fulldataset = [MD(292:299)];
 nAnimals = length(unique({fulldataset.Animal})); 
 colors = parula(nAnimals);
 

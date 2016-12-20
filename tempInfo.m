@@ -23,8 +23,8 @@ function tempInfo(MD)
 %% Load.
     cd(MD.Location); 
     load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','T');
-    load(fullfile(pwd,'Pos_align.mat'),'FT');
-    nNeurons = size(FT,1);
+    load(fullfile(pwd,'Pos_align.mat'),'PSAbool');
+    nNeurons = size(PSAbool,1);
     B = 1000;
     totalLaps = sum(TodayTreadmillLog.complete);
     prop = 0.25;
@@ -35,7 +35,7 @@ function tempInfo(MD)
     inds = TrimTrdmllInds(TodayTreadmillLog,T);
     rasters = cell(nNeurons,1);
     for n=1:nNeurons
-        rasters{n} = buildRaster(inds,FT,n,'onsets',false);
+        rasters{n} = buildRaster(inds,PSAbool,n,'onsets',false);
     end
     
 %% Compute temporal information and permutation test. 
