@@ -52,18 +52,11 @@ function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,delayse
     tuningcurve = mean(ratebylap); 
     
 %% Circular permutation test.
-    %Construct matrix of temporal shifts. 
-    shifts = randi([0,nBins],B,nCompleteLaps); 
-    
     %For each permutation...
     for i=1:B
-        
-        %...for each lap...
-        for thisLap=1:nCompleteLaps
-            %...shift the response by a random amount. 
-             shufflelaps(thisLap,:,i) = circshift(ratebylap(thisLap,:),[0,shifts(i,thisLap)]); 
-        end
-        
+        %Shuffle each trial. 
+        shufflelaps(:,:,i) = permuteTime(ratebylap);
+         
         %Then compute the mean of the shuffled time responses. 
         shufflecurve(i,:) = mean(shufflelaps(:,:,i));
        

@@ -96,7 +96,7 @@ function msPlotTimeCells(md,varargin)
  
     if ~isempty(timecells)
         %Only look at select cells.
-        rows = find(ismember(MAP(:,1),timecells));
+        rows = find(ismember(MAP(:,MAPinds(1)),timecells));
     else 
         %All the row indices of MAP that have time cells. 
         rows = unique(cell2mat(rows));
