@@ -51,22 +51,29 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             load('PlacefieldStats.mat','PFnHits','PFpcthits','bestPF');
             
             PCcrit = .01;
-            stblcrit = .05;
+            stblcrit = .01;
             
+            %Get time cells.
+            TCs = intersect(TimeCells,find(sig));
+              
             %Get all time cells with a viable place field. 
             idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
+            
+            %Get place cells. 
+            load('SpatialInfo.mat','MI');
+            PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>4);
+            
+            noi = union(TCs,PCs);
             
             if strcmp(statType,'TI')
                 load('TemporalInfo.mat','MI','Ispk','Isec');
                 stat = MI; 
-                noi = intersect(find(sig),TimeCells);
             elseif strcmp(statType,'SI')
                 load('SpatialInfo.mat','MI','Ispk','Isec');
                 stat = MI;
-                noi = find(pval<PCcrit & PFnHits(idx) > 4);
             elseif strcmp(statType,'FR')
                 load('Pos_align.mat','PSAbool');
-                 [~,f] = size(PSAbool);
+                [n,f] = size(PSAbool);
 %                 d = diff([zeros(n,1) PSAbool],1,2);
 %                 d(d<0) = 0;
                 stat = sum(PSAbool,2)./f; 
@@ -80,12 +87,14 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
 %                     rasters{nn} = buildRaster(inds,PSAbool,nn,'onsets',false);
 %                     stat(nn) = sum(rasters{nn}(:))./numel(rasters{nn});
 %                 end
-                
-                noi = 1:size(PSAbool,1);
+               
+                noi = intersect(PCs,TCs);
             end
                     
             if strcmp(stabilityCriterion,'time')
-                noi = intersect(noi,intersect(find(sig),TimeCells));
+                if strcmp(statType,'SI')
+                    noi = intersect(PCs,TCs);
+                end
                 
                 %Get correlation coefficients and p-values. 
                 corrStats = CorrTrdmllTrace(mds(ssns(s)),mds(ssns(s+1)),noi);
@@ -93,11 +102,13 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
 
                 %Stable time cells based on correlation and non-shifting time
                 %field.
-                stable{a}{s} = intersect(find(corrStats(:,2) < stblcrit & tuningStatus(:,2)==1),noi);
-                unstable{a}{s} = intersect(find(corrStats(:,2) >= stblcrit | tuningStatus(:,2)<1),noi);
+                stable{a}{s} = intersect(find(corrStats(:,2) < stblcrit),noi);
+                unstable{a}{s} = intersect(find(corrStats(:,2) >= stblcrit | isnan(corrStats(:,2))),noi);
          
             elseif strcmp(stabilityCriterion,'place')
-                noi = intersect(noi,find(pval<PCcrit & PFnHits(idx) > 4));
+                if strcmp(statType,'TI')
+                    noi = intersect(PCs,TCs);
+                end
                 
                 %Get the correlation coefficients and p-values.
                 corrStats = CorrPlaceFields(mds(ssns(s)),mds(ssns(s+1)),noi);

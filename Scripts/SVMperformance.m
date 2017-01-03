@@ -43,6 +43,6 @@ sTimeSIshuffle = sort(sTimeSIshuffle);
     h.LineWidth = 2;
     h.Color = [.7 .7 .7];
     p.FaceColor = [.7 .7 .7];
-    ylim([0.3 0.7]);
+    ylim([0.3 0.8]);
     set(gca,'tickdir','out','linewidth',2,'xtick',[]);
     ylabel('Accuracy');

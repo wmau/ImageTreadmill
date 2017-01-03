@@ -45,9 +45,9 @@ function boxScatterplot(x,grps,varargin)
     p.addParameter('boxColor','k',@(x) ischar(x) || isnumeric(x));
     p.addParameter('circleSize',10,@(x) isnumeric(x)); 
     p.addParameter('circleColors',[.7 .7 .7],@(x) ischar(x) || isnumeric(x));
-    p.addParameter('transparency',.5,@(x) isscalar(x)); 
+    p.addParameter('transparency',.3,@(x) isscalar(x)); 
     p.addParameter('sf',.05,@(x) isscalar(x));
-    p.addParameter('position',[520 350 300 450],@(x) isnumeric(x)); 
+    p.addParameter('position',[520 350 300 450]); 
     
     p.parse(x,grps,varargin{:});
     xLabels = p.Results.xLabels; 
@@ -91,7 +91,10 @@ function boxScatterplot(x,grps,varargin)
     end
     
     %Figure here. 
-    figure('Position',position); hold on;
+    if isnumeric(position)
+        figure('Position',position); 
+    end
+    hold on;
     scat = scatter(jitters,x,circleSize,circleColors,'filled');
     alpha(scat,transparency);
     boxplot(x,grps,'color',boxColor,'symbol','k','labels',xLabels);
