@@ -68,9 +68,11 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             if strcmp(statType,'TI')
                 load('TemporalInfo.mat','MI','Ispk','Isec');
                 stat = MI; 
+                noi = TCs;
             elseif strcmp(statType,'SI')
                 load('SpatialInfo.mat','MI','Ispk','Isec');
                 stat = MI;
+                noi = PCs;
             elseif strcmp(statType,'FR')
                 load('Pos_align.mat','PSAbool');
                 [n,f] = size(PSAbool);
