@@ -20,9 +20,9 @@ function mapMD = getMapMD(md)
     
     loadMD;
     %Insert batch_session_map directory here for additional animals.
-    mds =      [MD(292);        %1 - G45
-                MD(291);        %3 - Polaris
-                MD(275)         %4 - Bellatrix
+    mds =      [MD(295);        %1 - G45
+                MD(305);        %3 - Polaris
+                MD(301)         %4 - Bellatrix
                 MD(296)];       %5 - G48 T4
         
     %Get registration data. 

@@ -65,21 +65,23 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
                 stat = MI;
                 noi = find(pval<PCcrit & PFnHits(idx) > 4);
             elseif strcmp(statType,'FR')
-%                 load('Pos_align.mat','FT');
-%                 [n,f] = size(FT);
-%                 d = diff([zeros(n,1) FT],1,2);
+                load('Pos_align.mat','PSAbool');
+                 [~,f] = size(PSAbool);
+%                 d = diff([zeros(n,1) PSAbool],1,2);
 %                 d(d<0) = 0;
-%                 stat = sum(d,2)./f; 
-                load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','T');
-                load(fullfile(pwd,'Pos_align.mat'),'PSAbool');
-                inds = TrimTrdmllInds(TodayTreadmillLog,T);
-                n = size(FT,1);
-                rasters = cell(1,n);
-                stat = zeros(n,1);
-                for nn=1:n
-                    rasters{nn} = buildRaster(inds,FT,nn,'onsets',false);
-                    stat(nn) = sum(rasters{nn}(:))./numel(rasters{nn});
-                end
+                stat = sum(PSAbool,2)./f; 
+%                 load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','T');
+%                 load(fullfile(pwd,'Pos_align.mat'),'PSAbool');
+%                 inds = TrimTrdmllInds(TodayTreadmillLog,T);
+%                 n = size(PSAbool,1);
+%                 rasters = cell(1,n);
+%                 stat = zeros(n,1);
+%                 for nn=1:n
+%                     rasters{nn} = buildRaster(inds,PSAbool,nn,'onsets',false);
+%                     stat(nn) = sum(rasters{nn}(:))./numel(rasters{nn});
+%                 end
+                
+                noi = 1:size(PSAbool,1);
             end
                     
             if strcmp(stabilityCriterion,'time')
@@ -92,7 +94,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
                 %Stable time cells based on correlation and non-shifting time
                 %field.
                 stable{a}{s} = intersect(find(corrStats(:,2) < stblcrit & tuningStatus(:,2)==1),noi);
-                unstable{a}{s} = intersect(find(corrStats(:,2) >= stblcrit | tuningStatus(:,2)~=1),noi);
+                unstable{a}{s} = intersect(find(corrStats(:,2) >= stblcrit | tuningStatus(:,2)<1),noi);
          
             elseif strcmp(stabilityCriterion,'place')
                 noi = intersect(noi,find(pval<PCcrit & PFnHits(idx) > 4));
