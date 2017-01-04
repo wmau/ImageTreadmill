@@ -1,4 +1,4 @@
-function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,predictor)
+function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,predictor,krnl)
 %[Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,predictor)
 %
 %   Trains a support vector machine on classifying stability in time or
@@ -50,7 +50,7 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
                 zeros(sampSize,1)];
                 
 %% Train support vector machine.
-    Mdl = fitcsvm(X,stable,'KernelFunction','rbf','Standardize',true);
+    Mdl = fitcsvm(X,stable,'KernelFunction',krnl,'Standardize',true);
     CV = crossval(Mdl);
     accuracy = 1-kfoldLoss(CV); 
     
@@ -60,7 +60,7 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
     p = ProgressBar(B);
     parfor i=1:B
         rMdl = fitcsvm(X,stable(randperm(length(stable))),'KernelFunction',...
-            'gaussian','Standardize',true);
+            krnl,'Standardize',true);
         rCV = crossval(rMdl); 
         shuffle(i) = 1-kfoldLoss(rCV); 
         

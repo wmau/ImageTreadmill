@@ -1,28 +1,29 @@
-function [totalCells,TMcells,TCs] = ProportionTimeCells(mds)
+function [N,nTM,nTCs] = ProportionTimeCells(mds)
 %
 %
 %
 
 %%
     nSessions = length(mds); 
-    totalCells = zeros(1,nSessions);
-    TMcells = zeros(1,nSessions);
-    TCs = zeros(1,nSessions);
-    
+    [N,nTM,nTCs] = deal(zeros(1,nSessions));
+
     for s=1:nSessions
         cd(mds(s).Location);
-        load('Pos_align.mat','FT');
+        load('FinalOutput.mat','NumNeurons');
         load('TimeCells.mat','TimeCells');
+        load('TemporalInfo.mat','sig');
+        TimeCells = intersect(TimeCells,find(sig));
         
-        totalCells(s) = size(FT,1);
-        TMcells(s) = nNeuronsActiveonTM(mds(s)); 
-        TCs(s) = length(TimeCells);
+        N(s) = NumNeurons;
+        nTM(s) = nNeuronsActiveonTM(mds(s)); 
+        nTCs(s) = length(TimeCells);
     end
     
+    A = round([mean(N),mean(nTM),mean(nTCs)]);
+    I = round([mean(nTM),mean(nTCs)*ones(1,3)]);
+     
     figure;
-    venn(round([mean(totalCells),mean(TMcells),mean(TCs)]),...
-        round([mean(TMcells),mean(TCs)*ones(1,3)]),...
-        'facecolor',{'k','w','g'});
+    venn(A,I,'facecolor',{'k','w','g'});
     axis equal; axis off; 
     
 end

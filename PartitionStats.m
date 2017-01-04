@@ -51,10 +51,10 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             load('PlacefieldStats.mat','PFnHits','PFpcthits','bestPF');
             
             PCcrit = .01;
-            stblcrit = .01;
+            %stblcrit = .001;
             
             %Get time cells.
-            TCs = intersect(TimeCells,find(sig));
+            TCs = intersect(find(sig),TimeCells);
               
             %Get all time cells with a viable place field. 
             idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
@@ -62,9 +62,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             %Get place cells. 
             load('SpatialInfo.mat','MI');
             PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>4);
-            
-            noi = union(TCs,PCs);
-            
+                        
             if strcmp(statType,'TI')
                 load('TemporalInfo.mat','MI','Ispk','Isec');
                 stat = MI; 
@@ -74,11 +72,16 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
                 stat = MI;
                 noi = PCs;
             elseif strcmp(statType,'FR')
-                load('Pos_align.mat','PSAbool');
-                [n,f] = size(PSAbool);
+%                 load('Pos_align.mat','PSAbool');
+%                 [n,f] = size(PSAbool);
 %                 d = diff([zeros(n,1) PSAbool],1,2);
 %                 d(d<0) = 0;
-                stat = sum(PSAbool,2)./f; 
+%                 stat = sum(d,2)./f; 
+%                 stat = getAvgFiringRate(d,1);
+
+                load('Pos_align.mat','DFDTtrace');
+                stat = mean(DFDTtrace,2);
+
 %                 load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','T');
 %                 load(fullfile(pwd,'Pos_align.mat'),'PSAbool');
 %                 inds = TrimTrdmllInds(TodayTreadmillLog,T);
@@ -89,18 +92,21 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
 %                     rasters{nn} = buildRaster(inds,PSAbool,nn,'onsets',false);
 %                     stat(nn) = sum(rasters{nn}(:))./numel(rasters{nn});
 %                 end
-               
-                noi = intersect(PCs,TCs);
+                         
             end
                     
             if strcmp(stabilityCriterion,'time')
                 if strcmp(statType,'SI')
                     noi = intersect(PCs,TCs);
+                elseif strcmp(statType,'FR')
+                    noi = TCs;
                 end
                 
                 %Get correlation coefficients and p-values. 
                 corrStats = CorrTrdmllTrace(mds(ssns(s)),mds(ssns(s+1)),noi);
-                tuningStatus = TCRemap(mds(ssns(s)),mds(ssns(s+1)));
+                
+                %[~,stblcrit] = fdr_bh(corrStats(~isnan(corrStats(:,2)),2));
+                stblcrit = .01/length(noi);
 
                 %Stable time cells based on correlation and non-shifting time
                 %field.
@@ -110,11 +116,16 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             elseif strcmp(stabilityCriterion,'place')
                 if strcmp(statType,'TI')
                     noi = intersect(PCs,TCs);
+                elseif strcmp(statType,'FR')
+                    noi = PCs;
                 end
                 
                 %Get the correlation coefficients and p-values.
                 corrStats = CorrPlaceFields(mds(ssns(s)),mds(ssns(s+1)),noi);
-
+                
+                %[~,stblcrit] = fdr_bh(corrStats(~isnan(corrStats(:,2)),2));
+                stblcrit = .01/length(noi);
+                
                 %Stable place cells based on correlation p-value.
                 stable{a}{s} = intersect(find(corrStats(:,2) < stblcrit),noi); 
                 unstable{a}{s} = intersect(find(corrStats(:,2) >= stblcrit | isnan(corrStats(:,2))),noi);     

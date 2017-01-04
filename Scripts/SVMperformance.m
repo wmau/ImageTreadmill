@@ -1,14 +1,18 @@
+loadMD;
+fulldataset = MD(292:309);
+krnl = 'rbf';
+
 disp('Partitioning temporal information based on temporal stability.');
-[~,sTimeTIaccuracy,sTimeTIshuffle,sTimeTIp] = ClassifyStability(fulldataset,'time','TI');
+[~,sTimeTIaccuracy,sTimeTIshuffle,sTimeTIp] = ClassifyStability(fulldataset,'time','TI',krnl);
 
 disp('Partitioning spatial information based on temporal stability.');
-[~,sTimeSIaccuracy,sTimeSIshuffle,sTimeSIp] = ClassifyStability(fulldataset,'time','SI');
+[~,sTimeSIaccuracy,sTimeSIshuffle,sTimeSIp] = ClassifyStability(fulldataset,'time','SI',krnl);
 
 disp('Partitioning temporal information based on spatial stability.');
-[~,sPlaceTIaccuracy,sPlaceTIshuffle,sPlaceTIp] = ClassifyStability(fulldataset,'place','TI');
+[~,sPlaceTIaccuracy,sPlaceTIshuffle,sPlaceTIp] = ClassifyStability(fulldataset,'place','TI',krnl);
 
 disp('Partitioning spatial information based on spatial stability.');
-[~,sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = ClassifyStability(fulldataset,'place','SI');
+[~,sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = ClassifyStability(fulldataset,'place','SI',krnl);
 
 B = length(sTimeTIshuffle);
 l = .05 * B; 
@@ -43,6 +47,6 @@ sTimeSIshuffle = sort(sTimeSIshuffle);
     h.LineWidth = 2;
     h.Color = [.7 .7 .7];
     p.FaceColor = [.7 .7 .7];
-    ylim([0.3 0.8]);
+    ylim([0.3 0.7]);
     set(gca,'tickdir','out','linewidth',2,'xtick',[]);
     ylabel('Accuracy');

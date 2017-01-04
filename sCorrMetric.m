@@ -22,7 +22,7 @@ function stability = sCorrMetric(normtilemat)
     for s=2:nSessions
         for n=1:nTCs
             %Spearman (non-parametric) correlation.
-            stability(n,s) = corr(normtilemat{1}(n,:)',normtilemat{s}(n,:)','type','Spearman');
+            stability(n,s) = corr(normtilemat{1}(n,:)',normtilemat{s}(n,:)','type','Pearson');
         end
     end
 

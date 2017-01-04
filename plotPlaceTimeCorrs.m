@@ -1,4 +1,4 @@
-function [pCorr,tCorr] = plotPlaceTimeCorrs(mapMD,MD1,MD2,Ts,neurontype)
+function [pCorr,tCorr] = plotPlaceTimeCorrs(MD1,MD2,Ts,neurontype)
 %[pCorr,tCorr] = plotPlaceTimeCorrs(MAPMD,MD1,MD2,Ts)
 %
 %   Plot the place fields, rasters, and tuning curves of time cells in MD1.
@@ -21,6 +21,8 @@ function [pCorr,tCorr] = plotPlaceTimeCorrs(mapMD,MD1,MD2,Ts,neurontype)
 %
 
 %% Compute correlation.
+    mapMD = getMapMD([MD1,MD2]);
+    
     neurontype = lower(neurontype); 
     switch neurontype
         case 'time'

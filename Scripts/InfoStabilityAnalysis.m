@@ -18,13 +18,18 @@
 %% Step 1: Depict temporal information based on temporal stability. 
     %Categorize.
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','TI');
+%     [S,US] = ParseInfoStabilityParams(fulldataset,'time','FR');
+%     
+%     figure;
+%     scatter([s,us]',[S,US]',2,'filled');
+%     [~,p] = corr([s,us]',[S,US]')
     
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Temporal Information [bits]','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
-    %tp = ranksum(s,us); 
-    title(['KS p = ',num2str(kp)]);
+    tp = ranksum(s,us); 
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
     
 %% Step 2: Depict temporal information based on spatial stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','TI');
@@ -33,18 +38,23 @@
         'yLabel','Temporal Information [bits]','boxColor',purple,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
-    %tp = ranksum(s,us); 
-    title(['KS p = ',num2str(kp)]);
+    tp = ranksum(s,us); 
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
     
 %% Step 3: Depict spatial information based on spatial stability. 
-    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','SI');
-
+     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','SI');
+%     [S,US] = ParseInfoStabilityParams(fulldataset,'place','FR');
+%     
+%     figure;
+%     scatter([s,us]',[S,US]',2,'filled');
+%     [~,p] = corr([s,us]',[S,US]')
+    
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Spatial Information [bits]','boxColor',purple,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
-    %tp = ranksum(s,us); 
-    title(['KS p = ',num2str(kp)]);
+    tp = ranksum(s,us); 
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
     
 %% Step 4: Depict spatial information based on temporal stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','SI');
@@ -53,8 +63,8 @@
         'yLabel','Spatial Information [bits]','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
-    %tp = ranksum(s,us); 
-    title(['KS p = ',num2str(kp)]);
+    tp = ranksum(s,us); 
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
     
 %% Step 5: Depict firing rate based on temporal stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','FR');
@@ -63,8 +73,8 @@
         'yLabel','Transient Frequency','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
-    %tp = ranksum(s,us); 
-    title(['KS p = ',num2str(kp)]);
+    tp = ranksum(s,us); 
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
     
 %% Step 6: Depict firing rate based on spatial stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','FR');
@@ -73,8 +83,8 @@
         'yLabel','Transient Frequency','boxColor',purple,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
-    %tp = ranksum(s,us); 
-    title(['KS p = ',num2str(kp)]);
+    tp = ranksum(s,us); 
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
     
 %% Nested function
 function [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(data,stability,infoType)
@@ -96,4 +106,5 @@ function [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(data,stability,
         sColors = [sColors; repmat(colors(a,:),N.stable(a),1)];
         usColors = [usColors; repmat(colors(a,:),N.unstable(a),1)];
     end
+    
 end

@@ -51,7 +51,7 @@ function msPlotTimeCells(md,varargin)
             'complete'};
     if pf
         args{end+1} = 'placefields'; 
-        args{end+1} = 'occmaps'; 
+        args{end+1} = 'runoccmaps'; 
         args{end+1} = 'placefieldpvals';
         args{end+1} = 'ttl';
     end
@@ -66,7 +66,7 @@ function msPlotTimeCells(md,varargin)
     Ts = cell2mat(DATA.t); 
     if pf
         PFS = DATA.placefields; 
-        OCCMAPS = DATA.occmaps; 
+        RUNOCCMAPS = DATA.runoccmaps; 
         PVALS = DATA.placefieldpvals; 
         TTL = DATA.ttl;
     end
@@ -126,8 +126,16 @@ function msPlotTimeCells(md,varargin)
     end   
     
     %Main plotting. 
-    f = figure('Position',[520    80   525   720]); 
-    while keepgoing                   
+    if pf 
+        fPos = [-1300 -40 830 180*nSessions];
+    else 
+        fPos = [-1300 -40 520 180*nSessions];
+    end
+    
+    
+    while keepgoing        
+        f = figure('Position',fPos); 
+        
         %Get the row index. 
         thisRow = rows(i);       
         neurons = MAP(thisRow,MAPinds);     %Neurons in this row. 
@@ -150,7 +158,7 @@ function msPlotTimeCells(md,varargin)
                 direction = TTL{thisSession}.direction;         
                 sections = sections_treadmill(x_adj_cm,y_adj_cm,direction,false); 
                 
-                f.Position = [-1300 -40 520 180*nSessions];
+                f.Position = fPos;
                 	pfAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols-2);
                     h = imagesc(x,y,PFS{thisSession}{n}); 
                     set(h,'alphadata',~isnan(PFS{thisSession}{n}));
@@ -178,18 +186,18 @@ function msPlotTimeCells(md,varargin)
             end
             
             %Occupancy map. 
-            if ~isnan(n) && n~=0 && pf && logical(all(isnan(PFS{thisSession}{n}(:))))
+            if ~isnan(n) && n~=0 && pf && logical(all(PFS{thisSession}{n}(:)==0))
                 f.Position = [-1300 -40 520 180*nSessions];
                     pfAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols-2);
-                    h = imagesc(OCCMAPS{thisSession}); 
-                    set(h,'alphadata',~isnan(OCCMAPS{thisSession}));
+                    h = imagesc(RUNOCCMAPS{thisSession}); 
+                    set(h,'alphadata',~isnan(RUNOCCMAPS{thisSession}));
                     axis off; colormap gray; freezeColors;
                     
                 pfExist(thisSession) = false; 
             end
             
             if (isnan(n) || n==0) && pf     %Blank.
-                f.Position = [-1300 -40 520 180*nSessions];
+                f.Position = fPos;
                     pfAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols-2);
                     imagesc(0); axis off; colormap gray; freezeColors;
                 
@@ -287,7 +295,7 @@ function msPlotTimeCells(md,varargin)
         
         %Scroll through neurons. 
         [keepgoing,i] = scroll(i,length(rows),f);
-
+        close all;
     end
     
     cd(initDir); 

@@ -18,7 +18,7 @@ function PlotStability(mds,type,mid)
 %       type
 %           'distance': Deviation of sorted peak location from original
 %           base sesssion.
-%           'correlation': Pairwise Spearman correlations for each time
+%           'correlation': Pairwise Pearson correlations for each time
 %           cell. 
 %       
 %       mid: Logical. If true, makes the reference the middle session (if
@@ -101,7 +101,7 @@ function PlotStability(mds,type,mid)
         %Get neurons across days and rank TCs according to the base
         %session.
         Ts = [DATA.t{mdIdx}];
-        [normtilemat,sortedPeaks] = msPastalkovaPlot(mapMDs(a),baseMD,compMDs,Ts,false);
+        [normtilemat,sortedPeaks] = msPastalkovaPlot(baseMD,compMDs,Ts,false);
         [nTCs,nSessions] = size(sortedPeaks);
         
         %Compute stability. 

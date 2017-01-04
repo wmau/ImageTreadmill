@@ -1,5 +1,5 @@
-function mapMD = getMapMD(md)
-%mapMD = getMapMD(md)
+function mapMD = getMapMD(mds)
+%mapMD = getMapMD(mds)
 %
 %   Gets the batch_session_map for the sessions indicated. These should
 %   already go together. 
@@ -14,9 +14,9 @@ function mapMD = getMapMD(md)
 
 %% Main body. 
     initDir = pwd; 
-    animals =   {md.Animal}; 
-    dates =     {md.Date};
-    sessions =  [md.Session]; 
+    animals =   {mds.Animal}; 
+    dates =     {mds.Date};
+    sessions =  [mds.Session]; 
     
     loadMD;
     %Insert batch_session_map directory here for additional animals.

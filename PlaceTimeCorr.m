@@ -35,7 +35,7 @@ function [pCorr,tCorr,MAP,MAPcols,DATA,noi] = PlaceTimeCorr(MAPMD,MD1,MD2,noi)
     
     DATA = CompileMultiSessionData(sessions,...
         {'timecells','curves','placefields','placefieldsunsmoothed',...
-        'placefieldpvals','ratebylap','delays','complete','occmaps'}); 
+        'placefieldpvals','ratebylap','delays','complete','runoccmaps'}); 
    
     %Neurons of interest, aka time cells with place fields.
     nNeurons = length(DATA.placefieldsunsmoothed{1}); 

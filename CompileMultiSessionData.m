@@ -115,7 +115,7 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %PLACE FIELDS. 
         if any(strcmp('placefields',args))
-            load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','OccMap'); 
+            load(fullfile(pwd,'Placefields.mat'),'TMap_gauss','OccMap'); 
             for j=1:length(TMap_gauss)
                 TMap_gauss{j}(OccMap==0) = nan;
             end
@@ -124,7 +124,7 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %PLACE FIELDS version 2, no NaNs. 
         if any(strcmp('placefieldsnonan',args))
-            load(fullfile(pwd,'PlaceMaps.mat'),'TMap_gauss','RunOccMap'); 
+            load(fullfile(pwd,'Placefields.mat'),'TMap_gauss','RunOccMap'); 
             for j=1:length(TMap_gauss)
                 TMap_gauss{j}(RunOccMap==0) = 0;
             end
