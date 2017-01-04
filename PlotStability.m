@@ -176,6 +176,7 @@ function PlotStability(mds,type,mid)
     ci = nan(maxnSessions,2);
     for s=1:maxnSessions
         N = length(sSTABILITY{s});
+        sSTABILITY{s} = sort(sSTABILITY{s});
         ci(s,1) = sSTABILITY{s}(round(0.05*N));     %Lower bound.
         ci(s,2) = sSTABILITY{s}(round(0.95*N));     %Upper bound. 
     end
