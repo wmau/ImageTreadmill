@@ -1,4 +1,4 @@
-function [sortedPastalkova,order] = PastalkovaPlot(MD,T,plotit)
+function [sortedPastalkova,order] = PastalkovaPlot(MD,plotit)
 %sortedPastalKova = PastalkovaPlot(animal,date,session,T)
 %
 %   Makes a plot that shows response curves that tile the delay. 
@@ -7,9 +7,9 @@ function [sortedPastalkova,order] = PastalkovaPlot(MD,T,plotit)
     cd(MD.Location); 
     
     try
-        load('TimeCells.mat','TimeCells','curves'); 
+        load('TimeCells.mat','TimeCells','curves','T'); 
     catch
-        [TimeCells,ratebylap,curves] = FindTimeCells(MD,T); 
+        [TimeCells,ratebylap,curves] = FindTimeCells(MD,10); 
         tempInfo(MD);        
     end 
     load('TemporalInfo.mat','sig');

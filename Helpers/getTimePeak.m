@@ -29,9 +29,9 @@ function [t,m] = getTimePeak(MD)
     raster = cell(nNeurons,1);
     for n=1:nNeurons
         raster{n} = buildRaster(inds,PSAbool,n,'onsets',false);
-        [~,bin] = find(raster{n});
         
-        m(n) = median(bin)/20; 
+        flat = mean(raster{n});
+        m(n) = mean(find(flat==max(flat)))/20;
     end
     
     
