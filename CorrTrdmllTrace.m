@@ -23,7 +23,11 @@ function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
     mapMD = getMapMD(ref);
     matchMat = msMatchCells(mapMD,ssns,noi,true);
     
-    nNeurons = length(DATA.curves{1}.tuning);
+    try
+        nNeurons = length(DATA.curves{1}.tuning);
+    catch
+        nNeurons = size(DATA.(tracetype){1},3);
+    end
     corrStats = nan(nNeurons,2);
     
 %% Do correlations.
@@ -35,7 +39,7 @@ function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
             case 'curves'
                 tf1 = DATA.curves{1}.tuning{n1}';
                 tf2 = DATA.curves{2}.tuning{n2}';
-            case {'rawtrdmll','difftrdmll','tracetrdmll'}
+            case {'rawtrdmll','dfdttrdmll','lptrdmll'}
                 tf1 = mean(DATA.(tracetype){1}(:,:,n1))';
                 tf2 = mean(DATA.(tracetype){2}(:,:,n2))';
         end

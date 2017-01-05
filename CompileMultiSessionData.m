@@ -49,8 +49,8 @@ function DATA = CompileMultiSessionData(MD,args)
                     'placefieldpvals',...
                     'a',...
                     'rawtrdmll',...
-                    'difftrdmll',...
-                    'tracetrdmll',...
+                    'dfdttrdmll',...
+                    'lptrdmll',...
                     'si',...
                     'ti',...
                     'placecells'};
@@ -159,20 +159,20 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %RAW TRACES ON TREADMILL.
         if any(strcmp('rawtrdmll',args))
-            load(fullfile(pwd,'TreadmillTraces.mat'),'rawtrdmll');
-            DATA.rawtrdmll{i} = rawtrdmll; 
+            load(fullfile(pwd,'TreadmillTraces.mat'),'RawTrdmll');
+            DATA.rawtrdmll{i} = RawTrdmll; 
         end
         
         %DIFFERENTIAL TRACES ON TREADMILL.
-        if any(strcmp('difftrdmll',args))
-            load(fullfile(pwd,'TreadmillTraces.mat'),'difftrdmll');
-            DATA.difftrdmll{i} = difftrdmll; 
+        if any(strcmp('dfdttrdmll',args))
+            load(fullfile(pwd,'TreadmillTraces.mat'),'DFDTTrdmll');
+            DATA.dfdttrdmll{i} = DFDTTrdmll; 
         end
         
         %Z-SCORE TRACES ON TREADMILL.
-        if any(strcmp('tracetrdmll',args))
-            load(fullfile(pwd,'TreadmillTraces.mat'),'tracetrdmll');
-            DATA.tracetrdmll{i} = tracetrdmll; 
+        if any(strcmp('lptrdmll',args))
+            load(fullfile(pwd,'TreadmillTraces.mat'),'LPtrdmll');
+            DATA.lptrdmll{i} = LPtrdmll; 
         end
         
         %SPATIAL INFORMATION

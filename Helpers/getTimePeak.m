@@ -15,7 +15,7 @@ function [t,m] = getTimePeak(MD)
 %%
     load(fullfile(MD.Location,'TimeCells.mat'),'curves','T','ratebylap',...
         'TodayTreadmillLog');
-    load(fullfile(MD.Location,'Pos_align.mat'),'FT');
+    load(fullfile(MD.Location,'Pos_align.mat'),'PSAbool');
     inds = TrimTrdmllInds(TodayTreadmillLog,T); 
     
     %Get tuning curve peak. 
@@ -28,7 +28,7 @@ function [t,m] = getTimePeak(MD)
     m = zeros(nNeurons,1);
     raster = cell(nNeurons,1);
     for n=1:nNeurons
-        raster{n} = buildRaster(inds,FT,n,'onsets',false);
+        raster{n} = buildRaster(inds,PSAbool,n,'onsets',false);
         [~,bin] = find(raster{n});
         
         m(n) = median(bin)/20; 
