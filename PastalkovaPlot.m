@@ -5,12 +5,15 @@ function [sortedPastalkova,order] = PastalkovaPlot(MD,T,plotit)
 
 %% Make a plot that shows response curves that tile the delay. 
     cd(MD.Location); 
-
+    
     try
-        load('TimeCells.mat'); 
+        load('TimeCells.mat','TimeCells','curves'); 
     catch
         [TimeCells,ratebylap,curves] = FindTimeCells(MD,T); 
+        tempInfo(MD);        
     end 
+    load('TemporalInfo.mat','sig');
+    TimeCells = intersect(find(sig),TimeCells);
     
     %Concatenate all time cell tuning curves.
     tilemat = cell2mat(curves.tuning(TimeCells));
