@@ -11,14 +11,12 @@ function PlotNeurons(md,neurons,col,thickness)
 %
 
 %% Plot neurons. 
-    cd(md.Location); load('FinalOutput.mat','NeuronImage');
+    cd(md.Location); 
+    load('MovieDims.mat','Xdim','Ydim');
     
-    w = whos('-file','FinalOutput.mat');
-    if any(strcmp({w.name},'xOutline'))
-        load('FinalOutput.mat','xOutline','yOutline'); 
-    elseif exist('PlaceMaps.mat','file')
-        load('PlaceMaps.mat','xOutline','yOutline'); 
-    else
+    load('FinalOutput.mat','xOutline','yOutline');
+    if ~exist('xOutline','var')
+        load('FinalOutput.mat','NeuronImage');
         NumNeurons = length(NeuronImage);
 
         xOutline = cell(NumNeurons,1);
@@ -32,8 +30,6 @@ function PlotNeurons(md,neurons,col,thickness)
         
         save('FinalOutput.mat','xOutline','yOutline','-append');
     end
-    
-    [Xdim,Ydim] = size(NeuronImage{1});
         
     hold on; 
     for i=neurons
