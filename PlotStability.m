@@ -173,15 +173,15 @@ function PlotStability(mds,type,mid)
     end
     
     %Calculate shuffle control mean and CI.
+    sMEANSTABILITY = cellfun(@nanmean,sSTABILITY);  %Shuffle mean.
     ci = nan(maxnSessions,2);
     for s=1:maxnSessions
         N = length(sSTABILITY{s});
         sSTABILITY{s} = sort(sSTABILITY{s});
-        ci(s,1) = sSTABILITY{s}(round(0.05*N));     %Lower bound.
-        ci(s,2) = sSTABILITY{s}(round(0.95*N));     %Upper bound. 
+        ci(s,1) = sMEANSTABILITY(s) - sSTABILITY{s}(round(0.05*N));     %Lower bound.
+        ci(s,2) = -(sMEANSTABILITY(s) - sSTABILITY{s}(round(0.95*N)));  %Upper bound. 
     end
-    sMEANSTABILITY = cellfun(@nanmean,sSTABILITY);  %Shuffle mean.
-    ci = abs(ci-repmat(sMEANSTABILITY',1,2));       %Shuffle CI.
+    %ci = abs(ci-repmat(sMEANSTABILITY',1,2));       %Shuffle CI.
     MEANSTABILITY = cellfun(@nanmean,STABILITY);    %Empirical mean.
 
     %Not smoothed. 
