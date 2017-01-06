@@ -54,7 +54,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             %stblcrit = .001;
             
             %Get time cells.
-            TCs = intersect(find(sig),TimeCells);
+            TCs = intersect(TimeCells,find(sig));
               
             %Get all time cells with a viable place field. 
             idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
@@ -66,21 +66,21 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             if strcmp(statType,'TI')
                 load('TemporalInfo.mat','MI','Ispk','Isec');
                 stat = MI; 
-                noi = TCs;
+                stat = stat./max(stat);
             elseif strcmp(statType,'SI')
                 load('SpatialInfo.mat','MI','Ispk','Isec');
                 stat = MI;
-                noi = PCs;
+                stat = stat./max(stat);
             elseif strcmp(statType,'FR')
-%                 load('Pos_align.mat','PSAbool');
-%                 [n,f] = size(PSAbool);
+                load('Pos_align.mat','PSAbool');
+                [n,f] = size(PSAbool);
 %                 d = diff([zeros(n,1) PSAbool],1,2);
 %                 d(d<0) = 0;
-%                 stat = sum(d,2)./f; 
-%                 stat = getAvgFiringRate(d,1);
+                stat = sum(PSAbool,2)./f; 
+                stat = stat./max(stat);
 
-                load('Pos_align.mat','DFDTtrace');
-                stat = mean(DFDTtrace,2);
+%                 load('Pos_align.mat','DFDTtrace');
+%                 stat = mean(DFDTtrace,2);
 
 %                 load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','T');
 %                 load(fullfile(pwd,'Pos_align.mat'),'PSAbool');
@@ -98,7 +98,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             if strcmp(stabilityCriterion,'time')
                 if strcmp(statType,'SI')
                     noi = intersect(PCs,TCs);
-                elseif strcmp(statType,'FR')
+                elseif any(strcmp(statType,{'TI','FR'}))
                     noi = TCs;
                 end
                 
@@ -116,7 +116,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             elseif strcmp(stabilityCriterion,'place')
                 if strcmp(statType,'TI')
                     noi = intersect(PCs,TCs);
-                elseif strcmp(statType,'FR')
+                elseif any(strcmp(statType,{'FR','SI'}))
                     noi = PCs;
                 end
                 

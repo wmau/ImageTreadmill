@@ -29,7 +29,7 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
 
 %% Set up.
     STATS = PartitionStats(mds,stabilityCriterion,predictor);
-    B = 1000;
+    B = 500;
     
     %Concatenate statistics.
     sStats = cell2mat(STATS.stable');

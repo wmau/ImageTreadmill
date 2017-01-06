@@ -8,10 +8,10 @@
     %MD(300:304) = Bellatrix.
     %MD(305:309) = Polaris.
     fulldataset = MD(292:309);      
-    %fulldataset(9:13) = [];
+    fulldataset(9:13) = [];
 
     %Some initial variables. 
-    fPos = [520 350 300 450];
+    
     teal = [0 .5 .5];
     purple = [.58 .44 .86];
     
@@ -24,6 +24,7 @@
 %     scatter([s,us]',[S,US]',2,'filled');
 %     [~,p] = corr([s,us]',[S,US]')
     
+    fPos = [-1900 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Temporal Information [bits]','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
@@ -34,6 +35,7 @@
 %% Step 2: Depict temporal information based on spatial stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','TI');
     
+    fPos = [-1600 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Temporal Information [bits]','boxColor',purple,'position',...
         fPos,'circleColors',[sColors;usColors]);
@@ -48,7 +50,8 @@
 %     figure;
 %     scatter([s,us]',[S,US]',2,'filled');
 %     [~,p] = corr([s,us]',[S,US]')
-    
+
+    fPos = [-1300 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Spatial Information [bits]','boxColor',purple,'position',...
         fPos,'circleColors',[sColors;usColors]);
@@ -59,6 +62,7 @@
 %% Step 4: Depict spatial information based on temporal stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','SI');
 
+    fPos = [-1000 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Spatial Information [bits]','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
@@ -69,6 +73,7 @@
 %% Step 5: Depict firing rate based on temporal stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','FR');
 
+    fPos = [-700 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Transient Frequency','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
@@ -79,6 +84,7 @@
 %% Step 6: Depict firing rate based on spatial stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','FR');
 
+    fPos = [-400 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Transient Frequency','boxColor',purple,'position',...
         fPos,'circleColors',[sColors;usColors]);
