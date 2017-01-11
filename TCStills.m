@@ -11,7 +11,7 @@ function TCStills(md,varargin)
     load('Pos_align.mat','FToffset');
     [inds,nRuns] = TrimTrdmllInds(TodayTreadmillLog,T);
     totalNeurons = length(xOutline);
-    load('ProcOut.mat','Xdim','Ydim');
+    load('MovieDims.mat','Xdim','Ydim');
     
     p = inputParser;
     p.addRequired('md',@(x) isstruct(x));

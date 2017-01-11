@@ -29,7 +29,7 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
 
 %% Set up.
     STATS = PartitionStats(mds,stabilityCriterion,predictor);
-    B = 500;
+    B = 1000;
     
     %Concatenate statistics.
     sStats = cell2mat(STATS.stable');
@@ -40,7 +40,7 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
     nUnstable = length(usStats);
     
     %Get the lower number. This will be the sample size for each group. 
-    sampSize = min([nStable,nUnstable]);
+    sampSize = round(min([nStable,nUnstable])*.7);
     
     X = [   sStats(randsample(nStable,sampSize));...
             usStats(randsample(nUnstable,sampSize))];
@@ -69,6 +69,6 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
     p.stop;
     
     %p-value.
-    p = sum(accuracy < shuffle)/B;
+    p = sum(accuracy <= shuffle)/B;
     
 end

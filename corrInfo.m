@@ -5,7 +5,7 @@ function corrInfo(mds)
 
 %%
     DATA = CompileMultiSessionData(mds,{'si','ti','timecells','placecells'}); 
-    B = 10000;
+    B = 1000;
     corrtype = 'spearman';
     
     nSessions = length(mds);
@@ -21,21 +21,26 @@ function corrInfo(mds)
         either{s} = union(DATA.timecells{s},DATA.placecells{s});   
     end
     
+    for s = 1:nSessions
+        DATA.si{s}(both{s}) = zscore(DATA.si{s}(both{s}));
+        DATA.ti{s}(both{s}) = zscore(DATA.ti{s}(both{s}));
+    end
+    
     SI = cell2mat(cellfun(@(x,y) x(y),DATA.si,both,'unif',0)');
     TI = cell2mat(cellfun(@(x,y) x(y),DATA.ti,both,'unif',0)');
     
     h = scatter(SI,TI,10,'k','filled');
     alpha(h,.5); 
     
-    [r,pval] = corr(SI,TI,'type',corrtype); 
-    r = r^2
-    pval 
+    [r,pval] = corr(SI,TI,'type',corrtype)
+%     r = r^2
+%     pval 
     
     shuffle = zeros(1,B); 
     for i=1:B
         shuffle(i) = corr(SI,TI(randperm(length(TI))),'type',corrtype);
     end
-    shuffle = shuffle.^2;
+%     shuffle = shuffle.^2;
     p = sum(r<shuffle)/B
     
 end

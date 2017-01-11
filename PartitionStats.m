@@ -24,6 +24,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
 %% Set up.
     animals = unique({mds.Animal});
     nAnimals = length(animals); 
+    statType = lower(statType);
 
 %% Compile
     STATS.stable = cell(1,nAnimals);
@@ -63,21 +64,45 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             load('SpatialInfo.mat','MI');
             PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>4);
                         
-            if strcmp(statType,'TI')
+            if strcmp(statType,'ti')
                 load('TemporalInfo.mat','MI','Ispk','Isec');
-                stat = MI; 
-                stat = stat./max(stat);
-            elseif strcmp(statType,'SI')
+                stat = MI;                
+                
+                if strcmp(stabilityCriterion,'time')
+                    noi = TCs;
+                elseif strcmp(stabilityCriterion,'place')
+                    noi = intersect(TCs,PCs);
+                end
+            elseif strcmp(statType,'si')
                 load('SpatialInfo.mat','MI','Ispk','Isec');
                 stat = MI;
-                stat = stat./max(stat);
-            elseif strcmp(statType,'FR')
+                
+                if strcmp(stabilityCriterion,'time')
+                    noi = intersect(TCs,PCs);
+                elseif strcmp(stabilityCriterion,'place')
+                    noi = PCs;
+                end
+                
+            elseif strcmp(statType,'pk')
+                [~,stat] = getTimePeak(mds(ssns(s)));
+                
+                if strcmp(stabilityCriterion,'time')
+                    noi = TCs;
+                end           
+                
+            elseif strcmp(statType,'fr')
                 load('Pos_align.mat','PSAbool');
-                [n,f] = size(PSAbool);
+                [n,f] = s
+                ize(PSAbool);
 %                 d = diff([zeros(n,1) PSAbool],1,2);
 %                 d(d<0) = 0;
                 stat = sum(PSAbool,2)./f; 
-                stat = stat./max(stat);
+                
+                if strcmp(stabilityCriterion,'time')
+                    noi = TCs;
+                elseif strcmp(stabilityCriterion,'place')
+                    noi = PCs;
+                end
 
 %                 load('Pos_align.mat','DFDTtrace');
 %                 stat = mean(DFDTtrace,2);
@@ -91,17 +116,18 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
 %                 for nn=1:n
 %                     rasters{nn} = buildRaster(inds,PSAbool,nn,'onsets',false);
 %                     stat(nn) = sum(rasters{nn}(:))./numel(rasters{nn});
-%                 end
-                         
+%                 end                       
             end
-                    
-            if strcmp(stabilityCriterion,'time')
-                if strcmp(statType,'SI')
-                    noi = intersect(PCs,TCs);
-                elseif any(strcmp(statType,{'TI','FR'}))
-                    noi = TCs;
-                end
-                
+            
+            %stat = (stat-min(stat))./range(stat);
+            if strcmp(statType,'fr')
+                stat = (stat-min(stat))./range(stat);
+            else
+                stat(noi) = zscore(stat(noi));
+            end
+            
+                       
+            if strcmp(stabilityCriterion,'time')           
                 %Get correlation coefficients and p-values. 
                 corrStats = CorrTrdmllTrace(mds(ssns(s)),mds(ssns(s+1)),noi);
                 
@@ -114,11 +140,6 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
                 unstable{a}{s} = intersect(find(corrStats(:,2) >= stblcrit | isnan(corrStats(:,2))),noi);
          
             elseif strcmp(stabilityCriterion,'place')
-                if strcmp(statType,'TI')
-                    noi = intersect(PCs,TCs);
-                elseif any(strcmp(statType,{'FR','SI'}))
-                    noi = PCs;
-                end
                 
                 %Get the correlation coefficients and p-values.
                 corrStats = CorrPlaceFields(mds(ssns(s)),mds(ssns(s+1)),noi);

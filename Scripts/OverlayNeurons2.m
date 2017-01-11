@@ -1,13 +1,14 @@
 clear
 close all;
 loadMD;
-s1 = MD(296);
-s2 = MD(297);
+s1 = MD(292);
+s2 = MD(293);
 
+cd(s1.Location);
 mapMD = getMapMD([s1,s2]);
 
 load(fullfile(s1.Location,...
-    'RegistrationInfo-GCamp6f_48_treadmill-04_19_2016-session10.mat'));
+    'RegistrationInfo-GCamp6f_45_treadmill-12_01_2015-session10.mat'));
 
 load(fullfile(s1.Location,'FinalOutput.mat'),'PSAbool');
 n1 = size(PSAbool,1); 
@@ -33,4 +34,4 @@ for n=1:n2
     plot(y{n},x{n},'color',[1 0 0 .4],'linewidth',2);
 end
 
-line([0 100/1.16],[0 0],'linewidth',5,'color','k');
+line([0 100],[0 0],'linewidth',5,'color','k');

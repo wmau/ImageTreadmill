@@ -16,9 +16,9 @@ for i=292:294
     [t1,m1] = getTimePeak(MD(i));
     [t2,m2] = getTimePeak(MD(i+1));
 
-    h = scatter(m1(stable(:,1)),m2(stable(:,2)),10,'g','filled'); 
+    h = scatter(m1(stable(:,1)),m2(stable(:,2)),20,'g','filled'); 
     alpha(h,.5);
-    h = scatter(m1(unstable(:,1)),m2(unstable(:,2)),10,'k','filled');
+    h = scatter(m1(unstable(:,1)),m2(unstable(:,2)),20,'k','filled');
     alpha(h,.5);
 end
 
@@ -39,9 +39,9 @@ for i=296:298
     [t1,m1] = getTimePeak(MD(i));
     [t2,m2] = getTimePeak(MD(i+1));
 
-    h = scatter(m1(stable(:,1)),m2(stable(:,2)),10,'g','filled'); 
+    h = scatter(m1(stable(:,1)),m2(stable(:,2)),20,'g','filled'); 
     alpha(h,.5);
-    h = scatter(m1(unstable(:,1)),m2(unstable(:,2)),10,'k','filled');
+    h = scatter(m1(unstable(:,1)),m2(unstable(:,2)),20,'k','filled');
     alpha(h,.5);
 end
 
@@ -62,9 +62,9 @@ for i=300:303
     [t1,m1] = getTimePeak(MD(i));
     [t2,m2] = getTimePeak(MD(i+1));
 
-    h = scatter(m1(stable(:,1)),m2(stable(:,2)),10,'g','filled'); 
+    h = scatter(m1(stable(:,1)),m2(stable(:,2)),20,'g','filled'); 
     alpha(h,.5);
-    h = scatter(m1(unstable(:,1)),m2(unstable(:,2)),10,'k','filled');
+    h = scatter(m1(unstable(:,1)),m2(unstable(:,2)),20,'k','filled');
     alpha(h,.5);
 end
 
@@ -85,9 +85,9 @@ for i=305:308
     [t1,m1] = getTimePeak(MD(i));
     [t2,m2] = getTimePeak(MD(i+1));
 
-    h = scatter(m1(stable(:,1)),m2(stable(:,2)),10,'g','filled'); 
+    h = scatter(m1(stable(:,1)),m2(stable(:,2)),20,'g','filled'); 
     alpha(h,.5);
-    h = scatter(m1(unstable(:,1)),m2(unstable(:,2)),10,'k','filled');
+    h = scatter(m1(unstable(:,1)),m2(unstable(:,2)),20,'k','filled');
     alpha(h,.5);
 end
 line([0 10], [0 10],'color','k','linestyle',':');

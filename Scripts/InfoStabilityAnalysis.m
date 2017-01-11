@@ -8,7 +8,7 @@
     %MD(300:304) = Bellatrix.
     %MD(305:309) = Polaris.
     fulldataset = MD(292:309);      
-    fulldataset(9:13) = [];
+    %fulldataset(9:13) = [];
 
     %Some initial variables. 
     
@@ -30,7 +30,8 @@
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
-    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
+    d = cohensD(s,us);
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen''s d = ',num2str(d)]});
     
 %% Step 2: Depict temporal information based on spatial stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','TI');
@@ -41,7 +42,8 @@
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
-    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
+    d = cohensD(s,us);
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen''s d = ',num2str(d)]});
     
 %% Step 3: Depict spatial information based on spatial stability. 
      [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','SI');
@@ -57,7 +59,8 @@
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
-    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
+    d = cohensD(s,us);
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen''s d = ',num2str(d)]});
     
 %% Step 4: Depict spatial information based on temporal stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','SI');
@@ -68,7 +71,8 @@
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
-    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
+    d = cohensD(s,us);
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen''s d = ',num2str(d)]});
     
 %% Step 5: Depict firing rate based on temporal stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','FR');
@@ -79,7 +83,8 @@
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
-    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
+    d = cohensD(s,us);
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen''s d = ',num2str(d)]});
     
 %% Step 6: Depict firing rate based on spatial stability. 
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','FR');
@@ -90,7 +95,20 @@
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
-    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)]});
+    d = cohensD(s,us);
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen''s d = ',num2str(d)]});
+    
+%%
+    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','pk');
+
+    fPos = [-400 460 300 450];
+    boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
+        'yLabel','Time Peak [s]','boxColor',purple,'position',...
+        fPos,'circleColors',[sColors;usColors]);
+    [~,kp] = kstest2(s,us);
+    tp = ranksum(s,us); 
+    d = cohensD(s,us);
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen"s d = ',num2str(d)]});
     
 %% Nested function
 function [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(data,stability,infoType)
