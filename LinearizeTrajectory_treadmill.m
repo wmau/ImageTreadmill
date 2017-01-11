@@ -111,13 +111,13 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             X(X(onstem)>stemlength) = stemlength;   %Distance on stem can't be longer than length of stem. 
             
         %No alternation.
-        case 'left'
+        case {'left','right'}
             bounds = sections_treadmill(x,y,mazetype,0);
             [sect,x,y] = getsection_treadmill(x,y,bounds); 
 
             %Indices where mouse was on stem. 
             onstem = sect==2 | sect==1 | sect==3; 
-
+            
             %Find middle of the stem. 
             centroidx = mean([bounds.choice.x(1),bounds.base.x(2)]); 
             centroidy = mean(y(onstem)); 
@@ -132,10 +132,10 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             behind = onstem' & cosang>0;
             ahead = onstem' & cosang<0;
             maxback = max(radii(behind) .* cosang(behind)); 
-            maxfront = -min(radii(ahead) .* cosang(ahead)); 
+            maxfront = max(radii(ahead) .* -cosang(ahead)); 
             
             %Create a polar definition of the maze based on the mean of the
-            %radius at each angle bin. 
+            %radius at each angle bin while the mouse is on not the stem. 
             sparseang = [angs(~onstem)'; 0; pi];
             sparserad = [radii(~onstem)'; maxback; maxfront]; 
             angdef=linspace(0,2*pi,nbins)';
@@ -143,11 +143,11 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             bad = ismember(angidx,find(n<10)); angidx(bad)=[]; sparserad(bad)=[];    %Get rid of low sampling. 
             meanrad = accumarray(angidx,sparserad,[nbins,1],@mean);
             
-            mazedef = smooth(meanrad,10,'rloess'); 
+            mazedef = smooth(meanrad,nbins/20,'moving'); 
 
             [xdef,ydef] = pol2cart(angdef,mazedef);
             cumdist = [0; cumsum(hypot(diff(xdef),diff(ydef)))];
-            cumdist = cumdist + stemlength; 
+            cumdist = cumdist-min(cumdist(cumdist~=0));
               
             %Find linearized distance by angular interpolation. 
             X=interp1(angdef,cumdist,angs,'pchip');

@@ -32,7 +32,7 @@ function bounds = sections_treadmill(x,y,direction,plotit)
     
     switch direction
         case 'left'
-            centerY =   [ymin+cy*w      ymin+cy*w       ymin+cy*1.5*w   ymin+cy*1.5*w];
+            centerY =   [ymin+cy*w      ymin+cy*w       ymax            ymax];
         case 'right'
             centerY =   [ymin           ymin            ymin+w          ymin+w];
         case 'alternation'

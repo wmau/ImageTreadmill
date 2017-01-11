@@ -1,4 +1,4 @@
-function [rate,normRates,sortedRates,order,X] = LinearizedPFs_treadmill(MD)
+function [rate,normRates,sortedRates,order,X,edges] = LinearizedPFs_treadmill(MD)
 %[normRate,sortedRate] = LinearizedPFs_treadmill(MD,FT)
 %
 %   Linearizes trajectory then computes place fields by binning FT
@@ -34,13 +34,13 @@ function [rate,normRates,sortedRates,order,X] = LinearizedPFs_treadmill(MD)
     end
     
     %Some parameters. 
-    nBins = 60;     %Spatial bins.
+    nBins = 80;     %Spatial bins.
     minspeed = 3;   %Speed threshold (cm/s). 
     
     %Load aligned position data. 
-    load(fullfile(pwd,'Pos_align.mat'),'x_adj_cm','y_adj_cm','speed','time_interp','FT');
-    x=x_adj_cm; y=y_adj_cm; FT=logical(FT); clear x_adj_cm y_adj_cm;
-    [nNeurons,nFrames] = size(FT); 
+    load(fullfile(pwd,'Pos_align.mat'),'x_adj_cm','y_adj_cm','speed','time_interp','PSAbool');
+    x=x_adj_cm; y=y_adj_cm; PSAbool=logical(PSAbool); clear x_adj_cm y_adj_cm;
+    [nNeurons,nFrames] = size(PSAbool); 
     
     %Exclude treadmill epochs. 
     inds = TodayTreadmillLog.inds;
@@ -64,7 +64,7 @@ function [rate,normRates,sortedRates,order,X] = LinearizedPFs_treadmill(MD)
     %Bin spatial responses. 
     rate = nan(nNeurons,nBins);
     for n=1:nNeurons
-        spkpos = X(FT(n,:) & isrunning & ~onTM);
+        spkpos = X(PSAbool(n,:) & isrunning & ~onTM);
         
         binned = histcounts(spkpos,edges);
         
