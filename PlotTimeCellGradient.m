@@ -17,7 +17,7 @@ function plotTimeCellGradient(md)
     nNeurons = size(PSAbool,1);
     nTCs = length(TimeCells); 
     c = colormap(jet(nTCs)); 
-    [~,order] = PastalkovaPlot(md,T,false);
+    [~,order] = PastalkovaPlot(md,false);
     TimeCells = TimeCells(order);
     
     PlotNeurons(md,1:nNeurons,[.7 .7 .7],1);

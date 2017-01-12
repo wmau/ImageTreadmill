@@ -71,6 +71,8 @@ function [rate,normRates,sortedRates,order,X,edges] = LinearizedPFs_treadmill(MD
         rate(n,:) = binned ./ occ; 
     end
     
+
+    
     %Find peak and normalize. 
     [peak,inds] = max(rate,[],2);     
     normRates = bsxfun(@rdivide,rate,peak);
@@ -81,9 +83,16 @@ function [rate,normRates,sortedRates,order,X,edges] = LinearizedPFs_treadmill(MD
         normRates(n,:) = imfilter(normRates(n,:),sm);
     end
     
+    load(fullfile(pwd,'Placefields.mat'),'pval');
+    load(fullfile(pwd,'PlacefieldStats.mat'),'PFnHits','bestPF');
+    load(fullfile(pwd,'SpatialInfo.mat'),'MI'); 
+    idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');
+    PCcrit = .01;
+    PCs = pval<PCcrit & MI'>0 & PFnHits(idx)>4; 
+    
     %Sort. 
-    [~,order] = sort(inds); 
-    sortedRates = normRates(order,:);
+    [~,order] = sort(inds(PCs)); 
+    sortedRates = normRates(PCs(order),:);
     
     cd(currdir); 
 end

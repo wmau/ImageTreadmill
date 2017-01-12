@@ -1,4 +1,4 @@
-function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterion,statType)
+function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,statType)
 %[STATS,nNeurons,stable,unstable] = PartitionStats(mds,celltype,infotype)
 %
 %   Partitions an arbitrary neuron statistic based on stability in the
@@ -57,7 +57,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             %Get time cells.
             TCs = intersect(TimeCells,find(sig));
               
-            %Get all time cells with a viable place field. 
+            %Matrix index. 
             idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
             
             %Get place cells. 
@@ -68,40 +68,39 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
                 load('TemporalInfo.mat','MI','Ispk','Isec');
                 stat = MI;                
                 
-                if strcmp(stabilityCriterion,'time')
-                    noi = TCs;
-                elseif strcmp(stabilityCriterion,'place')
-                    noi = intersect(TCs,PCs);
+                if strcmp(stabilityType,'time')
+                    neurons = TCs;
+                elseif strcmp(stabilityType,'place')
+                    neurons = intersect(TCs,PCs);
                 end
             elseif strcmp(statType,'si')
                 load('SpatialInfo.mat','MI','Ispk','Isec');
                 stat = MI;
                 
-                if strcmp(stabilityCriterion,'time')
-                    noi = intersect(TCs,PCs);
-                elseif strcmp(stabilityCriterion,'place')
-                    noi = PCs;
+                if strcmp(stabilityType,'time')
+                    neurons = intersect(TCs,PCs);
+                elseif strcmp(stabilityType,'place')
+                    neurons = PCs;
                 end
                 
             elseif strcmp(statType,'pk')
                 [~,stat] = getTimePeak(mds(ssns(s)));
                 
-                if strcmp(stabilityCriterion,'time')
-                    noi = TCs;
+                if strcmp(stabilityType,'time')
+                    neurons = TCs;
                 end           
                 
             elseif strcmp(statType,'fr')
                 load('Pos_align.mat','PSAbool');
-                [n,f] = s
-                ize(PSAbool);
+                [n,f] = size(PSAbool);
 %                 d = diff([zeros(n,1) PSAbool],1,2);
 %                 d(d<0) = 0;
                 stat = sum(PSAbool,2)./f; 
                 
-                if strcmp(stabilityCriterion,'time')
-                    noi = TCs;
-                elseif strcmp(stabilityCriterion,'place')
-                    noi = PCs;
+                if strcmp(stabilityType,'time')
+                    neurons = TCs;
+                elseif strcmp(stabilityType,'place')
+                    neurons = PCs;
                 end
 
 %                 load('Pos_align.mat','DFDTtrace');
@@ -123,33 +122,33 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityCriterio
             if strcmp(statType,'fr')
                 stat = (stat-min(stat))./range(stat);
             else
-                stat(noi) = zscore(stat(noi));
+                stat(neurons) = zscore(stat(neurons));
             end
             
                        
-            if strcmp(stabilityCriterion,'time')           
+            if strcmp(stabilityType,'time')           
                 %Get correlation coefficients and p-values. 
-                corrStats = CorrTrdmllTrace(mds(ssns(s)),mds(ssns(s+1)),noi);
+                corrs = CorrTrdmllTrace(mds(ssns(s)),mds(ssns(s+1)),neurons);
                 
                 %[~,stblcrit] = fdr_bh(corrStats(~isnan(corrStats(:,2)),2));
-                stblcrit = .01/length(noi);
+                stblcrit = .01/length(neurons);
 
                 %Stable time cells based on correlation and non-shifting time
                 %field.
-                stable{a}{s} = intersect(find(corrStats(:,2) < stblcrit),noi);
-                unstable{a}{s} = intersect(find(corrStats(:,2) >= stblcrit | isnan(corrStats(:,2))),noi);
+                stable{a}{s} = intersect(find(corrs(:,2) < stblcrit),neurons);
+                unstable{a}{s} = intersect(find(corrs(:,2) >= stblcrit | isnan(corrs(:,2))),neurons);
          
-            elseif strcmp(stabilityCriterion,'place')
+            elseif strcmp(stabilityType,'place')
                 
                 %Get the correlation coefficients and p-values.
-                corrStats = CorrPlaceFields(mds(ssns(s)),mds(ssns(s+1)),noi);
+                corrs = CorrPlaceFields(mds(ssns(s)),mds(ssns(s+1)),neurons);
                 
                 %[~,stblcrit] = fdr_bh(corrStats(~isnan(corrStats(:,2)),2));
-                stblcrit = .01/length(noi);
+                stblcrit = .01/length(neurons);
                 
                 %Stable place cells based on correlation p-value.
-                stable{a}{s} = intersect(find(corrStats(:,2) < stblcrit),noi); 
-                unstable{a}{s} = intersect(find(corrStats(:,2) >= stblcrit | isnan(corrStats(:,2))),noi);     
+                stable{a}{s} = intersect(find(corrs(:,2) < stblcrit),neurons); 
+                unstable{a}{s} = intersect(find(corrs(:,2) >= stblcrit | isnan(corrs(:,2))),neurons);     
             end
            
             %Get number of stable and unstable cells. Add this one per

@@ -53,7 +53,9 @@ function DATA = CompileMultiSessionData(MD,args)
                     'lptrdmll',...
                     'si',...
                     'ti',...
-                    'placecells'};
+                    'placecells',...
+                    'placeorder',...
+                    'timeorder'};
 
     %Check that the arguments match template. 
     for i=1:nArgs
@@ -193,6 +195,31 @@ function DATA = CompileMultiSessionData(MD,args)
             load(fullfile(pwd,'PlacefieldStats.mat'),'PFnHits','bestPF');
             idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
             DATA.placecells{i} = find(pval < .01 & PFnHits(idx) > 4); 
+        end
+        
+        %RANK IN PLACE CELL SEQUENCE.
+        if any(strcmp('placeorder',args))
+            [~,~,~,order] = LinearizedPFs_treadmill(MD(i));
+            load(fullfile(pwd,'Placefields.mat'),'pval');
+            load(fullfile(pwd,'PlacefieldStats.mat'),'PFnHits','bestPF');
+            load(fullfile(pwd,'SpatialInfo.mat'),'MI'); 
+            idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');
+            PCcrit = .01;
+            PCs = pval<PCcrit & MI'>0 & PFnHits(idx)>4; 
+            nNeurons = size(pval,2);
+            DATA.placeorder{i} = zeros(nNeurons,1);
+            DATA.placeorder{i}(PCs) = order./max(order);
+        end
+        
+        %RANK IN TIME CELL SEQUENCE.
+        if any(strcmp('timeorder',args))
+            [~,order] = PastalkovaPlot(MD(i),false);
+            load(fullfile(pwd,'TimeCells.mat'),'TimeCells');
+            load(fullfile(pwd,'TemporalInfo.mat'),'sig');
+            nNeurons = length(sig);
+            TCs = intersect(find(sig),TimeCells); 
+            DATA.timeorder{i} = zeros(nNeurons,1);
+            DATA.timeorder{i}(TCs) = order./max(order);
         end
     end
     
