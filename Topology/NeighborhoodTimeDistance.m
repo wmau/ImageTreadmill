@@ -32,7 +32,7 @@ function NeighborhoodTimeDistance(md,thresholds)
             y2 = centroids(n2,2);
 
             %Anatomical distance. 
-            D(n1,n2) = 1.16*sqrt((x2-x1)^2 + (y2-y1)^2);
+            D(n1,n2) = sqrt((x2-x1)^2 + (y2-y1)^2);
         end
     end
     
