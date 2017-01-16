@@ -42,16 +42,28 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
     %Get the lower number. This will be the sample size for each group. 
     sampSize = round(min([nStable,nUnstable])*.7);
     
-    X = [   sStats(randsample(nStable,sampSize));...
-            usStats(randsample(nUnstable,sampSize))];
+    X = [   sStats;...
+            usStats];
     
     %Define labels.
-    stable = [  ones(sampSize,1);...
-                zeros(sampSize,1)];
+    stable = [  ones(nStable,1);...
+                zeros(nUnstable,1)];
+            
+    [~,minority] = min([nStable nUnstable]);
+    [~,majority] = max([nStable nUnstable]);
+    C = zeros(2);
+    if majority==2             %If there are more unstable...
+        C(minority,majority) = 1;
+        C(majority,minority) = nStable/nUnstable;
+    elseif majority==1         %If there are more stable...
+        C(minority,majority) = 1;
+        C(majority,minority) = nUnstable/nStable;
+    end
                 
 %% Train support vector machine.
-    Mdl = fitcsvm(X,stable,'KernelFunction',krnl,'Standardize',true);
-    CV = crossval(Mdl);
+    Mdl = fitcsvm(X,stable,'KernelFunction',krnl,'ClassNames',[1 0],...
+        'Cost',C);
+    CV = crossval(Mdl,'holdout',.5);
     accuracy = 1-kfoldLoss(CV); 
     
 %% Train support vector machine after shuffling stability labels. 
@@ -59,9 +71,10 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
     disp('Training models based on shuffled labels.');
     p = ProgressBar(B);
     parfor i=1:B
-        rMdl = fitcsvm(X,stable(randperm(length(stable))),'KernelFunction',...
-            krnl,'Standardize',true);
-        rCV = crossval(rMdl); 
+        r = stable(randperm(length(stable)))
+        rMdl = fitcsvm(X,r,'KernelFunction',krnl,'ClassNames',[1 0],...
+            'Cost',C);
+        rCV = crossval(rMdl,'holdout',.5); 
         shuffle(i) = 1-kfoldLoss(rCV); 
         
         p.progress;

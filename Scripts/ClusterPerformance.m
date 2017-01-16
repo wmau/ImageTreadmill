@@ -1,25 +1,25 @@
 clear;
 loadMD;
 fulldataset = MD(292:309);
-krnl = 'gaussian';
+distType = 'cityblock';
 
 disp('Classifying temporal stability based on temporal information.');
-[~,sTimeTIaccuracy,sTimeTIshuffle,sTimeTIp] = ClassifyStability(fulldataset,'time','TI',krnl);
+[sTimeTIaccuracy,sTimeTIshuffle,sTimeTIp] = kMeansStability(fulldataset,'time','TI',distType);
 
 disp('Classifying temporal stability based on spatial information.');
-[~,sTimeSIaccuracy,sTimeSIshuffle,sTimeSIp] = ClassifyStability(fulldataset,'time','SI',krnl);
+[sTimeSIaccuracy,sTimeSIshuffle,sTimeSIp] = kMeansStability(fulldataset,'time','SI',distType);
 
 disp('Classifying temporal stability based on transient frequency.');
-[~,sTimeFRaccuracy,sTimeFRshuffle,sTimeFRp] = ClassifyStability(fulldataset,'time','FR',krnl);
+[sTimeFRaccuracy,sTimeFRshuffle,sTimeFRp] = kMeansStability(fulldataset,'time','FR',distType);
 
 disp('Classifying spatial stability based on spatial information.');
-[~,sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = ClassifyStability(fulldataset,'place','SI',krnl);
+[sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = kMeansStability(fulldataset,'place','SI',distType);
 
 disp('Classifying spatial stability based on temporal information.');
-[~,sPlaceTIaccuracy,sPlaceTIshuffle,sPlaceTIp] = ClassifyStability(fulldataset,'place','TI',krnl);
+[sPlaceTIaccuracy,sPlaceTIshuffle,sPlaceTIp] = kMeansStability(fulldataset,'place','TI',distType);
 
 disp('Classifying spatial stability based on transient frequency.');
-[~,sPlaceFRaccuracy,sPlaceFRshuffle,sPlaceFRp] = ClassifyStability(fulldataset,'time','FR',krnl);
+[sPlaceFRaccuracy,sPlaceFRshuffle,sPlaceFRp] = kMeansStability(fulldataset,'time','FR',distType);
 
 timecolor = [0 .5 .5];
 spacecolor = [0.5765 0.4392 0.8588];
