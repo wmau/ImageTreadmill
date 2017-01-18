@@ -1,4 +1,4 @@
-function corrInfoStability(mds,stabilityType,statType)
+function CORRS = corrInfoStability(mds,stabilityType,statType)
 %corrInfoStability(mds,stabilityType,statType)
 %
 %   Correlate the correlation coefficient of a cell and its temporal or

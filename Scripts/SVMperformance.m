@@ -3,6 +3,19 @@ loadMD;
 fulldataset = MD(292:309);
 krnl = 'gaussian';
 
+saveBool = true;
+folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
+timeFileName = fullfile(folder,'SVM time');
+placeFileName = fullfile(folder,'SVM place');
+
+if saveBool
+    c = input('Saving set to true. Are you sure you want to continue? (y/n)','s');
+    
+    if ~strcmp(c,'y')
+        saveBool = false;
+    end
+end
+
 disp('Classifying temporal stability based on temporal information.');
 [~,sTimeTIaccuracy,sTimeTIshuffle,sTimeTIp] = ClassifyStability(fulldataset,'time','TI',krnl);
 
@@ -57,10 +70,14 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
     h.LineWidth = 2;
     h.Color = 'b';
     p.FaceColor = 'b';
-    %ylim([0.35 0.8]);
+    ylim([0.3 0.7]);
     set(gca,'tickdir','out','linewidth',2,'xtick',[1:3]);
     ylabel('Accuracy');
     xticklabels({'Temporal Stability | TI','Temporal Stability | SI','Temporal Stability | TR'})
+    title(['p = ',num2str(sTimeTIp),', ',num2str(sTimeSIp),', ',num2str(sTimeFRp)]);
+    if saveBool
+        print(timeFileName,'-dpdf');
+    end
     
 %% Plot place stability.
     acc = [sPlaceSIaccuracy sPlaceTIaccuracy sPlaceFRaccuracy]';
@@ -84,8 +101,11 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
     h.LineWidth = 2;
     h.Color = 'b';
     p.FaceColor = 'b';
-    %ylim([0.35 0.8]);
+    ylim([0.3 0.7]);
     set(gca,'tickdir','out','linewidth',2,'xtick',[1:3]);
     ylabel('Accuracy');
     xticklabels({'Spatial Stability | SI','Spatial Stability | TI','Spatial Stability | TR'})
-    
+    title(['p = ',num2str(sPlaceSIp),', ',num2str(sPlaceTIp),', ',num2str(sPlaceFRp)]);
+    if saveBool
+        print(placeFileName,'-dpdf');
+    end

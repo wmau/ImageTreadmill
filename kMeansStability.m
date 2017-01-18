@@ -21,7 +21,7 @@ function [accuracy,sAccuracy,p] = kMeansStability(mds,stabilityCriterion,predict
     bad = find(X==0);
     X(bad) = [];
          
-    clusters = kmeans(X,2,'distance',distType,'display','iter');
+    clusters = kmeans(X,2,'distance',distType);
     
     if mean(X(clusters==2)) < mean(X(clusters==1))
         s=1; u=2;

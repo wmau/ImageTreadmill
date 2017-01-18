@@ -36,10 +36,10 @@ function corrStats = CorrPlaceFields(ref,ssn,noi,varargin)
         pf1 = DATA.(pftype){1}{n1}(:);
         pf2 = DATA.(pftype){2}{n2}(:);
         
-        pf1 = pf1(maze1); pf1(isnan(pf1)) = 0;
-        pf2 = pf2(maze1); pf2(isnan(pf2)) = 0;
+        pf1 = pf1(maze1); %pf1(isnan(pf1)) = 0;
+        pf2 = pf2(maze1); %pf2(isnan(pf2)) = 0;
         
         %Correlation.
-        [corrStats(n1,1),corrStats(n1,2)] = corr(pf1,pf2,'type',corrtype);
+        [corrStats(n1,1),corrStats(n1,2)] = corr(pf1,pf2,'type',corrtype,'rows','complete');
     end
 end
