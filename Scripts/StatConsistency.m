@@ -5,7 +5,7 @@ animals = unique({fulldataset.Animal});
 nAnimals = length(animals);
 colors = parula(nAnimals);
 
-statType = 'ti';
+statType = 'si';
 PCcrit = .01;
 
 c = [];
@@ -20,13 +20,8 @@ for a=1:nAnimals
         load('TimeCells.mat','TimeCells');
         load('TemporalInfo.mat','sig'); 
         
-        load('Placefields.mat','pval');
-        load('PlacefieldStats.mat','PFnHits','bestPF'); 
-        load('SpatialInfo.mat','MI');
-        idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
-        
-        neurons = intersect(TimeCells,find(sig)); 
-        %neurons = find(pval<PCcrit & MI'>0 & PFnHits(idx)>4);
+        %neurons = intersect(TimeCells,find(sig)); 
+        neurons = getPlaceCells(fulldataset(ssns(s)),PCcrit);
         temp = msStats(fulldataset(ssns(s):ssns(s+1)),statType,neurons);
         
         stats = [stats; temp];

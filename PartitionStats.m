@@ -62,7 +62,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
             
             %Get place cells. 
             load('SpatialInfo.mat','MI');
-            PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>4);
+            PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>10);
                         
             if strcmp(statType,'ti')
                 load('TemporalInfo.mat','MI','Ispk','Isec');

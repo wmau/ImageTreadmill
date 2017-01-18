@@ -39,7 +39,7 @@ function [STATS,nNeurons] = StabilityStatsEarlyLate(mds,stabilityType,statType,t
             
             %Get time and place cells. 
             TCs = intersect(TimeCells,find(sig)); 
-            PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>4);
+            PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>10);
             
             switch statType
                 case 'ti'
