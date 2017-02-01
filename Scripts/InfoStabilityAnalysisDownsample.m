@@ -1,4 +1,5 @@
-    clear; 
+%% Set up.
+    clear;
     
     %Load MD entries. 
     loadMD;
@@ -6,22 +7,22 @@
     %MD(296:299) = G48.
     %MD(300:304) = Bellatrix.
     %MD(305:309) = Polaris.
-    fulldataset = MD(292:309); 
-    
+    fulldataset = MD(292:309);      
+    %fulldataset(9:13) = [];
+
     %Some initial variables. 
     teal = [0 .5 .5];
     purple = [.58 .44 .86];
-    treadmillTime = 'late';
     
 %% Save information
     saveBool = true;
-    folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures\Supplementals';
-    TimeTI = fullfile(folder,['Stable Time TI ',treadmillTime]);
-    TimeSI = fullfile(folder,['Stable Time SI ',treadmillTime]);
-    TimeFR = fullfile(folder,['Stable Time FR ',treadmillTime]);
-    PlaceSI = fullfile(folder,['Stable Place SI ',treadmillTime]);
-    PlaceTI = fullfile(folder,['Stable Place TI ',treadmillTime]);
-    PlaceFR = fullfile(folder,['Stable Place FR ',treadmillTime]); 
+    folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
+    TimeTI = fullfile(folder,'Stable Time TI Downsample');
+    TimeSI = fullfile(folder,'Stable Time SI Downsample');
+    TimeFR = fullfile(folder,'Stable Time FR Downsample');
+    PlaceSI = fullfile(folder,'Stable Place SI Downsample');
+    PlaceTI = fullfile(folder,'Stable Place TI Downsample');
+    PlaceFR = fullfile(folder,'Stable Place FR Downsample'); 
     
     if saveBool
         c = input('Saving set to true. Are you sure you want to continue? (y/n)','s');
@@ -33,7 +34,10 @@
     
 %% Step 1: Depict temporal information based on temporal stability. 
     %Categorize.
-    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','TI',treadmillTime);
+    nStable = 165;
+    nUnstable = 81;
+    
+    [s,us,grps] = ParseInfoStabilityParams(fulldataset,'time','TI',nStable,nUnstable);
 %     [S,US] = ParseInfoStabilityParams(fulldataset,'time','FR');
 %     
 %     figure;
@@ -43,7 +47,7 @@
     fPos = [-1900 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Temporal Information [bits]','boxColor',teal,'position',...
-        fPos,'circleColors',[sColors;usColors]);
+        fPos);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
     d = cohensD(s,us);
@@ -53,12 +57,12 @@
     end
     
 %% Step 2: Depict spatial information based on temporal stability. 
-    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','SI',treadmillTime);
+    [s,us,grps] = ParseInfoStabilityParams(fulldataset,'time','SI',nStable,nUnstable);
 
     fPos = [-1600 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Spatial Information [bits]','boxColor',teal,'position',...
-        fPos,'circleColors',[sColors;usColors]);
+        fPos);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
     d = cohensD(s,us);
@@ -68,12 +72,12 @@
     end    
     
 %% Step 3: Depict firing rate based on temporal stability. 
-    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','FR',treadmillTime);
-
+    [s,us,grps] = ParseInfoStabilityParams(fulldataset,'time','FR',nStable,nUnstable);
+    
     fPos = [-1300 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Transient Frequency','boxColor',teal,'position',...
-        fPos,'circleColors',[sColors;usColors]);
+        fPos);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
     d = cohensD(s,us);
@@ -83,7 +87,7 @@
     end  
     
 %% Step 4: Depict spatial information based on spatial stability. 
-     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','SI',treadmillTime);
+     [s,us,grps] = ParseInfoStabilityParams(fulldataset,'place','SI',nStable,nUnstable);
 %     [S,US] = ParseInfoStabilityParams(fulldataset,'place','FR');
 %     
 %     figure;
@@ -93,7 +97,7 @@
     fPos = [-1000 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Spatial Information [bits]','boxColor',purple,'position',...
-        fPos,'circleColors',[sColors;usColors]);
+        fPos);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
     d = cohensD(s,us);
@@ -103,12 +107,12 @@
     end  
   
 %% Step 5: Depict temporal information based on spatial stability. 
-    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','TI',treadmillTime);
+    [s,us,grps] = ParseInfoStabilityParams(fulldataset,'place','TI',nStable,nUnstable);
     
     fPos = [-700 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Temporal Information [bits]','boxColor',purple,'position',...
-        fPos,'circleColors',[sColors;usColors]);
+        fPos);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
     d = cohensD(s,us);
@@ -118,12 +122,12 @@
     end  
      
 %% Step 6: Depict firing rate based on spatial stability. 
-    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','FR',treadmillTime);
+    [s,us,grps] = ParseInfoStabilityParams(fulldataset,'place','FR',nStable,nUnstable);
 
     fPos = [-400 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Transient Frequency','boxColor',purple,'position',...
-        fPos,'circleColors',[sColors;usColors]);
+        fPos);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
     d = cohensD(s,us);
@@ -132,25 +136,31 @@
         print(PlaceFR,'-dpdf');
     end 
     
-%% 
-function [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(data,stability,infoType,treadmillTime)
+%%
+%     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','pk');
+% 
+%     fPos = [-400 460 300 450];
+%     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
+%         'yLabel','Time Peak [s]','boxColor',purple,'position',...
+%         fPos,'circleColors',[sColors;usColors]);
+%     [~,kp] = kstest2(s,us);
+%     tp = ranksum(s,us); 
+%     d = cohensD(s,us);
+%     title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen"s d = ',num2str(d)]});
+    
+%% Nested function
+function [s,us,grps] = ParseInfoStabilityParams(data,stability,infoType,sN,usN)
     nAnimals = length(unique({data.Animal}));
     colors = parula(nAnimals);
         
-    [I,N] = StabilityStatsEarlyLate(data,stability,infoType,treadmillTime);
+    I = PartitionStats(data,stability,infoType);
     s = cell2mat(I.stable')';          %ALL stable stats.
     us = cell2mat(I.unstable')';       %ALL unstable stats.
-    sN = length(s);                    %Number of stable neurons.
-    usN = length(us);                  %Number of unstable neurons. 
-
+    
+    s = randsample(s,sN);
+    us = randsample(us,usN);
+    
     %Group identity vector. 
     grps = [zeros(1,sN), ones(1,usN)];
-    sColors = []; 
-    usColors = [];
 
-    for a=1:nAnimals     
-        sColors = [sColors; repmat(colors(a,:),N.stable(a),1)];
-        usColors = [usColors; repmat(colors(a,:),N.unstable(a),1)];
-    end
-    
 end

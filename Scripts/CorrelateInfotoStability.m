@@ -3,7 +3,7 @@ loadMD;
 fulldataset = MD(292:309);
 
 saveBool = true;
-folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures\Supplementals';
+folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures\Supplementals\Alternative Info Stability Analyses';
 TimeTI = fullfile(folder,'Correlate Rho to Info_Time Stability given TI');
 TimeSI = fullfile(folder,'Correlate Rho to Info_Time Stability given SI');
 TimeFR = fullfile(folder,'Correlate Rho to Info_Time Stability given FR');

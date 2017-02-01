@@ -5,7 +5,7 @@ animals = unique({fulldataset.Animal});
 nAnimals = length(animals);
 colors = parula(nAnimals);
 
-statType = 'si';
+statType = 'ti';
 PCcrit = .01;
 
 c = [];
@@ -17,11 +17,8 @@ for a=1:nAnimals
     for s=1:length(ssns)-1
         cd(fulldataset(ssns(s)).Location);
         
-        load('TimeCells.mat','TimeCells');
-        load('TemporalInfo.mat','sig'); 
-        
-        %neurons = intersect(TimeCells,find(sig)); 
-        neurons = getPlaceCells(fulldataset(ssns(s)),PCcrit);
+        neurons = getTimeCells(fulldataset(ssns(s))); 
+        %neurons = getPlaceCells(fulldataset(ssns(s)),PCcrit);
         temp = msStats(fulldataset(ssns(s):ssns(s+1)),statType,neurons);
         
         stats = [stats; temp];

@@ -34,4 +34,4 @@ for n=1:n2
     plot(y{n},x{n},'color',[1 0 0 .4],'linewidth',2);
 end
 
-line([0 100],[0 0],'linewidth',5,'color','k');
+line([0 100*1.1],[0 0],'linewidth',5,'color','k');
