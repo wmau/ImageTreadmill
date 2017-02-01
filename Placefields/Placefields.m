@@ -25,7 +25,7 @@ function Placefields(MD,varargin)
 %       Default = 3 cm/s.
 %
 %       B: number of permutation iterations for determining the legitimacy
-%       of a place field. Default = 10,000.
+%       of a place field. Default = 1,000.
 %
 %       aligned: logical telling this function whether the Pos_data
 %       variable you entered has already been aligned or not. Default =
@@ -66,7 +66,7 @@ function Placefields(MD,varargin)
             'PSAbool','x_adj_cm','y_adj_cm','speed','xmin','xmax','ymin','ymax'); 
         x = x_adj_cm; y = y_adj_cm; clear x_adj_cm y_adj_cm;
     else
-        load('Pos.mat','xpos_interp','ypos_interp');
+        load(Pos_data,'xpos_interp','ypos_interp');
         load(Tenaspis_data,'PSAbool'); 
         [x,y,speed,PSAbool] = AlignImagingToTracking(MD.Pix2CM,PSAbool,0);
         xmin = min(x); ymin = min(y); 
