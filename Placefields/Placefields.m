@@ -37,7 +37,8 @@ function Placefields(MD,varargin)
 %       Tenaspis_data: output of Tenaspis. Default = FinalOutput.mat.
 
 %% Parse inputs.
-    cd(MD.Location);
+
+    [~, MD] = ChangeDirectory(MD.Animal, MD.Date, MD.Session); % Change Directory and fill in partial MD if used
     
     ip = inputParser;
     ip.addRequired('MD',@(x) isstruct(x)); 
@@ -62,8 +63,8 @@ function Placefields(MD,varargin)
     
 %% Set up.
     if aligned
-        load('Pos_align.mat',...
-            'PSAbool','x_adj_cm','y_adj_cm','speed','xmin','xmax','ymin','ymax'); 
+        load(Pos_data,...
+            'PSAbool','x_adj_cm','y_adj_cm','speed','xmin','xmax','ymin','ymax','FToffset'); 
         x = x_adj_cm; y = y_adj_cm; clear x_adj_cm y_adj_cm;
     else
         load('Pos.mat','xpos_interp','ypos_interp');
@@ -72,9 +73,12 @@ function Placefields(MD,varargin)
         xmin = min(x); ymin = min(y); 
         xmax = max(x); ymax = max(y);
         
+    end
+    
+    if ~isempty(exclude_frames)
         %Assuming your exclude_frames did not already apply to the aligned
         %data, correct them. This should work, but haven't actually tested
-        %this.
+        %this. - Need to test
         exclude_frames = exclude_frames - (FToffset-1);
         exclude_frames(exclude_frames < 0) = [];
         exclude_frames(exclude_frames > size(PSAbool,2)) = [];
@@ -154,5 +158,5 @@ function Placefields(MD,varargin)
     
     save('Placefields.mat','OccMap','RunOccMap','TCounts','TMap_gauss',...
         'TMap_unsmoothed','minspeed','isrunning','cmperbin','exclude_frames',...
-        'xEdges','yEdges','xBin','yBin','pval'); 
+        'xEdges','yEdges','xBin','yBin','pval','x','y','PSAbool'); 
 end
