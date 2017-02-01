@@ -38,7 +38,7 @@ function Placefields(MD,varargin)
 
 %% Parse inputs.
 
-    [~, MD] = ChangeDirectory(MD.Animal, MD.Date, MD.Session); % Change Directory and fill in partial MD if used
+    [dirstr, MD] = ChangeDirectory(MD.Animal, MD.Date, MD.Session); % Change Directory and fill in partial MD if used
     
     ip = inputParser;
     ip.addRequired('MD',@(x) isstruct(x)); 
@@ -49,6 +49,7 @@ function Placefields(MD,varargin)
     ip.addParameter('aligned',true,@(x) islogical(x));
     ip.addParameter('Pos_data','Pos_align.mat',@(x) ischar(x));
     ip.addParameter('Tenaspis_data','FinalOutput.mat',@(x) ischar(x)); 
+    ip.addParameter('name_append','',@ischar);
     
     ip.parse(MD,varargin{:});
     
@@ -60,6 +61,7 @@ function Placefields(MD,varargin)
     aligned = ip.Results.aligned;
     Pos_data = ip.Results.Pos_data;
     Tenaspis_data = ip.Results.Tenaspis_data;
+    name_append = ip.Results.name_append;
     
 %% Set up.
     if aligned
@@ -157,7 +159,7 @@ function Placefields(MD,varargin)
     end
     p.stop; 
     
-    save('Placefields.mat','OccMap','RunOccMap','TCounts','TMap_gauss',...
+    save(fullfile(dirstr,['Placefields' name_append '.mat']),'OccMap','RunOccMap','TCounts','TMap_gauss',...
         'TMap_unsmoothed','minspeed','isrunning','cmperbin','exclude_frames',...
         'xEdges','yEdges','xBin','yBin','pval','x','y','PSAbool'); 
 end

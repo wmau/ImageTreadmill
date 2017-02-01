@@ -1,11 +1,16 @@
-function PlacefieldStats(md)
-%PlacefieldStats(md)
+function PlacefieldStats(md, varargin)
+%PlacefieldStats(md, varargin)
 %
 %   Calculates basic properties of place fields such as their regional
 %   area and the percentage of 'hits' it gets as a proportion of passes. 
 %   
 %   INPUT
 %       md: session to analyze.
+%
+%       optional...
+%       'name_append': use to look at stats for a different Placefields
+%       file (e.g. Placefields_speed3.mat).  Will append the same thing to
+%       the end of PlacefieldStats file.
 %
 %   OUTPUTS
 %       Each of these are matrices or cell arrays of size NxP (N=# neurons,
@@ -32,8 +37,18 @@ function PlacefieldStats(md)
 %       bestPF: vector indexing the column corresponding to the place field
 %       with the highest activation.
 %
+%% Parse inputs
+    ip = inputParser;
+    ip.addRequired('md',@(x) isstruct(x));  
+    ip.addParameter('name_append','',@ischar);
+    
+    ip.parse(md,varargin{:});
+    
+    %Compile.
+    name_append = ip.Results.name_append;
 %% Set up.
-    cd(md.Location);
+    [dirstr, md] = ChangeDirectory(md.Animal, md.Date, md.Session); % Change Directory and fill in partial MD if used
+
     load('Placefields.mat','TMap_gauss','xBin','yBin','isrunning');
     try
         load('Pos_align.mat','PSAbool');
@@ -115,6 +130,6 @@ function PlacefieldStats(md)
     PFnHits = cellfun(@sum,PFactive);
     PFpcthits = PFnHits./PFnEpochs;
      
-    save('PlacefieldStats.mat','PFpcthits','PFnHits','PFnEpochs','PFepochs',...
+    save(fullfile(dirstr,['PlacefieldStats' name_append '.mat']),'PFpcthits','PFnHits','PFnEpochs','PFepochs',...
         'PFcentroids','PFpixels','PFarea','bestPF','-v7.3');
 end
