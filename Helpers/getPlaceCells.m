@@ -14,10 +14,10 @@ function PCs = getPlaceCells(md,crit)
 %% Get place cells.
     cd(md.Location);
     load('Placefields.mat','TMap_gauss','pval');
-    load('PlacefieldStats.mat','PFnHits','bestPF');
+    load('PlacefieldStats.mat','PFnHits','bestPF','PFpcthits');
     load('SpatialInfo.mat','MI');
     
     idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');    
-    PCs = find(pval<crit & MI'>0 & PFnHits(idx) > 10);
+    PCs = find(pval<crit & MI'>0 & PFnHits(idx) > 10 & PFpcthits(idx) > .2);
     
 end

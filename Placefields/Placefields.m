@@ -68,14 +68,14 @@ function Placefields(MD,varargin)
     else
         load(Pos_data,'xpos_interp','ypos_interp');
         load(Tenaspis_data,'PSAbool'); 
-        [x,y,speed,PSAbool] = AlignImagingToTracking(MD.Pix2CM,PSAbool,0);
+        [x,y,speed,PSAbool,offset] = AlignImagingToTracking(MD.Pix2CM,PSAbool,0);
         xmin = min(x); ymin = min(y); 
         xmax = max(x); ymax = max(y);
         
         %Assuming your exclude_frames did not already apply to the aligned
         %data, correct them. This should work, but haven't actually tested
         %this.
-        exclude_frames = exclude_frames - (FToffset-1);
+        exclude_frames = exclude_frames - (offset-1);
         exclude_frames(exclude_frames < 0) = [];
         exclude_frames(exclude_frames > size(PSAbool,2)) = [];
     end

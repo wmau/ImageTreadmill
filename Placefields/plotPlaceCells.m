@@ -19,9 +19,19 @@ function plotPlaceCells(md,varargin)
     end
     nPCs = length(neurons);
 
-    load('Placefields.mat','TMap_gauss','isrunning');
+    try
+        load('Placefields.mat','TMap_gauss','isrunning');
+    catch
+        PlacefieldStats(md);
+    end
     load('SpatialInfo.mat','MI','Ipos','okpix');
-    load('Pos_align.mat','PSAbool','x_adj_cm','y_adj_cm');
+    try
+        load('Pos_align.mat','PSAbool','x_adj_cm','y_adj_cm');
+    catch
+        load('Pos.mat','xpos_interp','ypos_interp');
+        load('FinalOutput.mat','PSAbool');
+        [x_adj_cm,y_adj_cm,~,PSAbool] = AlignImagingToTracking(md.Pix2CM,PSAbool,0);
+    end
     
     %For dotplot.
     PSAbool = logical(PSAbool);
@@ -52,6 +62,7 @@ function plotPlaceCells(md,varargin)
             plot(x,y,'Color',[.7 .7 .7]); hold on;
             plot(x(spks),y(spks),'r.','MarkerSize',8);
             axis equal; axis off; 
+            title(['Neuron #',num2str(neurons(thisNeuron))]);
         subplot(1,3,2);
             imap = imagesc(IMap{neurons(thisNeuron)});
             set(imap,'alphadata',~isnan(TMap_gauss{neurons(thisNeuron)}));
