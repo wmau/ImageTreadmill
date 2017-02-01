@@ -25,6 +25,7 @@ function plotTimeCells(md,T,varargin)
         load(fullfile(pwd,'TimeCells.mat')); 
     catch
         [TimeCells,ratebylap,curves,movies,T,TodayTreadmillLog] = FindTimeCells(md,T); 
+        tempInfo(md);
     end
     
     p = inputParser;
@@ -41,7 +42,9 @@ function plotTimeCells(md,T,varargin)
     pf = p.Results.placefield; 
     TimeCells = p.Results.TimeCells;
     singletraces = p.Results.singletraces;
-%%
+%% 
+    load('TemporalInfo.mat','MI');
+    
     if pf            
         %Load place maps. 
         load(fullfile(path,'PlaceMaps.mat'),'TMap_gauss','OccMap','pval'); 
@@ -151,7 +154,7 @@ function plotTimeCells(md,T,varargin)
                 subplot(2,2,1:2);   %Raster. 
                     imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps','fontsize',18); c = colorbar; c.Position(1) = 0.92;
-                        title(['Neuron #',num2str(TimeCells(thisNeuron))]);
+                        title(['Neuron #',num2str(TimeCells(thisNeuron)),', I = ',num2str(MI(TimeCells(thisNeuron)))]);
                         set(gca,'fontsize',16);
             end
             

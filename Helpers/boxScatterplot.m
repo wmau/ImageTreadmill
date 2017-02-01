@@ -35,6 +35,8 @@ function boxScatterplot(x,grps,varargin)
 %
 %           position: vector specifying the position of the figure. 
 %
+%           plotBox: whether or not to make boxplot.
+%
 
 %% Set up. 
     p = inputParser; 
@@ -43,11 +45,12 @@ function boxScatterplot(x,grps,varargin)
     p.addParameter('xLabels',{'Group 1','Group 2'},@(x) iscell(x));
     p.addParameter('yLabel','Metric',@(x) ischar(x)); 
     p.addParameter('boxColor','k',@(x) ischar(x) || isnumeric(x));
-    p.addParameter('circleSize',10,@(x) isnumeric(x)); 
+    p.addParameter('circleSize',20,@(x) isnumeric(x)); 
     p.addParameter('circleColors',[.7 .7 .7],@(x) ischar(x) || isnumeric(x));
     p.addParameter('transparency',.3,@(x) isscalar(x)); 
     p.addParameter('sf',.05,@(x) isscalar(x));
     p.addParameter('position',[520 350 300 450]); 
+    p.addParameter('plotBox',true,@(x) islogical(x));
     
     p.parse(x,grps,varargin{:});
     xLabels = p.Results.xLabels; 
@@ -58,6 +61,7 @@ function boxScatterplot(x,grps,varargin)
     circleColors = p.Results.circleColors;
     sf = p.Results.sf; 
     position = p.Results.position;
+    plotBox = p.Results.plotBox;
     
     %Turn into column.
     if size(x,1) < size(x,2) 
@@ -76,17 +80,15 @@ function boxScatterplot(x,grps,varargin)
     jitters = zeros(n,1); 
     
     %Create jitter. 
-    i = 1; 
     c = 1; 
     for g = grpNums
         %Number of elements corresponding to that group. 
         nInGrp = sum(grps==g);
         
         %Jitter!
-        jitters(c:c+nInGrp-1) = i - (sf*randn(nInGrp,1));
+        jitters(c:c+nInGrp-1) = g - (sf*randn(nInGrp,1));
         
         %Step. 
-        i = i+1;
         c = c+nInGrp; 
     end
     
@@ -97,10 +99,14 @@ function boxScatterplot(x,grps,varargin)
     hold on;
     scat = scatter(jitters,x,circleSize,circleColors,'filled');
     alpha(scat,transparency);
-    boxplot(x,grps,'color',boxColor,'symbol','k','labels',xLabels);
+    if plotBox
+        boxplot(x,grps,'color',boxColor,'symbol','k','labels',xLabels,...
+            'positions',unique(grps));
+        boxProps = get(gca,'Children');
+        [boxProps(1).Children.LineWidth] = deal(2);
+    end
     ylabel(yLabel);
     set(gca,'tickdir','out');
-    boxProps = get(gca,'Children');
-    [boxProps(1).Children.LineWidth] = deal(2);
+    
     
 end
