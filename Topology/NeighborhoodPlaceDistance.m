@@ -87,8 +87,8 @@ function NeighborhoodPlaceDistance(md,thresholds)
     
     rAvg_dX = sort(rAvg_dX);
     surrogate = mean(rAvg_dX); 
-    ci(:,1) = surrogate - rAvg_dX(round(.05*B),:);
-    ci(:,2) = -(surrogate - rAvg_dX(round(.95*B),:));
+    ci(:,1) = surrogate - rAvg_dX(round(.01*B),:);
+    ci(:,2) = -(surrogate - rAvg_dX(round(.99*B),:));
     figure;
     plot(thresholds,avg_dX,'k','linewidth',3);
     hold on;

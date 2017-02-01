@@ -50,7 +50,7 @@ function [TMap_unsmoothed,TCounts,varargout] = ...
     
 %% Make place field.
     if any(FT)
-        TCounts = hist2(y(FT),x(FT),yEdges,xEdges); 
+        TCounts = histcounts2(x(FT),y(FT),xEdges,yEdges); 
     else
         TCounts = zeros(size(RunOccMap));
     end

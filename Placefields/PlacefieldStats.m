@@ -35,7 +35,12 @@ function PlacefieldStats(md)
 %% Set up.
     cd(md.Location);
     load('Placefields.mat','TMap_gauss','xBin','yBin','isrunning');
-    load('Pos_align.mat','PSAbool');
+    try
+        load('Pos_align.mat','PSAbool');
+    catch
+        load('FinalOutput.mat','PSAbool');
+        [~,~,~,PSAbool] = AlignImagingToTracking(md.Pix2CM,PSAbool,0);
+    end
     PSAbool = PSAbool(:,isrunning);
     
 %% Get basic properties of the placefields
@@ -60,7 +65,7 @@ function PlacefieldStats(md)
     
 %% Get epochs of place field traversal.
     %Convert to linear indices.
-    linInd = sub2ind(size(TMap_gauss{1}),yBin,xBin);
+    linInd = sub2ind(size(TMap_gauss{1}),xBin,yBin);
     
     %Preallocate a lot of shit. 
     PFpixels = cell(nNeurons,maxNPFs);

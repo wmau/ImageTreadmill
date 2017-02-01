@@ -24,22 +24,13 @@ function [STATS,nNeurons] = StabilityStatsEarlyLate(mds,stabilityType,statType,t
         
         for s=1:nSessions-1
             cd(mds(ssns(s)).Location);
-            
-            load('TimeCells.mat','TimeCells');
-            load('TemporalInfo.mat','sig');
-            load('Placefields.mat','pval');
-            load('PlacefieldStats.mat','PFnHits','bestPF');
-            load('SpatialInfo.mat','MI');
-            
-            %Matrix index. 
-            idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
-            
+                     
             %Critical p-value for place cell consideration.
             PCcrit = .01;
             
             %Get time and place cells. 
-            TCs = intersect(TimeCells,find(sig)); 
-            PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>10);
+            TCs = getTimeCells(mds(ssns(s)));
+            PCs = getPlaceCells(mds(ssns(s)),PCcrit);
             
             switch statType
                 case 'ti'

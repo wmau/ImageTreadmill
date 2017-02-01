@@ -27,42 +27,23 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
     statType = lower(statType);
 
 %% Compile
-    STATS.stable = cell(1,nAnimals);
-    STATS.unstable = cell(1,nAnimals);
-    nNeurons.stable = zeros(1,nAnimals); 
-    nNeurons.unstable = zeros(1,nAnimals);
-    stable = cell(1,nAnimals);
-    unstable = cell(1,nAnimals);
+    [STATS.stable,STATS.unstable,stable,unstable] = deal(cell(1,nAnimals));
+    [nNeurons.stable,nNeurons.unstable] = deal(zeros(1,nAnimals)); 
     for a = 1:nAnimals       
         %Get all the sessions for this animal.
         ssns = find(strcmp(animals{a},{mds.Animal})); 
         
-        nStable = 0; 
-        nUnstable = 0;
-        STATS.stable{a} = [];
-        STATS.unstable{a} = [];
-        stable{a} = cell(1,length(ssns)-1);
-        unstable{a} = cell(1,length(ssns)-1);
+        [nStable,nUnstable] = deal(0); 
+        [STATS.stable{a},STATS.unstable{a}] = deal([]);
+        [stable{a},unstable{a}] = deal(cell(1,length(ssns)-1));
         for s = 1:length(ssns)-1
             cd(mds(ssns(s)).Location);
             
-            load('TimeCells.mat','TimeCells');
-            load('TemporalInfo.mat','sig'); 
-            load('Placefields.mat','pval');
-            load('PlacefieldStats.mat','PFnHits','PFpcthits','bestPF');
-            
             PCcrit = .01;
-            %stblcrit = .001;
             
-            %Get time cells.
-            TCs = intersect(TimeCells,find(sig));
-              
-            %Matrix index. 
-            idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
-            
-            %Get place cells. 
-            load('SpatialInfo.mat','MI');
-            PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>10);
+            %Get place and time cells.
+            PCs = getPlaceCells(mds(ssns(s)),PCcrit);
+            TCs = getTimeCells(mds(ssns(s)));
                         
             if strcmp(statType,'ti')
                 load('TemporalInfo.mat','MI','Ispk','Isec');

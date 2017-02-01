@@ -25,7 +25,7 @@ function Placefields(MD,varargin)
 %       Default = 3 cm/s.
 %
 %       B: number of permutation iterations for determining the legitimacy
-%       of a place field. Default = 10,000.
+%       of a place field. Default = 1,000.
 %
 %       aligned: logical telling this function whether the Pos_data
 %       variable you entered has already been aligned or not. Default =
@@ -66,10 +66,11 @@ function Placefields(MD,varargin)
         load(Pos_data,...
             'PSAbool','x_adj_cm','y_adj_cm','speed','xmin','xmax','ymin','ymax','FToffset'); 
         x = x_adj_cm; y = y_adj_cm; clear x_adj_cm y_adj_cm;
+        offset = FToffset;
     else
-        load('Pos.mat','xpos_interp','ypos_interp');
+        load(Pos_data,'xpos_interp','ypos_interp');
         load(Tenaspis_data,'PSAbool'); 
-        [x,y,speed,PSAbool] = AlignImagingToTracking(MD.Pix2CM,PSAbool,0);
+        [x,y,speed,PSAbool,offset] = AlignImagingToTracking(MD.Pix2CM,PSAbool,0);
         xmin = min(x); ymin = min(y); 
         xmax = max(x); ymax = max(y);
         
@@ -78,8 +79,8 @@ function Placefields(MD,varargin)
     if ~isempty(exclude_frames)
         %Assuming your exclude_frames did not already apply to the aligned
         %data, correct them. This should work, but haven't actually tested
-        %this. - Need to test
-        exclude_frames = exclude_frames - (FToffset-1);
+        %this.
+        exclude_frames = exclude_frames - (offset-1);
         exclude_frames(exclude_frames < 0) = [];
         exclude_frames(exclude_frames > size(PSAbool,2)) = [];
     end

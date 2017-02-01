@@ -35,12 +35,16 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
     sStats = cell2mat(STATS.stable');
     usStats = cell2mat(STATS.unstable');
     
+    %FOR DOWNSAMPLING UNCOMMENT THESE.
+%     sStats = randsample(sStats,165);
+%     usStats = randsample(usStats,81);
+    
     %Determine number of stable and unstable cells. 
     nStable = length(sStats); 
     nUnstable = length(usStats);
     
     %Get the lower number. This will be the sample size for each group. 
-    sampSize = round(min([nStable,nUnstable])*.7);
+    %sampSize = round(min([nStable,nUnstable])*.7);
     
     X = [   sStats;...
             usStats];

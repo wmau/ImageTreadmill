@@ -1,4 +1,4 @@
-function matchMat = msMatchCells(mapMD,md,neurons,trim)
+function [matchMat,mapRows,mapCols] = msMatchCells(mapMD,md,neurons,trim)
 %matchMat = msMatchCells(mapMD,md,neurons)
 %
 %   Matches all specified neurons across sessions specified in md. 
@@ -35,10 +35,10 @@ function matchMat = msMatchCells(mapMD,md,neurons,trim)
     
     %Find columns in the mapping matrix that corresponding to the specified
     %sessions.
-    MAPcols = zeros(nSessions,1);
+    mapCols = zeros(nSessions,1);
     for i=1:nSessions
         try
-            MAPcols(i) = find(ismember(regDates,dates{i}) & ismember(regSessions,sessions(i)));
+            mapCols(i) = find(ismember(regDates,dates{i}) & ismember(regSessions,sessions(i)));
         catch
             error(['Error in above. Possible reason: MD input ', num2str(i),...
                 ' has not been registered yet. Run neuron_reg_batch...']);
@@ -46,8 +46,8 @@ function matchMat = msMatchCells(mapMD,md,neurons,trim)
     end
     
     %Get the corresponding rows.
-    neuronInd = ismember(MAP(:,MAPcols(1)),neurons);
-    matchMat = MAP(neuronInd,MAPcols);
+    mapRows = find(ismember(MAP(:,mapCols(1)),neurons));
+    matchMat = MAP(mapRows,mapCols);
    
     if trim
         matchMat(matchMat(:,2)==0,:) = [];
