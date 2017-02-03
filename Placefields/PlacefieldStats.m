@@ -80,7 +80,8 @@ function PlacefieldStats(md, varargin)
     
 %% Get epochs of place field traversal.
     %Convert to linear indices.
-    linInd = sub2ind(size(TMap_gauss{1}),xBin,yBin);
+    inbins = xBin ~= 0 & yBin ~= 0; % exclude any time bins where the mouse is outside the designated occupancy grid
+    linInd = sub2ind(size(TMap_gauss{1}),xBin(inbins),yBin(inbins));
     
     %Preallocate a lot of shit. 
     PFpixels = cell(nNeurons,maxNPFs);
