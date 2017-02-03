@@ -4,15 +4,15 @@ function IMap = unflattenIpos(Ipos,okpix,dims)
 %
 
 %%
-    IMap = double(okpix);
-    IMap(okpix) = Ipos;
-    iszero = IMap==0;
-    isNaN = isnan(IMap);
+    temp = double(okpix);
+    temp(okpix) = Ipos;
+    iszero = temp==0;
+    isNaN = isnan(temp);
     
     %Flip zeros and nans.
-    IMap(iszero) = nan;
-    IMap(isNaN) = 0;
+    temp(iszero) = nan;
+    temp(isNaN) = 0;
     
-    IMap = reshape(IMap,dims);
+    IMap = reshape(temp,dims);
     
 end
