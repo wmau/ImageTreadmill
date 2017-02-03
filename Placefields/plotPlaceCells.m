@@ -4,27 +4,40 @@ function plotPlaceCells(md,varargin)
 %
 
 %% Parse inputs.
+
+    
     p = inputParser;
     p.addRequired('md',@(x) isstruct(x));
     p.addParameter('neurons',[],@(x) isnumeric(x));
+    p.addParameter('crit', 0.01, @(a) a > 0 && a <= 1);
+    p.addParameter('nHits', 10, @(a) round(a,0) == a);
+    p.addParameter('ratioHits', 0.2, @(a) a > 0 && a <= 1);
+    p.addParameter('name_append','',@ischar);
+    
     
     p.parse(md,varargin{:});
     neurons = p.Results.neurons; 
+    crit = p.Results.crit;
+    name_append = p.Results.name_append;
     
 %% Set up.
-    cd(md.Location);
+    [dirstr, md] = ChangeDirectory(md.Animal, md.Date, md.Session); % Change Directory and fill in partial MD if used
     
     if isempty(neurons)
-        neurons = getPlaceCells(md,.01);
+        neurons = getPlaceCells(md, crit, varargin{:});
     end
     nPCs = length(neurons);
+    
+    if nPCs == 0
+        error('No neurons meet your placefield criteria!')
+    end
 
     try
-        load('Placefields.mat','TMap_gauss','isrunning');
+        load(fullfile(dirstr,['Placefields' name_append '.mat']),'TMap_gauss','isrunning');
     catch
-        PlacefieldStats(md);
+        PlacefieldStats(md,'name_append', name_append);
     end
-    load('SpatialInfo.mat','MI','Ipos','okpix');
+    load(fullfile(dirstr,['SpatialInfo' name_append '.mat']),'MI','Ipos','okpix');
     try
         load('Pos_align.mat','PSAbool','x_adj_cm','y_adj_cm');
     catch
@@ -48,7 +61,11 @@ function plotPlaceCells(md,varargin)
 %% Flatten all the Ipos vectors. 
     IMap = cell(nNeurons,1);
     for n=1:nNeurons
+        try
         IMap{n} = unflattenIpos(Ipos{n},okpix,dims);
+        catch
+            keyboard
+        end
     end
 
 %%  

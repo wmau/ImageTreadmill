@@ -1,5 +1,5 @@
-function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,savetodisk)
-% [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,savetodisk)
+function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,varargin)
+% [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,savetodisk, varargin)
 %
 %   Calculates the Shannon mutual information I(X,K) between the random
 %   variables spike count [0,1] and position via the equations: 
@@ -25,8 +25,29 @@ function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,save
 %
 %       RunOccMap: spatial occupancy map during running.
 %
-%       FT: logical of 
+%       FT: logical of putative spiking activity (e.g. PSAbool from
+%       Placefields.mat
+%
+%       savetodisk: optional (default = false).  Saves outputs to
+%       'SpatialInfo_nameappend.mat' in current directory;
+%
+%       optional...
+%       'name_append': parameter added to end of SpatialInfo.
 
+%% Parse inputs
+p = inputParser;
+p.addRequired('TMaps_unsmoothed',@iscell);
+p.addRequired('RunOccMap', @(a) isnumeric(a));
+p.addRequired('FT', @islogical);
+p.addOptional('savetodisk', false, @islogical);
+p.addParameter('name_append', '', @ischar);
+
+p.parse(TMaps_unsmoothed, RunOccMap, FT, varargin{:});
+
+savetodisk = p.Results.savetodisk;
+name_append = p.Results.name_append;
+
+curr_dir = cd;
 %% Set up variables.         
     %Number of frames and neurons. 
     nFrames = sum(RunOccMap(:)); 
@@ -72,6 +93,6 @@ function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,save
     end
     
     if savetodisk
-        save('SpatialInfo.mat','MI','Isec','Ispk','Ipos','okpix');
+        save(fullfile(cd,['SpatialInfo' name_append '.mat']),'MI','Isec','Ispk','Ipos','okpix');
     end
 end
