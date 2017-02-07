@@ -134,17 +134,29 @@
     end 
     
 %%
-    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','pk');
+    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','fluor');
 
     fPos = [-400 460 300 450];
     boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
-        'yLabel','Time Peak [s]','boxColor',purple,'position',...
+        'yLabel','Norm. Fluor. Intensity [AU]','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
     d = cohensD(s,us);
     title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen"s d = ',num2str(d)]});
-    
+
+%% 
+    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','fluor');
+
+    fPos = [-400 460 300 450];
+    boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
+        'yLabel','Norm. Fluor. Intensity [AU]','boxColor',purple,'position',...
+        fPos,'circleColors',[sColors;usColors]);
+    [~,kp] = kstest2(s,us);
+    tp = ranksum(s,us); 
+    d = cohensD(s,us);
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen"s d = ',num2str(d)]});
+
 %% Nested function
 function [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(data,stability,infoType)
     nAnimals = length(unique({data.Animal}));
