@@ -8,7 +8,6 @@
     %MD(300:304) = Bellatrix.
     %MD(305:309) = Polaris.
     fulldataset = MD(292:309);      
-    %fulldataset(9:13) = [];
 
     %Some initial variables. 
     teal = [0 .5 .5];
@@ -93,7 +92,7 @@ function ParseInfoStability(fulldataset,stabilityType,infoType)
     usM = cell2mat(usM);
     p = ranksum(sM,usM);
     i = 1;
-    figure;
+    figure('Position',[790 220 250 440]);
     hold on
     for a=1:nAnimals
         ssns = find(strcmp(animals{a},{fulldataset.Animal}));
@@ -106,7 +105,7 @@ function ParseInfoStability(fulldataset,stabilityType,infoType)
         end
     end
     set(gca,'xticklabel',{'Stable','Unstable'});
-    set(gca,'xtick',[1:2]);
+    set(gca,'xtick',[1:2],'tickdir','out');
     title(['P = ',num2str(p)]);
     xlim([0.5,2.5]);
 end
