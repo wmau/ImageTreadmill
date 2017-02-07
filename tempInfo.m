@@ -12,7 +12,7 @@ function tempInfo(MD)
 %       P_ti is the probability the mouse is in time bin ti,
 %       (1/(T*20)).*ones(1,T*20)
 %       
-%       P_k is the probability of observe k spikes,
+%       P_k is the probability of observing k spikes,
 %       sum(rasters{n}(:))./ prod(size(rasters{n})
 %
 %       P_k|ti is the conditional probability of observing k spikes at time
@@ -81,7 +81,7 @@ function [MI,Isec,Ispk,Itime] = tempInfoOneNeuron(raster)
     [nLaps,nBins,~] = size(raster);
     
     P_t = 1/nBins;                          %Probability occupancy in time (uniform).
-    P_1t = mean(raster);                    %Mean rate at this time bin. (multiply by 4 because 0.25 time bins)
+    P_1t = mean(raster);                    %Mean rate at this time bin.
     P_0t = 1-P_1t;
     
     %Probability of spiking and not spiking.

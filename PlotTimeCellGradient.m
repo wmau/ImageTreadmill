@@ -9,15 +9,13 @@ function plotTimeCellGradient(md)
 
 %% Plot outlines. 
     cd(md.Location);
-    load('TimeCells.mat','TimeCells','T'); 
-    load('TemporalInfo.mat','sig');
-    TimeCells = intersect(find(sig),TimeCells);
+    TimeCells = getTimeCells(md);
     
     load('Pos_align.mat','PSAbool');
     nNeurons = size(PSAbool,1);
     nTCs = length(TimeCells); 
     c = colormap(jet(nTCs)); 
-    [~,order] = PastalkovaPlot(md,false);
+    [~,order] = PastalkovaPlot(md,'plotit',false);
     TimeCells = TimeCells(order);
     
     PlotNeurons(md,1:nNeurons,[.7 .7 .7],1);

@@ -12,7 +12,7 @@ function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,save
 %       P_xi is the probability the mouse is in pixel xi,
 %       RunOccMap./sum(RunOccMap(:)
 %       
-%       P_k is the probability of observe k spikes,
+%       P_k is the probability of observing k spikes,
 %       sum(FT(neuron,:),2)/size(FT,2)
 %
 %       P_k|xi is the conditional probability of observing k spikes in
@@ -25,7 +25,9 @@ function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,save
 %
 %       RunOccMap: spatial occupancy map during running.
 %
-%       FT: logical of 
+%       FT: logical of spiking.
+%
+%       savetodisk: logical for saving.
 
 %% Set up variables.         
     %Number of frames and neurons. 

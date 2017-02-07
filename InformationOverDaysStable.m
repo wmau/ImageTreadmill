@@ -111,9 +111,10 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
             end
             
             corrMe = intersect(neurons,MAP{a}(:,s));
+            corrMe = EliminateUncertainMatches([mds(ssns(s)),mds(ssns(s+1))],corrMe);
             
             if strcmp(statType,'fr')
-                stat = (stat-min(stat))./range(stat);
+                stat(neurons) = (stat(neurons)-min(stat(neurons)))./range(stat(neurons));
             else
                 stat(neurons) = zscore(stat(neurons));
             end
@@ -164,9 +165,9 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
     [flatDur,order] = sort(flatDur);
     flatStats = flatStats(order);
     
-    [p,tbl,anovastats] = kruskalwallis(flatStats,flatDur,'off');
-    tukey = multcompare(anovastats,'display','off');
-   
+    [p,tbl,anovastats] = kruskalwallis(flatStats,flatDur,'on');
+    tukey = multcompare(anovastats,'display','on');
+     
     m = accumarray(flatDur+1,flatStats,[],@mean);
     sem = accumarray(flatDur+1,flatStats,[],@(x) std(x)/sqrt(length(x)));
     errorbar(unique(flatDur),m,sem,'linewidth',2);

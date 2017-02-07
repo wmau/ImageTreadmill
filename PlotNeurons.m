@@ -14,6 +14,10 @@ function PlotNeurons(md,neurons,col,thickness)
     cd(md.Location); 
     load('MovieDims.mat','Xdim','Ydim');
     
+    if size(neurons,1) > size(neurons,2)
+        neurons = neurons';
+    end
+    
     load('FinalOutput.mat','xOutline','yOutline');
     if ~exist('xOutline','var')
         load('FinalOutput.mat','NeuronImage');

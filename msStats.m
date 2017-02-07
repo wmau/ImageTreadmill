@@ -22,6 +22,7 @@ function stats = msStats(mds,stat,neurons)
     stat = lower(stat);
     DATA = CompileMultiSessionData(mds,{stat});
     nSessions = length(mds);
+    nNeurons = length(neurons);
     
     %Session containing mapping matrix. 
     mapMD = getMapMD(mds);
@@ -29,10 +30,10 @@ function stats = msStats(mds,stat,neurons)
     %Match cells. 
     matches = msMatchCells(mapMD,mds,neurons,true);
     
-    stats = zeros(size(matches,1),nSessions);
+    stats = nan(nNeurons,nSessions);
     %Toss into matrix. 
-    for s=1:nSessions
-        stats(:,s) = DATA.(stat){s}(matches(:,s));
-    end
+    stats(matches(:,1),1) = DATA.(stat){1}(matches(:,1));
+    stats(matches(:,1),2) = DATA.(stat){2}(matches(:,2));
+    %stats(matches(:,s),s) = DATA.
     
 end

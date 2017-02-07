@@ -245,7 +245,7 @@ function msPlotTimeCells(md,varargin)
                 Ylim = get(gca,'ylim');
         
                 %If there are enough laps, plot significance asterisks. 
-                if sum(any(RATEBYLAP{thisSession}(:,:,n),2)) > critLaps(thisSession) && ismember(n,TIMECELLS{thisSession})
+                if ismember(n,TIMECELLS{thisSession})
                     %Significance asterisks. 
                     [SIGX,SIGY] = significance_asterisks(t{thisSession},CURVES{thisSession}.sig{n},...
                         CURVES{thisSession}.smoothed{n},bins{thisSession});

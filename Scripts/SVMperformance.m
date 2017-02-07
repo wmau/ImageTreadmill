@@ -25,14 +25,14 @@ disp('Classifying temporal stability based on spatial information.');
 disp('Classifying temporal stability based on transient frequency.');
 [~,sTimeFRaccuracy,sTimeFRshuffle,sTimeFRp] = ClassifyStability(fulldataset,'time','FR',krnl);
 
-% disp('Classifying spatial stability based on spatial information.');
-% [~,sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = ClassifyStability(fulldataset,'place','SI',krnl);
-% 
-% disp('Classifying spatial stability based on temporal information.');
-% [~,sPlaceTIaccuracy,sPlaceTIshuffle,sPlaceTIp] = ClassifyStability(fulldataset,'place','TI',krnl);
-% 
-% disp('Classifying spatial stability based on transient frequency.');
-% [~,sPlaceFRaccuracy,sPlaceFRshuffle,sPlaceFRp] = ClassifyStability(fulldataset,'time','FR',krnl);
+disp('Classifying spatial stability based on spatial information.');
+[~,sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = ClassifyStability(fulldataset,'place','SI',krnl);
+
+disp('Classifying spatial stability based on temporal information.');
+[~,sPlaceTIaccuracy,sPlaceTIshuffle,sPlaceTIp] = ClassifyStability(fulldataset,'place','TI',krnl);
+
+disp('Classifying spatial stability based on transient frequency.');
+[~,sPlaceFRaccuracy,sPlaceFRshuffle,sPlaceFRp] = ClassifyStability(fulldataset,'time','FR',krnl);
 
 timecolor = [0 .5 .5];
 spacecolor = [0.5765 0.4392 0.8588];

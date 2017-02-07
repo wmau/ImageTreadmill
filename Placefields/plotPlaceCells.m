@@ -19,16 +19,11 @@ function plotPlaceCells(md,varargin)
     end
     nPCs = length(neurons);
 
-    try
-        load('Placefields.mat','TMap_gauss','isrunning');
-    catch
-        PlacefieldStats(md);
-    end
+    load('Placefields.mat','TMap_gauss','isrunning');
     load('SpatialInfo.mat','MI','Ipos','okpix');
     try
         load('Pos_align.mat','PSAbool','x_adj_cm','y_adj_cm');
     catch
-        load('Pos.mat','xpos_interp','ypos_interp');
         load('FinalOutput.mat','PSAbool');
         [x_adj_cm,y_adj_cm,~,PSAbool] = AlignImagingToTracking(md.Pix2CM,PSAbool,0);
     end

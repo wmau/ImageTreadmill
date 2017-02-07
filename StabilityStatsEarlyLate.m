@@ -1,4 +1,4 @@
-function [STATS,nNeurons] = StabilityStatsEarlyLate(mds,stabilityType,statType,treadmillTime)
+function [STATS,nNeurons,stable,unstable] = StabilityStatsEarlyLate(mds,stabilityType,statType,treadmillTime)
 %
 %
 %
@@ -73,7 +73,7 @@ function [STATS,nNeurons] = StabilityStatsEarlyLate(mds,stabilityType,statType,t
             if strcmp(stabilityType,'time') || ...
               (strcmp(stabilityType,'place') && strcmp(statType,'time'))
                 %Get early/late.
-                [~,order] = PastalkovaPlot(mds(ssns(s)),false);
+                [~,order] = PastalkovaPlot(mds(ssns(s)),'plotit',false);
                 middle = length(order)/2;
 
                 if strcmp(treadmillTime,'early')
