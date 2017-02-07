@@ -17,12 +17,12 @@ end
 %MD(296:299) = G48.
 %MD(300:304) = Bellatrix.
 %MD(305:309) = Polaris.
-fulldataset = MD(292:309);      
+mds = MD(292:309);      
 
-[~,~,Sstable,Sunstable] = PartitionStats(fulldataset,'place','si');
-[~,~,Tstable,Tunstable] = PartitionStats(fulldataset,'time','ti');
+[~,~,Sstable,Sunstable] = PartitionStats(mds,'place','si');
+[~,~,Tstable,Tunstable] = PartitionStats(mds,'time','ti');
 
-animals = unique({fulldataset.Animal});
+animals = unique({mds.Animal});
 nAnimals = length(animals);
 c = parula(nAnimals);
 
@@ -33,42 +33,68 @@ i=1;
 figure;
 for a=1:nAnimals
     %Get all the sessions for this animal.
-    ssns = find(strcmp(animals{a},{fulldataset.Animal})); 
-    
+    ssns = find(strcmp(animals{a},{mds.Animal}));
+
+    %Load registration matrix.
+    mapMD = getMapMD(mds(ssns));
+    cd(mapMD.Location);
+    load('batch_session_map.mat');
+    MAP{a} = batch_session_map.map(:,2:end);
+
+    mapCols = zeros(length(ssns)-1,1);
+        
+    sRows = []; usRows = [];
     [stableCentroidDrifts{a},stableOrientationDrifts{a},...
         unstableCentroidDrifts{a},unstableOrientationDrifts{a},...
         stableOverlap{a},unstableOverlap{a}] = deal(cell(1,length(ssns)-1));
     for s = 1:length(ssns)-1
-            cd(fulldataset(ssns(s)).Location);
-            stable = union(Sstable{a}{s},Tstable{a}{s});
-            unstable = union(Sunstable{a}{s},Tunstable{a}{s});
-                      
-%             stable = Sstable{a}{s};
-%             unstable = Sunstable{a}{s};
+        cd(mds(ssns(s)).Location);
+        %stable = union(Sstable{a}{s},Tstable{a}{s});
+        %unstable = union(Sunstable{a}{s},Tunstable{a}{s});
+
+        stable = Sstable{a}{s};
+        unstable = Sunstable{a}{s};
+
+        [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(ssns(s)),stable,false);
+        sRows = [sRows; mapRows];
+        [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(ssns(s)),unstable,false);
+        usRows = [usRows; mapRows];
             
-            reg_stats = neuron_reg_qc(fulldataset(ssns(s)),...
-                fulldataset(ssns(s+1)),'neurons',stable);
-            stableCentroidDrifts{a}{s} = reg_stats.cent_d;
-            stableM(i) = median(reg_stats.cent_d);
-            stableOrientationDrifts{a}{s} =  reg_stats.orient_diff;
-            stableOverlap{a}{s} = reg_stats.overlap;
-            
-            reg_stats = neuron_reg_qc(fulldataset(ssns(s)),...
-                fulldataset(ssns(s+1)),'neurons',unstable);
-            unstableCentroidDrifts{a}{s} = reg_stats.cent_d;
-            unstableM(i) = median(reg_stats.cent_d);
-            unstableOrientationDrifts{a}{s} = reg_stats.orient_diff;
-            unstableOverlap{a}{s} = reg_stats.overlap;
-            
-            
-            i=i+1;
+    end
+    
+    sMAP{a} = MAP{a}(sRows,mapCols);
+    usMAP{a} = MAP{a}(usRows,mapCols);
+    
+    for s = 1:length(ssns)-1
+        %stable = union(Sstable{a}{s},Tstable{a}{s});
+        %unstable = union(Sunstable{a}{s},Tunstable{a}{s});
+        
+        stable = Sstable{a}{s};
+        unstable = Sunstable{a}{s};
+        
+        reg_stats = neuron_reg_qc(mds(ssns(s)),...
+            mds(ssns(s+1)),'neurons',intersect(sMAP{a}(:,s),stable));
+        stableCentroidDrifts{a}{s} = reg_stats.cent_d;
+        stableM(i) = median(reg_stats.cent_d);
+        stableOrientationDrifts{a}{s} =  reg_stats.orient_diff;
+        stableOverlap{a}{s} = reg_stats.overlap;
+
+        reg_stats = neuron_reg_qc(mds(ssns(s)),...
+            mds(ssns(s+1)),'neurons',intersect(usMAP{a}(:,s),unstable));
+        unstableCentroidDrifts{a}{s} = reg_stats.cent_d;
+        unstableM(i) = median(reg_stats.cent_d);
+        unstableOrientationDrifts{a}{s} = reg_stats.orient_diff;
+        unstableOverlap{a}{s} = reg_stats.overlap;
+
+
+        i=i+1;
                    
     end
 end
 
 i=1;
 for a=1:nAnimals
-    ssns = find(strcmp(animals{a},{fulldataset.Animal}));
+    ssns = find(strcmp(animals{a},{mds.Animal}));
     
     for s=1:length(ssns)-1
         hold on;
@@ -80,28 +106,6 @@ end
 
 [pCD] = ranksum(stableM,unstableM);
 title(['P = ',num2str(pCD)]);
-% [~,pCD] = kstest2(stableCentroidDrifts,unstableCentroidDrifts);
-% [~,pOD] = kstest2(stableOrientationDrifts,unstableOrientationDrifts);
-% [~,pCorr] = ttest2(stableOverlap,unstableOverlap);
-% 
-% figure; 
-% subplot(1,3,1); 
-% ecdf(stableCentroidDrifts); 
-% hold on;
-% ecdf(unstableCentroidDrifts);
-% title(['p = ',num2str(pCD)]);
-% 
-% subplot(1,3,2);
-% ecdf(stableOrientationDrifts); 
-% hold on;
-% ecdf(unstableOrientationDrifts);
-% title(['p = ',num2str(pOD)]);
-% 
-% subplot(1,3,3);
-% ecdf(stableOverlap);
-% hold on;
-% ecdf(unstableOverlap);
-% title(['p = ',num2str(pCorr)]);
 set(gca,'xticklabel',{'Stable','Unstable'});
 set(gca,'xtick',[1:2]);
 xlim([0.5,2.5]); ylim([0,3]);
@@ -110,3 +114,14 @@ ylabel('Median Centroid Drift [microns]');
 if saveBool
     print(fn,'-dpdf');
 end
+
+s = []; us = [];
+for i=1:4
+    s = [s; cell2mat(stableCentroidDrifts{i}')];
+    us = [us; cell2mat(unstableCentroidDrifts{i}')];
+end
+[~,p] = kstest2(s,us)
+figure;
+hold on;
+histogram(s,'normalization','probability','edgecolor','none','binwidth',.1);
+histogram(us,'normalization','probability','edgecolor','none','binwidth',.1);
