@@ -8,9 +8,7 @@ function NeighborhoodTimeDistance(md,thresholds)
 
 %%
     cd(md.Location); 
-    load('TimeCells.mat','TimeCells');
-    load('TemporalInfo.mat','sig');
-    TimeCells = intersect(TimeCells,find(sig)); 
+    TimeCells = getTimeCells(md);
     nTCs = length(TimeCells);
     nDistances = length(thresholds);
     B = 1000;

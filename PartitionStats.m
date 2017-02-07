@@ -25,11 +25,13 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
     animals = unique({mds.Animal});
     nAnimals = length(animals); 
     statType = lower(statType);
-    
 
 %% Compile
     [STATS.stable,STATS.unstable,stable,unstable] = deal(cell(1,nAnimals));
     [nNeurons.stable,nNeurons.unstable] = deal(zeros(1,nAnimals)); 
+    
+    %p-value criterion to be considered a place cell. 
+    PCcrit = .01;
     for a = 1:nAnimals       
         %Get all the sessions for this animal.
         ssns = find(strcmp(animals{a},{mds.Animal})); 
@@ -39,10 +41,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
         [stable{a},unstable{a}] = deal(cell(1,length(ssns)-1));
         for s = 1:length(ssns)-1
             cd(mds(ssns(s)).Location);
-            
-            %p-value criterion to be considered a place cell. 
-            PCcrit = .01;
-            
+ 
             %Get place and time cells.
             PCs = getPlaceCells(mds(ssns(s)),PCcrit);
             TCs = getTimeCells(mds(ssns(s)));
@@ -78,9 +77,9 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
                 case 'fr'
                     load('Pos_align.mat','PSAbool');
                     [n,f] = size(PSAbool);
-    %                 d = diff([zeros(n,1) PSAbool],1,2);
-    %                 d(d<0) = 0;
-                    stat = sum(PSAbool,2)./f; 
+                    d = diff([zeros(n,1) PSAbool],1,2);
+                    d(d<0) = 0;
+                    stat = sum(d,2)./f; 
                     
                     %Select cells based on stability type. 
                     switch stabilityType
@@ -106,11 +105,14 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
                     %Should only ever be time cells. 
                     neurons = TCs;                              
             end
+                     
+            neurons = EliminateUncertainMatches([mds(ssns(s)) mds(ssns(s+1))],neurons);
             
             %stat = (stat-min(stat))./range(stat);
             %Normalize.
-            if any(strcmp(statType,{'fr','fluor'}))
-                stat = (stat-min(stat))./range(stat);
+            if strcmp(statType,'fr')
+                %stat = (stat-min(stat))./range(stat);
+                stat(neurons) = (stat(neurons)-min(stat(neurons)))./range(stat(neurons));
             else
                 stat(neurons) = zscore(stat(neurons));
             end

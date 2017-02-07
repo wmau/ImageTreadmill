@@ -10,12 +10,10 @@ function [d,td] = TimeCellTopology(md)
 
 %%
     cd(md.Location);
-    load('TimeCells.mat','TimeCells','T'); 
-    load('TemporalInfo.mat','sig');
-    TimeCells = intersect(find(sig),TimeCells);
+    TimeCells = getTimeCells(md);
     nTCs = length(TimeCells);
     
-    [~,order] = PastalkovaPlot(md,false);
+    [~,order] = PastalkovaPlot(md,'plotit',false);
     centroids = getNeuronCentroids(md,'neurons',TimeCells);
     
     [d,td] = deal(nan(nTCs));
