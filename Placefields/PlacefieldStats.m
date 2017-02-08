@@ -49,7 +49,7 @@ function PlacefieldStats(md, varargin)
 %% Set up.
     [dirstr, md] = ChangeDirectory(md.Animal, md.Date, md.Session); % Change Directory and fill in partial MD if used
 
-    load('Placefields.mat','TMap_gauss','xBin','yBin','isrunning');
+    load(fullfile(dirstr, ['Placefields' name_append '.mat']),'TMap_gauss','xBin','yBin','isrunning');
     try
         load('Pos_align.mat','PSAbool');
     catch
