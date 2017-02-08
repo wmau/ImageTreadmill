@@ -1,3 +1,10 @@
+%% Description
+%
+%   Examines peaks of new time cells the day before and correlates them. If
+%   the correlation is significant, it suggests that the peaks were in the
+%   same place. 
+%
+
 %% Set up.
     clear;
     
