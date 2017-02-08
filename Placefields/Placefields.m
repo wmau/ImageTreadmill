@@ -82,9 +82,10 @@ function Placefields(MD,varargin)
         %Assuming your exclude_frames did not already apply to the aligned
         %data, correct them. This should work, but haven't actually tested
         %this.
-        exclude_frames = exclude_frames - (offset-1);
-        exclude_frames(exclude_frames < 0) = [];
+        exclude_frames = exclude_frames - (offset-2);
+        exclude_frames(exclude_frames < 1) = [];
         exclude_frames(exclude_frames > size(PSAbool,2)) = [];
+
     end
     
     %Basic variables. 
