@@ -1,4 +1,4 @@
-function [newTCStat,r] = NewTimeCellStats(base,comp,statType,varargin)
+function [newPCStat,r] = NewPlaceCellStats(base,comp,statType,varargin)
 %
 %
 %
@@ -16,9 +16,9 @@ function [newTCStat,r] = NewTimeCellStats(base,comp,statType,varargin)
 
 %%
     cd(base.Location);
-    newTCs = getNewTimeCells(base,comp);
-    S1TCs = getTimeCells(base);
+    newPCs = getNewPlaceCells(base,comp);
     S1PCs = getPlaceCells(base,.01);
+    S1TCs = getTimeCells(base);
 
     binsize = .1;
     switch statType
@@ -29,30 +29,37 @@ function [newTCStat,r] = NewTimeCellStats(base,comp,statType,varargin)
             d(d<0) = 0;
             stat = sum(d,2)./f; 
 
-            pool = find(~ismember(1:n,S1TCs));
-        case 'ti'
-            load('TemporalInfo.mat','MI');
-            n = length(MI);
-            stat = MI; 
-            
-            pool = find(~ismember(1:n,S1TCs));
+            pool = find(~ismember(1:n,S1PCs));
         case 'si'
             load('SpatialInfo.mat','MI');
             n = length(MI);
             stat = MI; 
-
+            
             pool = find(~ismember(1:n,S1PCs));
+        case 'ti'
+            load('TemporalInfo.mat','MI');
+            n = length(MI);
+            stat = MI; 
+
+            %If looking cross modally, look at all neurons.
+            pool = find(~ismember(1:n,S1TCs));
     end
     
+    %Z-score the statistic relative to the pool of neurons in session 1
+    %that are currently not place cells. This will include the cells that
+    %are not categorized as place cells but eventually become categorizd as
+    %place cells in the subsequent session.
     stat(pool) = zscore(stat(pool));
+    
+    %Randomly sample from the pool of not-place cells. 
     r = randsample(stat(pool),1000,true);
-    newTCStat = stat(newTCs);   
-    [~,p] = kstest2(r,newTCStat);
+    newPCStat = stat(newPCs);   
+    [~,p] = kstest2(r,newPCStat);
     
     if plotit
         figure; hold on
         histogram(r,'normalization','probability','binwidth',binsize,'edgecolor','none');
-        histogram(newTCStat,'normalization','probability','binwidth',binsize,'edgecolor','none');
+        histogram(newPCStat,'normalization','probability','binwidth',binsize,'edgecolor','none');
         title(['P = ',num2str(p)]);
     end
 end

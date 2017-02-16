@@ -19,7 +19,7 @@
     S1 = [];
     S2 = [];
     
-    teal = [0 .5 .5];
+    purple = [.58 .44 .86];
     
     animals = unique({fulldataset.Animal});
     nAnimals = length(animals);
@@ -29,7 +29,7 @@
         nSessions = length(ssns)-1;
         
         for s=1:nSessions
-            [a,b] = RankNewTCs(fulldataset(ssns(s)),fulldataset(ssns(s+1)),'plotit',false);
+            [a,b] = RankNewPCs(fulldataset(ssns(s)),fulldataset(ssns(s+1)),'plotit',false);
             
             S1 = [S1; a];
             S2 = [S2; b]; 
@@ -38,9 +38,9 @@
     
     [R,p] = corr(S1,S2,'type','spearman');
     figure;
-    scatter(S1,S2,20,teal,'filled');
+    scatter(S1,S2,20,purple,'filled');
     title(['R = ',num2str(R),' p = ',num2str(p)]);
     line([0:max([S1; S2])],[0:max([S1; S2])],'linestyle','-.','color','k');
-    xlabel('Day 1 Peak [s]'); 
-    ylabel('Day 2 Peak [s]');
-    set(gca,'linewidth',2,'tickdir','out','xtick',[0:2:10],'ytick',[0:2:10]);
+    xlabel('Day 1 Peak'); 
+    ylabel('Day 2 Peak');
+    set(gca,'linewidth',2,'tickdir','out');

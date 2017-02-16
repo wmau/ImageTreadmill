@@ -23,6 +23,7 @@ function [S1Peaks,S2Peaks] = RankNewTCs(base,comp,varargin)
     p.parse(base,comp,varargin{:});
     
     plotit = p.Results.plotit;
+    teal = [0 .5 .5];
     
 %% Get new time cells. 
     cd(base.Location);
@@ -55,7 +56,7 @@ function [S1Peaks,S2Peaks] = RankNewTCs(base,comp,varargin)
 
             nTCs = length(S2order); 
             hold on;
-            plot(peaks,[1:nTCs],'r','linewidth',3);
+            plot(peaks,[1:nTCs],'color',teal,'linewidth',3);
         
         %New time cells on day 1 sorted in the same order as day 2. 
         subplot(1,2,1); 
@@ -63,15 +64,7 @@ function [S1Peaks,S2Peaks] = RankNewTCs(base,comp,varargin)
             title('Day 1');
 
             hold on;
-            plot(peaks,[1:nTCs],'r','linewidth',3);
-
-        %Scatter plot of orders.  
-        figure;
-        scatter(S1order,S2order,'.');
-        [R,p] = corr(S1order,S2order,'type','spearman');
-        title(['R = ',num2str(R), ' p = ',num2str(p)]);
-        xlabel('Day 1 Rank'); 
-        ylabel('Day 2 Rank');
+            plot(peaks,[1:nTCs],'color',teal,'linewidth',3);
         
         %Scatter plot of peaks. 
         figure;
