@@ -11,10 +11,12 @@ function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
     p.addRequired('noi',@(x) isnumeric(x)); 
     p.addParameter('corrtype','pearson',@(x) ischar(x)); 
     p.addParameter('tracetype','curves',@(x) ischar(x)); 
+    p.addParameter('shuffle',false,@(x) islogical(x));
     
     p.parse(ref,ssn,noi,varargin{:});
     corrtype = p.Results.corrtype;
     tracetype = p.Results.tracetype; 
+    shuffle = p.Results.shuffle;
     
 %% Get mapped neurons.
     ssns = [ref,ssn];   
@@ -23,17 +25,16 @@ function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
     mapMD = getMapMD(ref);
     matchMat = msMatchCells(mapMD,ssns,noi,true);
     
-    try
-        nNeurons = length(DATA.curves{1}.tuning);
-    catch
-        nNeurons = size(DATA.(tracetype){1},3);
-    end
+    try nNeurons = length(DATA.curves{1}.tuning);
+    catch, nNeurons = size(DATA.(tracetype){1},3); end
     corrStats = nan(nNeurons,2);
     
 %% Do correlations.
     for i = 1:size(matchMat,1)
         n1 = matchMat(i,1);
-        n2 = matchMat(i,2);
+        
+        if shuffle, n2 = matchMat(randsample(size(matchMat,1),1),2);
+        else, n2 = matchMat(i,2); end
         
         switch tracetype
             case 'curves'
@@ -45,5 +46,7 @@ function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
         end
         
         [corrStats(n1,1),corrStats(n1,2)] = corr(tf1,tf2,'type',corrtype);
+        
+        if isnan(corrStats(n1,1)), corrStats(n1,:) = 0 ; end
     end
 end

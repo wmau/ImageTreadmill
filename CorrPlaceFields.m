@@ -41,5 +41,7 @@ function corrStats = CorrPlaceFields(ref,ssn,noi,varargin)
         
         %Correlation.
         [corrStats(n1,1),corrStats(n1,2)] = corr(pf1,pf2,'type',corrtype,'rows','complete');
+    
+        if isnan(corrStats(n1,1)), corrStats(n1,:) = 0 ; end
     end
 end
