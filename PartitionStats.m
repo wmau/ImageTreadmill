@@ -25,13 +25,28 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
     animals = unique({mds.Animal});
     nAnimals = length(animals); 
     statType = lower(statType);
+    
+%% Determine what type of neuron to analyze.
+    switch stabilityType
+        case 'time'
+            switch statType
+                case 'ti',cellGet = 'timecells'; 
+                case 'si',cellGet = 'timecells'; 
+                case {'fr','fluor'}, cellGet = 'timecells';
+            end
+        case 'place'
+            switch statType
+                case 'ti',cellGet = 'placecells'; 
+                case 'si',cellGet = 'placecells'; 
+                case {'fr','fluor'}, cellGet = 'placecells';
+            end
+    end
 
 %% Compile
     [STATS.stable,STATS.unstable,stable,unstable] = deal(cell(1,nAnimals));
     [nNeurons.stable,nNeurons.unstable] = deal(zeros(1,nAnimals)); 
     
     %p-value criterion to be considered a place cell. 
-    PCcrit = .01;
     for a = 1:nAnimals       
         %Get all the sessions for this animal.
         ssns = find(strcmp(animals{a},{mds.Animal})); 
@@ -43,61 +58,35 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
             cd(mds(ssns(s)).Location);
  
             %Get place and time cells.
-            PCs = getPlaceCells(mds(ssns(s)),PCcrit);
             TCs = getTimeCells(mds(ssns(s)));
+            
+            neurons = AcquireTimePlaceCells(mds(ssns(s)),cellGet);
+            neurons = EliminateUncertainMatches([mds(ssns(s)) mds(ssns(s+1))],neurons);  
                         
             switch statType
                 %Temporal information. 
                 case 'ti' 
                     load('TemporalInfo.mat','MI','Ispk','Isec');
                     stat = MI;                
-
-                    %If looking at temporal information and time stability,
-                    %get all time cells. Otherwise, get dual time/place
-                    %cells. 
-                    switch stabilityType 
-                        case 'time',neurons = TCs;
-                        case 'place',neurons = intersect(TCs,PCs);
-                    end
-                    
+           
                 %Spatial information.
                 case 'si'
                     load('SpatialInfo.mat','MI','Ispk','Isec');
                     stat = MI;
 
-                    %If looking at spatial information and spatial
-                    %stability, get all place cells. Otherwise, get dual
-                    %time/place cells. 
-                    switch stabilityType 
-                        case 'time',neurons = intersect(TCs,PCs);
-                        case 'place',neurons = PCs;
-                    end
-                
                 %Firing rate (really Ca event rate).
                 case 'fr'
                     load('Pos_align.mat','PSAbool');
                     [n,f] = size(PSAbool);
                     d = diff([zeros(n,1) PSAbool],1,2);
                     d(d<0) = 0;
-                    stat = sum(d,2)./f; 
-                    
-                    %Select cells based on stability type. 
-                    switch stabilityType
-                        case 'time', neurons = TCs;
-                        case 'place',neurons = PCs;
-                    end
+                    stat = sum(d,2)./f;                  
                     
                 %Mean fluorescence.
                 case 'fluor'
                     load('Pos_align.mat','DFDTtrace');
                     stat = mean(DFDTtrace,2);
-                
-                    %Select cells based on stability type. 
-                    switch stabilityType
-                        case 'time', neurons = TCs;
-                        case 'place',neurons = PCs;
-                    end
-                    
+                                
                 %Time peak. 
                 case 'pk'
                     [~,stat] = getTimePeak(mds(ssns(s)));
@@ -106,16 +95,15 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
                     neurons = TCs;                              
             end
                      
-            neurons = EliminateUncertainMatches([mds(ssns(s)) mds(ssns(s+1))],neurons);
             
             %stat = (stat-min(stat))./range(stat);
             %Normalize.
-            if strcmp(statType,'fr')
+            %if strcmp(statType,'fr')
                 %stat = (stat-min(stat))./range(stat);
-                stat(neurons) = (stat(neurons)-min(stat(neurons)))./range(stat(neurons));
-            else
+                %stat(neurons) = (stat(neurons)-min(stat(neurons)))./range(stat(neurons));
+            %else
                 stat(neurons) = zscore(stat(neurons));
-            end
+            %end
                            
             switch stabilityType
                 case 'time'           

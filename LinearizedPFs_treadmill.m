@@ -1,4 +1,4 @@
-function [rate,normRates,sortedRates,order,X,edges] = LinearizedPFs_treadmill(MD)
+function [rate,normRates,sortedRates,order,X,edges,peakInds] = LinearizedPFs_treadmill(MD,varargin)
 %[normRate,sortedRate] = LinearizedPFs_treadmill(MD,FT)
 %
 %   Linearizes trajectory then computes place fields by binning FT
@@ -15,6 +15,19 @@ function [rate,normRates,sortedRates,order,X,edges] = LinearizedPFs_treadmill(MD
 %       sortedRate: Same as normRate, but sorted by peak. 
 %
 
+%% Parse inputs.
+    p = inputParser;
+    p.addRequired('MD',@(x) isstruct(x));
+    p.addParameter('plotit',true,@(x) islogical(x));
+    p.addParameter('PlaceCells',getPlaceCells(MD,.01),@(x) isnumeric(x));
+    p.addParameter('order',false);
+    
+    p.parse(MD,varargin{:});
+    
+    plotit = p.Results.plotit;
+    PCs = p.Results.PlaceCells;
+    order = p.Results.order; 
+    
 %% Preliminary. 
     %Go to directory. 
     currdir = pwd; 
@@ -43,12 +56,12 @@ function [rate,normRates,sortedRates,order,X,edges] = LinearizedPFs_treadmill(MD
     [nNeurons,nFrames] = size(PSAbool); 
     
     %Exclude treadmill epochs. 
-    inds = TodayTreadmillLog.inds;
+    peakInds = TodayTreadmillLog.inds;
     i=[];
-    for e=1:size(inds,1)
-        i = [i,inds(e,1):inds(e,2)];
+    for e=1:size(peakInds,1)
+        i = [i,peakInds(e,1):peakInds(e,2)];
     end
-    onTM = logical(zeros(1,nFrames)); 
+    onTM = false(1,nFrames); 
     onTM(i) = true; 
     
     %Speed threshold. 
@@ -70,11 +83,9 @@ function [rate,normRates,sortedRates,order,X,edges] = LinearizedPFs_treadmill(MD
         
         rate(n,:) = binned ./ occ; 
     end
-    
-
-    
+      
     %Find peak and normalize. 
-    [peak,inds] = max(rate,[],2);     
+    [peak,peakInds] = max(rate,[],2);     
     normRates = bsxfun(@rdivide,rate,peak);
       
     %Smooth. 
@@ -83,16 +94,18 @@ function [rate,normRates,sortedRates,order,X,edges] = LinearizedPFs_treadmill(MD
         normRates(n,:) = imfilter(normRates(n,:),sm);
     end
     
-    load(fullfile(pwd,'Placefields.mat'),'pval');
-    load(fullfile(pwd,'PlacefieldStats.mat'),'PFnHits','bestPF');
-    load(fullfile(pwd,'SpatialInfo.mat'),'MI'); 
-    idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');
-    PCcrit = .01;
-    PCs = pval<PCcrit & MI'>0 & PFnHits(idx)>4; 
-    
     %Sort. 
-    [~,order] = sort(inds(PCs)); 
+    if ~order, [peakInds,order] = sort(peakInds(PCs)); 
+    else, temp = peakInds(PCs); peakInds = temp(order); end
     sortedRates = normRates(PCs(order),:);
+    
+    if plotit
+        imagesc(1:size(sortedRates,2),1:length(PCs),sortedRates);
+        set(gca,'ydir','reverse'); axis tight;
+        colormap hot;
+        xlabel('Linearized Distance');
+        ylabel('Neurons');
+    end
     
     cd(currdir); 
 end

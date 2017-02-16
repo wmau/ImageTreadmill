@@ -40,13 +40,8 @@ function msLinearizedPFs(base,comp)
     
 %% Find place cells. 
     cd(base.Location); 
-    load(fullfile(pwd,'Placefields.mat'),'pval'); 
-    load(fullfile(pwd,'PlacefieldStats.mat'),'PFnHits','bestPF');
-    load(fullfile(pwd,'SpatialInfo.mat'),'MI');
-    idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
     PCcrit = .01;
-    
-    PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>4);
+    PCs = getPlaceCells(base,PCcrit);
 
 %% Find relevant indices in batch_session_map. 
     matches = msMatchCells(mapMD,sessions,PCs,false);

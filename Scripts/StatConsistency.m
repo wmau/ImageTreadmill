@@ -5,7 +5,7 @@ animals = unique({fulldataset.Animal});
 nAnimals = length(animals);
 colors = parula(nAnimals);
 
-statType = 'ti';
+statType = 'si';
 switch statType
     case 'ti', c = [0 .5 .5];
     case 'si', c = [.58 .44 .86];
@@ -42,9 +42,15 @@ for a=1:nAnimals
         
         temp = msStats(fulldataset(ssns(s):ssns(s+1)),statType,1:NumNeurons);
         S = [S; temp(stable,:)];
-        SM{a}{s} = mean(temp(stable,:));
         US = [US; temp(unstable,:)];
-        USM{a}{s} = mean(temp(unstable,:));
+        
+        if length(stable) > 2, SM{a}{s} = median(log10(temp(stable,:)));
+        else, SM{a}{s} = nan(1,2); end
+        
+        if length(unstable) > 2, USM{a}{s} = mean(log10(temp(unstable,:)));
+        else, USM{a}{s} = nan(1,2); end;
+        
+        
     end
     
 end
@@ -74,16 +80,16 @@ title('Mutual Spatial Information [bits]');
 SM = cell2mat(cellfun(@cell2mat, SM,'unif',0));
 USM = cell2mat(cellfun(@cell2mat, USM,'unif',0));
 nSessions = length(SM);
-SSEM = std(SM)./sqrt(nSessions);
-USSEM = std(USM)./sqrt(nSessions);
+SSEM = nanstd(SM)./sqrt(nSessions);
+USSEM = nanstd(USM)./sqrt(nSessions);
 
 figure('Position',[840 230 290 470]); hold on;
     plot([1,2],[SM(:,1) SM(:,2)],'color',[c .7],'linewidth',.2);
     plot([1,2],[USM(:,1) USM(:,2)],'linestyle','--','color',[.6 .6 .6 .7],'linewidth',.2);
-    errorbar([1,2],mean(SM),SSEM,'color',c,'linewidth',5);
-    errorbar([1,2],mean(USM),USSEM,'color',[.6 .6 .6],'linewidth',5);
+    errorbar([1,2],nanmean(SM),SSEM,'color',c,'linewidth',5);
+    errorbar([1,2],nanmean(USM),USSEM,'color',[.6 .6 .6],'linewidth',5);
 
-ylabel('Mean Mutual Information [bits]');
+ylabel('Log_{10} Mutual Information [bits]');
 set(gca,'xticklabel',{'Day 1','Day 2'});
 set(gca,'xtick',[1:2],'tickdir','out');
 xlim([0.5,2.5]);
@@ -95,7 +101,7 @@ grps = {stability,session};
 X = [SM(:);USM(:)];
 [p,tbl,stats,terms] = anovan(X,grps,'model','full','varnames',{'Stability','Session'},...
     'display','off');
-comps = multcompare(stats,'dimension',[1,2],'display','off');
+comps = multcompare(stats,'dimension',[1,2],'display','off','ctype','hsd');
 disp(['Main effect of stability F = ',num2str(tbl{2,6}),', P = ',num2str(tbl{2,7})]);
 disp(['Main effect of session F = ',num2str(tbl{3,6}),', P = ',num2str(tbl{3,7})]);
 disp(['Interaction F = ',num2str(tbl{4,6}),', P = ',num2str(tbl{4,7})]);

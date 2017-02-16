@@ -30,7 +30,6 @@ c = parula(nAnimals);
     unstableCentroidDrifts,unstableOrientationDrifts,...
     stableOverlap,unstableOverlap] = deal(cell(nAnimals,1));
 i=1;
-figure;
 for a=1:nAnimals
     %Get all the sessions for this animal.
     ssns = find(strcmp(animals{a},{mds.Animal}));
@@ -71,7 +70,7 @@ for a=1:nAnimals
         
         stable = Sstable{a}{s};
         unstable = Sunstable{a}{s};
-        
+
         reg_stats = neuron_reg_qc(mds(ssns(s)),...
             mds(ssns(s+1)),'neurons',intersect(sMAP{a}(:,s),stable));
         stableCentroidDrifts{a}{s} = reg_stats.cent_d;
@@ -93,21 +92,24 @@ for a=1:nAnimals
 end
 
 i=1;
+figure('Position',[130 240 250 440]); hold on;
 for a=1:nAnimals
     ssns = find(strcmp(animals{a},{mds.Animal}));
     
     for s=1:length(ssns)-1
-        hold on;
-        plot([1,2],[stableM(i),unstableM(i)],'-o','color',c(a,:),'linewidth',3);
+        plot([1,2],[stableM(i),unstableM(i)],'-','color',c(a,:));
         
         i=i+1;
     end
 end
+m = [mean(stableM), mean(unstableM)];
+sem = [std(stableM)/sqrt(length(stableM)) std(unstableM)/sqrt(length(unstableM))];
+errorbar([1,2],m,sem,'color','k','linewidth',3);
 
-[pCD] = ranksum(stableM,unstableM);
+[pCD] = signrank(stableM,unstableM);
 title(['P = ',num2str(pCD)]);
-set(gca,'xticklabel',{'Stable','Unstable'});
-set(gca,'xtick',[1:2]);
+set(gca,'xticklabel',{'Stable','Unstable'},'tickdir','out',...
+    'linewidth',2,'xtick',[1:2]);
 xlim([0.5,2.5]); ylim([0,3]);
 ylabel('Median Centroid Drift [microns]');
 

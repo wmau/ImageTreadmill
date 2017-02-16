@@ -50,7 +50,7 @@ function [matchMat,mapRows,mapCols] = msMatchCells(mapMD,md,neurons,trim)
     matchMat = MAP(mapRows,mapCols);
    
     if trim
-        matchMat(matchMat(:,2)==0,:) = [];
-        matchMat(isnan(matchMat(:,2)),:) = [];
+        matchMat(any(matchMat(:,2:end)==0,2),:) = [];
+        matchMat(any(isnan(matchMat(:,2:end)),2),:) = [];
     end
 end

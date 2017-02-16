@@ -1,4 +1,4 @@
-function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabilityType,statType)
+function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabilityType,statType,c)
 %
 %
 %
@@ -8,10 +8,23 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
     nAnimals = length(animals);
     statType = lower(statType);
     stabilityType = lower(stabilityType); 
-    PCcrit = .01;
+    
+%% Determine what type of neuron to analyze.
+    switch stabilityType
+        case 'time'
+            switch statType
+                case 'ti',cellGet = 'timecells'; normCell = 'timecells';
+                case 'si',cellGet = 'timecells'; normCell = 'placecells';
+            end
+        case 'place'
+            switch statType
+                case 'ti',cellGet = 'placecells'; normCell = 'timecells';
+                case 'si',cellGet = 'placecells'; normCell = 'placecells';
+            end
+    end
 
-%% 
-    [MAP,stabilityDuration,stats] = deal(cell(nAnimals,1));
+%% Get a mapping matrix for neurons without recounting.
+    [MAP,stabilityDuration,stats,stillthere] = deal(cell(nAnimals,1));
     for a=1:nAnimals
         ssns = find(strcmp(animals{a},{mds.Animal}));
         
@@ -26,32 +39,7 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
         for s=1:length(ssns)-1
             cd(mds(ssns(s)).Location);
             
-            TCs = getTimeCells(mds(ssns(s)));
-            PCs = getPlaceCells(mds(ssns(s)),PCcrit);
-            
-            switch statType
-                case 'ti'             
-                    if strcmp(stabilityType,'time')
-                        neurons = TCs;
-                    elseif strcmp(stabilityType,'place')
-                        neurons = intersect(TCs,PCs);
-                    end  
-                    
-                case 'si'
-                    if strcmp(stabilityType,'time')
-                        neurons = intersect(TCs,PCs);
-                    elseif strcmp(stabilityType,'place')
-                        neurons = PCs;
-                    end
-                    
-                case 'fr'
-                    if strcmp(stabilityType,'time')
-                        neurons = TCs;
-                    elseif strcmp(stabilityType,'place')
-                        neurons = PCs;
-                    end
-                    
-            end
+            neurons = AcquireTimePlaceCells(mds(ssns(s)),cellGet);
             
             [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(ssns(s)),neurons,false);
             allrows = [allrows; mapRows];
@@ -61,35 +49,20 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
         
         %Matrix containing all our cells for this animal.
         MAP{a} = MAP{a}(allrows,mapCols);
-        [stabilityDuration{a},stats{a}] = deal(nan(size(MAP{a})));
+        [stabilityDuration{a},stats{a},stillthere{a}] = deal(nan(size(MAP{a})));
  
-%% 
+%% Determine # days stable. 
         for s=1:length(ssns)-1
             cd(mds(ssns(s)).Location);
-            
-            TCs = getTimeCells(mds(ssns(s)));
-            PCs = getPlaceCells(mds(ssns(s)),PCcrit);
-            
+ 
             switch statType
                 case 'ti'
                     load('TemporalInfo.mat','MI','Ispk','Isec');
                     stat = MI;                
-
-                    if strcmp(stabilityType,'time')
-                        neurons = TCs;
-                    elseif strcmp(stabilityType,'place')
-                        neurons = intersect(TCs,PCs);
-                    end
                     
                 case 'si'
                     load('SpatialInfo.mat','MI','Ispk','Isec');
                     stat = MI;
-
-                    if strcmp(stabilityType,'time')
-                        neurons = intersect(TCs,PCs);
-                    elseif strcmp(stabilityType,'place')
-                        neurons = PCs;
-                    end
                 
 %                 case 'pk'
 %                     [~,stat] = getTimePeak(mds(ssns(s)));
@@ -103,37 +76,53 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
                     [~,f] = size(PSAbool);
                     stat = sum(PSAbool,2)./f; 
                 
-                    if strcmp(stabilityType,'time')
-                        neurons = TCs;
-                    elseif strcmp(stabilityType,'place')
-                        neurons = PCs;
-                    end
             end
             
-            corrMe = intersect(neurons,MAP{a}(:,s));
-            corrMe = EliminateUncertainMatches([mds(ssns(s)),mds(ssns(s+1))],corrMe);
+            %Neurons we are looking at.
+            neurons = AcquireTimePlaceCells(mds(ssns(s)),cellGet);
             
-            if strcmp(statType,'fr')
-                stat(neurons) = (stat(neurons)-min(stat(neurons)))./range(stat(neurons));
-            else
-                stat(neurons) = zscore(stat(neurons));
-            end
+            %Neurons we are comparing to.
+            norm = AcquireTimePlaceCells(mds(ssns(s)),normCell);
             
+            %Get cells to normalize to. 
+            norm = EliminateUncertainMatches(mds(ssns),norm);
+            neurons = EliminateUncertainMatches(mds(ssns),neurons);
+            
+            %Normalize to a specified population.
+%             m = mean(stat(norm)); 
+%             sd = std(stat(norm));
+%             stat(neurons) = bsxfun(@rdivide, bsxfun(@minus, stat(neurons), m), sd);
+             
+            %Normalize to themselves.
+            %stat(neurons) = zscore(stat(neurons));
+            
+            %Normalize to entire population.
+            stat = zscore(stat);
+ 
+            %Neurons whose stability we are examining.
+            %toCorr = intersect(neurons,MAP{a}(:,s));            
+           
             [good,idx] = ismember(neurons,MAP{a}(:,s));
             idx(idx==0) = [];
-            stats{a}(idx,s) = stat(neurons(good));  
+            stats{a}(idx,s) = stat(neurons(good)); 
             
             %Set days stable for valid neurons to 0.
-            stabilityDuration{a}(idx,s) = 0;
-            
+            if length(neurons) > 1
+                stabilityDuration{a}(idx,s) = 0;
+            else 
+                stabilityDuration{a}(idx,s) = nan;
+            end
+            stillthere{a}(idx,s) = true;
 %% 
             for ss=s+1:length(ssns)
+                %corrMe = EliminateUncertainMatches([mds(ssns(s)),mds(ssns(ss))],toCorr);
+                
                 %Correlations.
                 switch stabilityType
                     case 'time'
-                        corrs = CorrTrdmllTrace(mds(ssns(s)),mds(ssns(ss)),corrMe);               
+                        corrs = CorrTrdmllTrace(mds(ssns(s)),mds(ssns(ss)),neurons);               
                     case 'place'
-                        corrs = CorrPlaceFields(mds(ssns(s)),mds(ssns(ss)),corrMe);
+                        corrs = CorrPlaceFields(mds(ssns(s)),mds(ssns(ss)),neurons);
                 end
                 
                 %Stability criterion.
@@ -141,16 +130,20 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
 
                 %Find stable neurons. 
                 stableNeuron = find(corrs(:,2)<stblcrit);
+                unstableNeuron = find(corrs(:,2)>stblcrit | isnan(corrs(:,2)));
                 [~,idx] = ismember(stableNeuron,MAP{a}(:,s));
                 idx(idx==0) = [];
+                [~,uidx] = ismember(unstableNeuron,MAP{a}(:,s));
+                uidx(uidx==0) = [];
                 
                 %Add a day to stable neurons. 
-                stabilityDuration{a}(idx,s) = stabilityDuration{a}(idx,s)+1;
-                
+                ind = idx(idx & stillthere{a}(idx,s));
+                stabilityDuration{a}(ind,s) = stabilityDuration{a}(ind,s)+1;
+                stillthere{a}(uidx,s) = false;
                 
             end
             
-            
+
         end
      
         
@@ -160,17 +153,21 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
     flatStats = cell2mat(cellfun(@(x) x(:),stats,'unif',false));
     flatDur(isnan(flatDur)) = [];
     flatStats(isnan(flatStats)) = [];
-    %m = accumarray(flatDur+1,flatStats,[],@mean);
     
     [flatDur,order] = sort(flatDur);
-    flatStats = flatStats(order);
+    flatStats = flatStats(order); 
     
-    [p,tbl,anovastats] = kruskalwallis(flatStats,flatDur,'on');
-    tukey = multcompare(anovastats,'display','on');
+%     edges = 0:4;
+%     N = histc(flatDur,edges); 
+%     badbin = edges(N<10);
+%     bad = ismember(flatDur,badbin);
+%     
+%     flatDur(bad) = [];
+%     flatStats(bad) = [];
      
     m = accumarray(flatDur+1,flatStats,[],@mean);
     sem = accumarray(flatDur+1,flatStats,[],@(x) std(x)/sqrt(length(x)));
-    errorbar(unique(flatDur),m,sem,'linewidth',2);
+    errorbar(unique(flatDur),m,sem,'linewidth',2,'color',c,'capsize',0,'marker','o');
     xlabel('Days Stable');
     ylabel('Mutual Information [z-scored bits]');
     set(gca,'tickdir','out');

@@ -14,24 +14,26 @@ function [accuracy,sAccuracy,p] = kMeansStability(mds,stabilityCriterion,predict
     %Determine number of stable and unstable cells. 
     nStable = length(sStats); 
     nUnstable = length(usStats);
+    
+    nSample = min([nStable, nUnstable]);
 
-    X = [   sStats;...
-            usStats];
+    X = [   randsample(sStats,nSample);...
+            randsample(usStats,nSample)];
     
     bad = find(X==0);
     X(bad) = [];
          
     clusters = kmeans(X,2,'distance',distType);
     
-    if mean(X(clusters==2)) < mean(X(clusters==1))
+    if median(X(clusters==2)) < median(X(clusters==1))
         s=1; u=2;
     else
         s=2; u=1;
     end
     
     %Define labels.
-    stable = [  s*ones(nStable,1);...
-                u*ones(nUnstable,1)];
+    stable = [  s*ones(nSample,1);...
+                u*ones(nSample,1)];
     stable(bad) = [];
     
     accuracy = sum(stable==clusters)/length(stable);

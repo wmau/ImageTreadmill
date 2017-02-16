@@ -32,7 +32,7 @@
     end
     
     %Main analysis.
-    figure('Position',[130 240 250 440]); hold on;
+    figure('Position',[130 240 250 440]);  hold on;
     [sSame,usSame] = ParseInfoStability(fulldataset,'time','ti',teal);
     [sDiff,usDiff] = ParseInfoStability(fulldataset,'time','si',purple);
     MakeErrBar(sDiff,usDiff,purple);
@@ -60,6 +60,8 @@
     
     
 %% For space.
+    disp(' ');
+    
     %Main analysis.
     figure('Position',[670 240 250 440]); hold on;
     [sSame,usSame] = ParseInfoStability(fulldataset,'place','si',purple);
@@ -101,8 +103,12 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c)
         for s=1:length(ssns)-1
             sExtent = length(stable{a}{s}); 
             usExtent = length(unstable{a}{s});
-            sM{a}(s) = median(stats.stable{a}(i:i+sExtent-1));
-            usM{a}(s) = median(stats.unstable{a}(j:j+usExtent-1)); 
+            
+            if sExtent > 2, sM{a}(s) = median(stats.stable{a}(i:i+sExtent-1));
+            else, sM{a}(s) = nan; end
+                
+            if usExtent > 2, usM{a}(s) = median(stats.unstable{a}(j:j+usExtent-1)); 
+            else, usM{a}(s) = nan; end
             
             i = i+sExtent;
             j = j+usExtent;
@@ -111,7 +117,7 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c)
     
     sM = cell2mat(sM)';
     usM = cell2mat(usM)';
-    p = ranksum(sM,usM);  
+    p = signrank(sM,usM);  
     
     plot([1,2],[sM,usM],'color',[c .5]);
     set(gca,'xticklabel',{'Stable','Unstable'});
@@ -139,7 +145,7 @@ function ANOVAit(sSame,usSame,sDiff,usDiff)
     X = [sSame; usSame; sDiff; usDiff];
     [~,tbl,stats] = anovan(X,grps,'model','full','varnames',...
         {'Dimension','Stability'},'display','off');
-    comps = multcompare(stats,'dimension',[1,2],'display','off');
+    comps = multcompare(stats,'dimension',[1,2],'display','off','ctype','hsd');
     
     disp(['Main effect of dimension F = ',num2str(tbl{2,6}),', P = ',num2str(tbl{2,7})]);
     disp(['Main effect of stability F = ',num2str(tbl{3,6}),', P = ',num2str(tbl{3,7})]);

@@ -9,7 +9,7 @@ folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 
 time = fullfile(folder,'Info vs Days Stable (Time Stability)');
 place = fullfile(folder,'Info vs Days Stable (Place Stability)');
 
-saveBool = true;
+saveBool = false;
 if saveBool
     c = input('Saving set to true. Are you sure you want to continue? (y/n)','s');
 
@@ -18,10 +18,13 @@ if saveBool
     end
 end
 
+figure(1); hold on;
+[ttiDuration,ttiStats] = InformationOverDaysStable(fulldataset,'time','ti',teal);    
+[tsiDuration,tsiStats] = InformationOverDaysStable(fulldataset,'time','si',purple);
+
 figure;
-InformationOverDaysStable(fulldataset,'time','ti'); 
-hold on;
-InformationOverDaysStable(fulldataset,'time','si');
+[tbl,stats,comps] = ANOVAit(ttiDuration,ttiStats,tsiDuration,tsiStats);
+
 e = get(gca,'Children');
 e(1).XData = e(1).XData + .2;
 set(gca,'xtick',[0:4]);
@@ -32,10 +35,14 @@ if saveBool
     print(time,'-dpdf');
 end
 
+figure; hold on;
+[ssiDuration,ssiStats] = InformationOverDaysStable(fulldataset,'place','si',purple); 
+[stiDuration,stiStats] = InformationOverDaysStable(fulldataset,'place','ti',teal);
+
 figure;
-InformationOverDaysStable(fulldataset,'place','si'); 
-hold on;
-InformationOverDaysStable(fulldataset,'place','ti');
+[tbl,stats,comps] = ANOVAit(ssiDuration,ssiStats,stiDuration,stiStats);
+    
+
 e = get(gca,'Children');
 e(1).XData = e(1).XData + .2;
 set(gca,'xtick',[0:4]);
@@ -44,4 +51,18 @@ e(2).Color = purple;
 legend({'Spatial','Temporal'},'location','northwest');
 if saveBool
     print(place,'-dpdf');
+end
+
+function [tbl,stats,comps] = ANOVAit(sameDuration,sameStats,diffDuration,diffStats)
+%
+%
+%
+
+%% 
+    dimension = [ones(length(sameStats),1); zeros(length(diffStats),1)];
+    duration = [sameDuration; diffDuration];
+    X = [sameStats; diffStats]; 
+    grps = {dimension,duration};
+    [~,tbl,stats] = anovan(X,grps,'model','full','varnames',{'Dimension','Duration'},'display','on');
+    comps = multcompare(stats,'dimension',[1,2],'display','on');
 end
