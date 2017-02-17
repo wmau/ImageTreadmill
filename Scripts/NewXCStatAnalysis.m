@@ -11,17 +11,37 @@ nAnimals = length(animals);
 statType = 'fr';
 cellType = 'Place';
 
+saveBool = true;
+folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
+savename = fullfile(folder,['New ',cellType,' Cell ',statType]);
+
+if saveBool
+    c = input('Saving set to true. Are you sure you want to continue? (y/n)','s');
+    
+    if ~strcmp(c,'y')
+        saveBool = false;
+    end
+end
+
 binsize = .1;
 switch statType
-    case 'ti', yLabel = 'Mean Norm. Temporal Info. [z-bits]';
-    case 'si', yLabel = 'Mean Norm. Spatial Info. [z-bits]';
-    case 'fr', yLabel = 'Mean Norm. Ca Event Freq.';
+    case 'ti', yLabel = 'z-scored Temporal Info.';
+    case 'si', yLabel = 'z-scored Spatial Info.';
+    case 'fr', yLabel = 'z-scored Ca Event Freq.';
 end
 
 switch cellType
     case 'Place', c = [.58 .44 .86];
     case 'Time', c = [0 .5 .5];
 end
+
+switch statType
+    case 'ti', fc = [0 .5 .5];
+    case 'si', fc = [.58 .44 .86]; 
+    case 'fr', fc = [.7 .7 .7];
+end
+
+rc = [.5 .5 .5];
 
 [new,r,N,R] = deal([]);
 for a=1:nAnimals
@@ -58,16 +78,19 @@ legend({['Future ',cellType, ' Cells'],'Random Sample'});
 figure('Position',[400 240 250 440]); hold on;
 m = [mean(N) mean(R)];
 sem = [std(N)./sqrt(length(N)) std(R)./sqrt(length(R))];
-bar(1,m(1),'facecolor',c,'edgecolor','none','linewidth',3);
-bar(2,m(2),'facecolor',[.7 .7 .7],'edgecolor','none','linewidth',3);
+bar(1,m(1),'facecolor',fc,'edgecolor',c,'linewidth',3,'facealpha',.5);
+bar(2,m(2),'facecolor',fc,'edgecolor',rc,'linewidth',3);
 for i=1:length(N)
-    plot([1 2],[N(i) R(i)],'color',[0 0 0 .3],'linewidth',.5);
+    plot([1 2],[N(i) R(i)],'color',[fc .3],'linewidth',.5);
 end
 errorbar(1,m(1),sem(1),'linewidth',2,'color',c);
-errorbar(2,m(2),sem(2),'linewidth',2,'color',[.7 .7 .7]);
+errorbar(2,m(2),sem(2),'linewidth',2,'color',rc);
 set(gca,'xticklabel',{['Future ',cellType,' Cell'],'Random'});
 set(gca,'xtick',[1:2],'tickdir','out','linewidth',2);
 ylabel(yLabel);
 xlim([0.5,2.5]);
-p = signrank(N,R); 
+p = ranksum(N,R); 
 title(['P = ',num2str(p)]);
+if saveBool
+    print(savename,'-dpdf');
+end

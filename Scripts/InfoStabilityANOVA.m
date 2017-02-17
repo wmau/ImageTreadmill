@@ -14,14 +14,12 @@
     purple = [.58 .44 .86];
     
 %% Save information
-    saveBool = false;
-    folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures\Supplementals\Alternative Info Stability Analyses';
-    TimeTI = fullfile(folder,'Stable Time TI Medians');
-    TimeSI = fullfile(folder,'Stable Time SI Medians');
-    TimeFR = fullfile(folder,'Stable Time FR Medians');
-    PlaceSI = fullfile(folder,'Stable Place SI Medians');
-    PlaceTI = fullfile(folder,'Stable Place TI Medians');
-    PlaceFR = fullfile(folder,'Stable Place FR Medians'); 
+    saveBool = true;
+    folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures\';
+    Time = fullfile(folder,'Stable Time');
+    TimeFR = fullfile(folder,'Stable Time FR');
+    Place = fullfile(folder,'Stable Place');
+    PlaceFR = fullfile(folder,'Stable Place FR'); 
     
     if saveBool
         c = input('Saving set to true. Are you sure you want to continue? (y/n)','s');
@@ -37,10 +35,10 @@
     [sDiff,usDiff] = ParseInfoStability(fulldataset,'time','si',purple);
     MakeErrBar(sDiff,usDiff,purple);
     MakeErrBar(sSame,usSame,teal);
-    ylabel('Median Norm. Mutual Info. [z-scored bits]');
+    ylabel('z-scored Mutual Info.');
     xlabel('Temporal Stability','Color',teal);
     if saveBool
-        print(TimeTI,'-dpdf');
+        print(Time,'-dpdf');
     end
     
     %Run ANOVA.
@@ -68,10 +66,10 @@
     [sDiff,usDiff] = ParseInfoStability(fulldataset,'place','ti',teal);   
     MakeErrBar(sDiff,usDiff,teal);
     MakeErrBar(sSame,usSame,purple);
-    ylabel('Median Norm. Mutual Info. [z-scored bits]');
+    ylabel('z-scored Mutual Info.');
     xlabel('Spatial Stability','Color',purple);
     if saveBool
-        print(PlaceSI,'-dpdf');
+        print(Place,'-dpdf');
     end
     
     %Run ANOVA.
@@ -104,10 +102,10 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c)
             sExtent = length(stable{a}{s}); 
             usExtent = length(unstable{a}{s});
             
-            if sExtent > 2, sM{a}(s) = median(stats.stable{a}(i:i+sExtent-1));
+            if sExtent > 1, sM{a}(s) = median(stats.stable{a}(i:i+sExtent-1));
             else, sM{a}(s) = nan; end
                 
-            if usExtent > 2, usM{a}(s) = median(stats.unstable{a}(j:j+usExtent-1)); 
+            if usExtent > 1, usM{a}(s) = median(stats.unstable{a}(j:j+usExtent-1)); 
             else, usM{a}(s) = nan; end
             
             i = i+sExtent;

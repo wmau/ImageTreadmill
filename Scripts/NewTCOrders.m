@@ -16,6 +16,18 @@
     %MD(305:309) = Polaris.
     fulldataset = MD(292:309);      
 
+    saveBool = true;
+    folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
+    savename = fullfile(folder,'New TC Order');
+
+    if saveBool
+        c = input('Saving set to true. Are you sure you want to continue? (y/n)','s');
+
+        if ~strcmp(c,'y')
+            saveBool = false;
+        end
+    end
+
     S1 = [];
     S2 = [];
     
@@ -44,3 +56,4 @@
     xlabel('Day 1 Peak [s]'); 
     ylabel('Day 2 Peak [s]');
     set(gca,'linewidth',2,'tickdir','out','xtick',[0:2:10],'ytick',[0:2:10]);
+    if saveBool, print(savename,'-dpdf'); end

@@ -14,10 +14,12 @@
     purple = [.58 .44 .86];
     
 %% Save information
-    saveBool = false;
+    saveBool = true;
     folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures\Supplementals\Alternative Info Stability Analyses';
-    Time = fullfile(folder,'Stable Time TI Medians');
-    TimeFR = fullfile(folder,'Stable Time FR Medians');
+    TimeEarly = fullfile(folder,'Stable Time Early');
+    TimeEarlyFR = fullfile(folder,'Stable Time Early FR');
+    TimeLate = fullfile(folder,'Stable Time Late');
+    TimeLateFR = fullfile(folder,'Stable Time Late FR');
     
     if saveBool
         c = input('Saving set to true. Are you sure you want to continue? (y/n)','s');
@@ -33,10 +35,10 @@
     [sDiff,usDiff] = ParseInfoStability(fulldataset,'time','si',purple,'early');
     MakeErrBar(sDiff,usDiff,purple);
     MakeErrBar(sSame,usSame,teal);
-    ylabel('Median Norm. Mutual Info. [z-scored bits]');
+    ylabel('z-scored Mutual Info.');
     xlabel('Temporal Stability','Color',teal);
     if saveBool
-        print(TimeTI,'-dpdf');
+        print(TimeEarly,'-dpdf');
     end
     
     %Run ANOVA.
@@ -51,7 +53,7 @@
     ylabel('Norm. Ca Event Freq.');
     xlabel('Temporal Stability','Color',teal);
     if saveBool
-        print(TimeFR,'-dpdf');
+        print(TimeEarlyFR,'-dpdf');
     end
     
 %% Main analysis - late.
@@ -61,10 +63,10 @@
     [sDiff,usDiff] = ParseInfoStability(fulldataset,'time','si',purple,'late');
     MakeErrBar(sDiff,usDiff,purple);
     MakeErrBar(sSame,usSame,teal);
-    ylabel('Median Norm. Mutual Info. [z-scored bits]');
+    ylabel('z-scored Mutual Info.');
     xlabel('Temporal Stability','Color',teal);
     if saveBool
-        print(TimeTI,'-dpdf');
+        print(TimeLate,'-dpdf');
     end
     
     %Run ANOVA.
@@ -79,7 +81,7 @@
     ylabel('Norm. Ca Event Freq.');
     xlabel('Temporal Stability','Color',teal);
     if saveBool
-        print(TimeFR,'-dpdf');
+        print(TimeLateFR,'-dpdf');
     end
     
 
@@ -97,10 +99,10 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c,trdm
             sExtent = length(stable{a}{s}); 
             usExtent = length(unstable{a}{s});
             
-            if sExtent > 2, sM{a}(s) = median(stats.stable{a}(i:i+sExtent-1));
+            if sExtent > 1, sM{a}(s) = median(stats.stable{a}(i:i+sExtent-1));
             else, sM{a}(s) = nan; end
                 
-            if usExtent > 2, usM{a}(s) = median(stats.unstable{a}(j:j+usExtent-1)); 
+            if usExtent > 1, usM{a}(s) = median(stats.unstable{a}(j:j+usExtent-1)); 
             else, usM{a}(s) = nan; end
             
             i = i+sExtent;

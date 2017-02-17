@@ -14,7 +14,19 @@
     %MD(296:299) = G48.
     %MD(300:304) = Bellatrix.
     %MD(305:309) = Polaris.
-    fulldataset = MD(292:309);      
+    fulldataset = MD(292:309);    
+    
+    saveBool = true;
+    folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
+    savename = fullfile(folder,'New PC Order');
+
+    if saveBool
+        c = input('Saving set to true. Are you sure you want to continue? (y/n)','s');
+
+        if ~strcmp(c,'y')
+            saveBool = false;
+        end
+    end
 
     S1 = [];
     S2 = [];
@@ -44,3 +56,4 @@
     xlabel('Day 1 Peak'); 
     ylabel('Day 2 Peak');
     set(gca,'linewidth',2,'tickdir','out');
+    if saveBool, print(savename,'-dpdf'); end

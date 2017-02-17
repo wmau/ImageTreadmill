@@ -7,10 +7,23 @@ colors = parula(nAnimals);
 
 statType = 'si';
 switch statType
-    case 'ti', c = [0 .5 .5];
-    case 'si', c = [.58 .44 .86];
+    case 'ti', col = [0 .5 .5];
+    case 'si', col = [.58 .44 .86];
 end
 PCcrit = .01;
+
+saveBool = true;
+folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
+scattername = fullfile(folder,['Stable ',statType,' Scatter']);
+linename = fullfile(folder,['Stable ',statType,' Drop']);
+
+if saveBool
+    c = input('Saving set to true. Are you sure you want to continue? (y/n)','s');
+    
+    if ~strcmp(c,'y')
+        saveBool = false;
+    end
+end
 
 S = []; US = [];
 [SM,USM] = deal(cell(nAnimals,1));
@@ -44,10 +57,10 @@ for a=1:nAnimals
         S = [S; temp(stable,:)];
         US = [US; temp(unstable,:)];
         
-        if length(stable) > 2, SM{a}{s} = median(log10(temp(stable,:)));
+        if length(stable) > 1, SM{a}{s} = median(log10(temp(stable,:)),1);
         else, SM{a}{s} = nan(1,2); end
         
-        if length(unstable) > 2, USM{a}{s} = mean(log10(temp(unstable,:)));
+        if length(unstable) > 1, USM{a}{s} = median(log10(temp(unstable,:)),1);
         else, USM{a}{s} = nan(1,2); end;
         
         
@@ -60,7 +73,7 @@ end
 % [usR,usp] = corr(US(:,1),US(:,2),'type','spearman');
 
 figure('Position',[260 270 560 420]); hold on;
-scat = scatter(S(:,1),S(:,2),20,c,'filled');
+scat = scatter(S(:,1),S(:,2),20,col,'filled');
 alpha(scat,.5);
 scat = scatter(US(:,1),US(:,2),20,'k','filled');
 alpha(scat,.5);
@@ -68,14 +81,15 @@ l = lsline;
 [l(1:2).LineStyle] = deal('--'); 
 [l(1:2).LineWidth] = deal(3);
 l(1).Color = [.7 .7 .7];
-l(2).Color = c;
+l(2).Color = col;
 set(gca,'tickdir','out');
 axis tight;
 yLims = get(gca,'ylim'); xLims = get(gca,'xlim');
 line(xLims,yLims,'color','k','linewidth',2);
 xlabel('Day 1'); ylabel('Day 2');
-title('Mutual Spatial Information [bits]');
+title('Mutual Info. [bits]');
 %text(xLims(1),yLims(2),['Stable P = ',num2str(sR), ' Unstable P = ',num2str(usR)]);
+if saveBool, print(scattername,'-dpdf'); end
 
 SM = cell2mat(cellfun(@cell2mat, SM,'unif',0));
 USM = cell2mat(cellfun(@cell2mat, USM,'unif',0));
@@ -84,16 +98,17 @@ SSEM = nanstd(SM)./sqrt(nSessions);
 USSEM = nanstd(USM)./sqrt(nSessions);
 
 figure('Position',[840 230 290 470]); hold on;
-    plot([1,2],[SM(:,1) SM(:,2)],'color',[c .7],'linewidth',.2);
+    plot([1,2],[SM(:,1) SM(:,2)],'color',[col .7],'linewidth',.2);
     plot([1,2],[USM(:,1) USM(:,2)],'linestyle','--','color',[.6 .6 .6 .7],'linewidth',.2);
-    errorbar([1,2],nanmean(SM),SSEM,'color',c,'linewidth',5);
+    errorbar([1,2],nanmean(SM),SSEM,'color',col,'linewidth',5);
     errorbar([1,2],nanmean(USM),USSEM,'color',[.6 .6 .6],'linewidth',5);
 
-ylabel('Log_{10} Mutual Information [bits]');
+ylabel('Log_{10} Mutual Info. [bits]');
 set(gca,'xticklabel',{'Day 1','Day 2'});
 set(gca,'xtick',[1:2],'tickdir','out');
 xlim([0.5,2.5]);
 legend({'Stable','Unstable'},'Location','southwest');
+if saveBool, print(linename,'-dpdf'); end
 
 stability = [ones(nSessions*2,1); zeros(nSessions*2,1)];
 session = repmat([ones(nSessions,1); 2*ones(nSessions,1)],[2,1]);
