@@ -28,8 +28,8 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
 %
 
 %% Set up.
-    STATS = PartitionStats(mds,stabilityCriterion,predictor);
-    B = 1000;
+    STATS = StabilityStatsEarlyLate(mds,stabilityCriterion,predictor,'early');
+    B = 500;
     
     %Concatenate statistics.
     sStats = cell2mat(STATS.stable');
@@ -65,23 +65,26 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
     end
                 
 %% Train support vector machine.
+    ho = .7;
     Mdl = fitcsvm(X,stable,'KernelFunction',krnl,'ClassNames',[1 0],...
         'Cost',C);
-    CV = crossval(Mdl,'holdout',.5);
+    CV = crossval(Mdl,'kfold',5);
     accuracy = 1-kfoldLoss(CV); 
     
 %% Train support vector machine after shuffling stability labels. 
     shuffle = zeros(B,1);
     disp('Training models based on shuffled labels.');
-    p = ProgressBar(B);
+    resolution = 2;
+    updateInc = round(B/(100/resolution));
+    p = ProgressBar(100/resolution);
     parfor i=1:B
         r = stable(randperm(length(stable)))
         rMdl = fitcsvm(X,r,'KernelFunction',krnl,'ClassNames',[1 0],...
             'Cost',C);
-        rCV = crossval(rMdl,'holdout',.5); 
+        rCV = crossval(rMdl,'kfold',5);
         shuffle(i) = 1-kfoldLoss(rCV); 
         
-        p.progress;
+        if round(i/updateInc) == (i/updateInc), p.progress; end
     end
     p.stop;
     
