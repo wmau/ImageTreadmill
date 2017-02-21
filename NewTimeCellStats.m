@@ -44,9 +44,20 @@ function [newTCStat,r] = NewTimeCellStats(base,comp,statType,varargin)
             pool = find(~ismember(1:n,S1PCs));
     end
     
+    %Z-score the statistic relative to the pool of neurons in session 1
+    %that are currently not place cells. This will include the cells that
+    %are not categorized as place cells but eventually become categorizd as
+    %place cells in the subsequent session.
     stat(pool) = zscore(stat(pool));
-    r = randsample(stat(pool),1000,true);
     newTCStat = stat(newTCs);   
+    
+    %Randomly sample from the pool of not-place cells. 
+    r = randsample(stat(pool),1000,true);
+    
+%     load('SpatialInfo.mat','MI');
+%     MI(pool) = zscore(MI(pool)); 
+%     r = MI(newTCs);
+
     [~,p] = kstest2(r,newTCStat);
     
     if plotit

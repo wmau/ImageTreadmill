@@ -21,6 +21,9 @@ function plotPlaceCells(md,varargin)
 
     load('Placefields.mat','TMap_gauss','isrunning');
     load('SpatialInfo.mat','MI','Ipos','okpix');
+    load('PlacefieldStats.mat','PFarea','bestPF');
+    
+    PFarea = nansum(PFarea,2);
     try
         load('Pos_align.mat','PSAbool','x_adj_cm','y_adj_cm');
     catch
@@ -68,7 +71,8 @@ function plotPlaceCells(md,varargin)
             tmap = imagesc(TMap_gauss{neurons(thisNeuron)});
             set(tmap,'alphadata',~isnan(TMap_gauss{neurons(thisNeuron)}));
             axis equal; axis off; 
-            colormap hot;           
+            colormap hot;         
+            title(['PF Area = ',num2str(PFarea(neurons(thisNeuron)))]);
             
         [keepgoing,thisNeuron] = scroll(thisNeuron,nPCs,f);
         close all;

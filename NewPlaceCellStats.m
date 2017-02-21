@@ -50,10 +50,15 @@ function [newPCStat,r] = NewPlaceCellStats(base,comp,statType,varargin)
     %are not categorized as place cells but eventually become categorizd as
     %place cells in the subsequent session.
     stat(pool) = zscore(stat(pool));
+    newPCStat = stat(newPCs);   
     
     %Randomly sample from the pool of not-place cells. 
     r = randsample(stat(pool),1000,true);
-    newPCStat = stat(newPCs);   
+    
+%     load('TemporalInfo.mat','MI');
+%     MI(pool) = zscore(MI(pool)); 
+%     r = MI(newPCs);
+    
     [~,p] = kstest2(r,newPCStat);
     
     if plotit

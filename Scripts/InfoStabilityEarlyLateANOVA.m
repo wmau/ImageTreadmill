@@ -99,10 +99,10 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c,trdm
             sExtent = length(stable{a}{s}); 
             usExtent = length(unstable{a}{s});
             
-            if sExtent > 1, sM{a}(s) = median(stats.stable{a}(i:i+sExtent-1));
+            if sExtent > 2, sM{a}(s) = mean(stats.stable{a}(i:i+sExtent-1));
             else, sM{a}(s) = nan; end
                 
-            if usExtent > 1, usM{a}(s) = median(stats.unstable{a}(j:j+usExtent-1)); 
+            if usExtent > 2, usM{a}(s) = mean(stats.unstable{a}(j:j+usExtent-1)); 
             else, usM{a}(s) = nan; end
             
             i = i+sExtent;
