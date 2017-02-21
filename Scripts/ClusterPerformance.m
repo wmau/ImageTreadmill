@@ -1,7 +1,7 @@
 clear;
 loadMD;
 fulldataset = MD(292:309);
-distType = 'cityblock';
+distType = 'sqeuclidean';
 
 saveBool = false;
 folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures\Supplementals';
@@ -121,3 +121,4 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
     if saveBool
         print(placeFileName,'-dpdf');
     end
+    
