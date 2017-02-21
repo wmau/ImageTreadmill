@@ -8,8 +8,8 @@ fulldataset = MD(292:309);
 animals = unique({fulldataset.Animal});
 nAnimals = length(animals);
 
-statType = 'fr';
-cellType = 'Place';
+statType = 'ti';
+cellType = 'Time';
 
 saveBool = true;
 folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
@@ -36,9 +36,9 @@ switch cellType
 end
 
 switch statType
-    case 'ti', fc = [0 .5 .5];
-    case 'si', fc = [.58 .44 .86]; 
-    case 'fr', fc = [.7 .7 .7];
+    case 'ti', sc = [0 .5 .5];
+    case 'si', sc = [.58 .44 .86]; 
+    case 'fr', sc = [.7 .7 .7];
 end
 
 rc = [.5 .5 .5];
@@ -78,12 +78,12 @@ legend({['Future ',cellType, ' Cells'],'Random Sample'});
 figure('Position',[400 240 250 440]); hold on;
 m = [mean(N) mean(R)];
 sem = [std(N)./sqrt(length(N)) std(R)./sqrt(length(R))];
-bar(1,m(1),'facecolor',fc,'edgecolor',c,'linewidth',3,'facealpha',.5);
-bar(2,m(2),'facecolor',fc,'edgecolor',rc,'linewidth',3);
-for i=1:length(N)
-    plot([1 2],[N(i) R(i)],'color',[fc .3],'linewidth',.5);
-end
-errorbar(1,m(1),sem(1),'linewidth',2,'color',c);
+bar(1,m(1),'facecolor',c,'edgecolor',sc,'linewidth',3,'facealpha',.5);
+bar(2,m(2),'facecolor',c,'edgecolor',rc,'linewidth',3,'facealpha',.5);
+% for i=1:length(N)
+%     plot([1 2],[N(i) R(i)],'color',[fc .3],'linewidth',.5);
+% end
+errorbar(1,m(1),sem(1),'linewidth',2,'color',sc);
 errorbar(2,m(2),sem(2),'linewidth',2,'color',rc);
 set(gca,'xticklabel',{['Future ',cellType,' Cell'],'Random'});
 set(gca,'xtick',[1:2],'tickdir','out','linewidth',2);

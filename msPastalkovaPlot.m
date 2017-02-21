@@ -83,7 +83,8 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(base,comp,Ts,plotit)
             if plotit
                 subplot(1,nSessions,dateOrder(i)); 
                 imagesc([0:Ts(i)],[1:nTimeCells],normtilemat{1}); hold on;
-                plot(sortedPeaks(:,i),[1:nTimeCells],'r','linewidth',2);
+                plot(sortedPeaks(:,i),[1:nTimeCells],'color',[0 .5 .5],...
+                    'linewidth',5);
                 colormap gray; xlabel('Time [s]'); title(dateTitles{i});
             end
         else %Almost the same as above. 
@@ -111,7 +112,8 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(base,comp,Ts,plotit)
             if plotit
                 subplot(1,nSessions,dateOrder(i))
                 imagesc([0:Ts(i)],[1:nTimeCells],normtilemat{i}); hold on;
-                plot(sortedPeaks(:,1),[1:nTimeCells],'r','linewidth',2);
+                plot(sortedPeaks(:,1),[1:nTimeCells],'color',[0 .5 .5],...
+                    'linestyle',':','linewidth',6);
                 colormap gray; xlabel('Time [s]'); title(dateTitles{i});
             end
         end

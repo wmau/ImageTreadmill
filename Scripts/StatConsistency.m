@@ -5,7 +5,7 @@ animals = unique({fulldataset.Animal});
 nAnimals = length(animals);
 colors = parula(nAnimals);
 
-statType = 'si';
+statType = 'ti';
 switch statType
     case 'ti', col = [0 .5 .5];
     case 'si', col = [.58 .44 .86];
@@ -101,7 +101,7 @@ figure('Position',[840 230 290 470]); hold on;
     plot([1,2],[SM(:,1) SM(:,2)],'color',[col .7],'linewidth',.2);
     plot([1,2],[USM(:,1) USM(:,2)],'linestyle','--','color',[.6 .6 .6 .7],'linewidth',.2);
     errorbar([1,2],nanmean(SM),SSEM,'color',col,'linewidth',5);
-    errorbar([1,2],nanmean(USM),USSEM,'color',[.6 .6 .6],'linewidth',5);
+    errorbar([1,2],nanmean(USM),USSEM,'color',col,'linestyle','--','linewidth',5);
 
 ylabel('Log_{10} Mutual Info. [bits]');
 set(gca,'xticklabel',{'Day 1','Day 2'});

@@ -70,11 +70,11 @@ function StabilityOverDays(mds)
     %Uerr = cellfun(@(x) x(round(.95*length(x))),sortedR) - Mr;
     
     figure('Position',[610 270 400 350]); hold on;
-    b = bar([1:daysOut],M,'facecolor','none','linewidth',2);
+    b = bar([1:daysOut],M,'facecolor','none','linewidth',2,'edgecolor',[0 .5 .5]);
     w = b.BarWidth;
     for d=1:daysOut
-        line([d-w/2 d+w/2],[Mr(d) Mr(d)],'color','r','linewidth',2);
-        errorbar(d,M(d),std(m{d})/sqrt(length(m{d})),'linewidth',2,'color','k');
+        line([d-w/2 d+w/2],[Mr(d) Mr(d)],'color','b','linewidth',2);
+        errorbar(d,M(d),std(m{d})/sqrt(length(m{d})),'linewidth',2,'color',[0 .5 .5]);
         scat = scatter(d*ones(length(m{d}),1),m{d}',[],color{d},'d','filled');
         alpha(scat,.5);
     end

@@ -127,7 +127,7 @@ function msPlotTimeCells(md,varargin)
     
     %Main plotting. 
     if pf 
-        fPos = [-1300 -40 830 180*nSessions];
+        fPos = [-1300 -40 630 180*nSessions];
     else 
         fPos = [-1300 -40 520 180*nSessions];
     end
@@ -238,7 +238,8 @@ function msPlotTimeCells(md,varargin)
                 CIl = interp1(tCI{thisSession},CURVES{thisSession}.ci{n}(2,:),t{thisSession},'phcip');
                                
                 %Plot tuning curve and confidence intervals. 
-                plot(t{thisSession},CURVES{thisSession}.smoothed{n},'-r','linewidth',2);
+                plot(t{thisSession},CURVES{thisSession}.smoothed{n},'color',[0 .5 .5],...
+                    'linewidth',2);
                 hold on;
                 plot(t{thisSession},CImean,'-b','linewidth',2);
                 plot(t{thisSession},CIu,'--b',t{thisSession},CIl,'--b');  
@@ -250,7 +251,7 @@ function msPlotTimeCells(md,varargin)
                     [SIGX,SIGY] = significance_asterisks(t{thisSession},CURVES{thisSession}.sig{n},...
                         CURVES{thisSession}.smoothed{n},bins{thisSession});
                     
-                    plot(SIGX,SIGY+Ylim(2)*sf,'go','linewidth',2);                   
+                    plot(SIGX,SIGY+Ylim(2)*sf,'ro','linewidth',2);                   
                 end
                 
                 %Labels. 
@@ -288,7 +289,7 @@ function msPlotTimeCells(md,varargin)
                 subplot(nSessions,nCols,j*nCols-2);
                 freezeColors;
             end
-        end
+        end  
         
         set(rasterAX,'XLim',rasterXLims);
         set(curveAX,'XLim',curveXLims,'YLim',curveYLims);

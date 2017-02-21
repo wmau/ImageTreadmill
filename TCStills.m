@@ -6,7 +6,8 @@ function TCStills(md,varargin)
 %% Set up.
     %Get some things initialized. 
     cd(md.Location); 
-    load('TimeCells.mat','T','TodayTreadmillLog','TimeCells'); 
+    load('TimeCells.mat','T','TodayTreadmillLog'); 
+    TimeCells = getTimeCells(md);
     load('FinalOutput.mat','xOutline','yOutline','NeuronImage');
     load('Pos_align.mat','FToffset');
     [inds,nRuns] = TrimTrdmllInds(TodayTreadmillLog,T);
@@ -132,8 +133,8 @@ function TCStills(md,varargin)
                 hold on;
                 imagesc(y,x,stills{thisNeuron}(:,:,t));                 %Frame.    
                 set(gca,'YDir','reverse');                              %Flip imagesc default.
-                plot(yOutline{thisNeuron},xOutline{thisNeuron},'r',...
-                    'linewidth',2);                                     %ROI outline.
+                plot(yOutline{thisNeuron},xOutline{thisNeuron},...
+                    'color',[0 .5 .5],'linewidth',2);                   %ROI outline.
                 caxis([cLims]); axis tight; axis off;
                 text(y(2),x(end-5),[num2str(edges(t)),'-'...
                     num2str(edges(t+1)),'s'],'color','c','fontsize',14);

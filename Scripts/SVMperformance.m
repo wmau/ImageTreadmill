@@ -69,7 +69,7 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
     
     w = b(1).BarWidth;
     for i=1:3
-        line([i-w/2 i+w/2],[y(i) y(i)],'color','r','linewidth',2);
+        line([i-w/2 i+w/2],[y(i) y(i)],'color','b','linewidth',2);
     end
     
 %     [h,p]=boundedline(x,y,e,'alpha');
@@ -110,7 +110,7 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
 
     w = b(1).BarWidth;
     for i=1:3
-        line([i-w/2 i+w/2],[y(i) y(i)],'color','r','linewidth',2);
+        line([i-w/2 i+w/2],[y(i) y(i)],'color','b','linewidth',2);
     end
     
     ylim([0.3 0.8]);
