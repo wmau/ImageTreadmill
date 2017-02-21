@@ -7,33 +7,33 @@ function [accuracy,sAccuracy,p] = kMeansStability(mds,stabilityCriterion,predict
     STATS = PartitionStats(mds,stabilityCriterion,predictor);
     B = 1000;
     
-    %Concatenate statistics.
-    sStats = cell2mat(STATS.stable');
-    usStats = cell2mat(STATS.unstable');
+    nAnimals = length(STATS.stable);
+    sStats = []; usStats = [];
+    for a=1:nAnimals
+        nSample = min([length(STATS.stable{a}), length(STATS.unstable{a})]);
+        
+        sStats = [sStats; randsample(STATS.stable{a},nSample)];
+        usStats = [usStats; randsample(STATS.unstable{a},nSample)];  
+    end
+        
+    nStats = size(sStats,1);
     
-    %Determine number of stable and unstable cells. 
-    nStable = length(sStats); 
-    nUnstable = length(usStats);
-    
-    nSample = min([nStable, nUnstable]);
-
-    X = [   randsample(sStats,nSample);...
-            randsample(usStats,nSample)];
+    X = [sStats; usStats];
     
     bad = find(X==0);
     X(bad) = [];
          
     clusters = kmeans(X,2,'distance',distType);
     
-    if median(X(clusters==2)) < median(X(clusters==1))
+    if mean(X(clusters==2)) < mean(X(clusters==1))
         s=1; u=2;
     else
         s=2; u=1;
     end
     
     %Define labels.
-    stable = [  s*ones(nSample,1);...
-                u*ones(nSample,1)];
+    stable = [  s*ones(nStats,1);...
+                u*ones(nStats,1)];
     stable(bad) = [];
     
     accuracy = sum(stable==clusters)/length(stable);
