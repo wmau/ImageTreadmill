@@ -12,6 +12,22 @@ function CORRS = corrInfoStability(mds,stabilityType,statType)
     stabilityType = lower(stabilityType); 
     PCcrit = .01;
     
+%% Determine what type of neuron to analyze.
+    switch stabilityType
+        case 'time'
+            switch statType
+                case 'ti',cellGet = 'timecells'; 
+                case 'si',cellGet = 'timecells'; 
+                case {'fr','fluor'}, cellGet = 'timecells';
+            end
+        case 'place'
+            switch statType
+                case 'ti',cellGet = 'placecells'; 
+                case 'si',cellGet = 'placecells'; 
+                case {'fr','fluor'}, cellGet = 'placecells';
+            end
+    end
+   
 %% 
     [stats,corrs,neurons] = deal(cell(nAnimals,1)); 
     STATS = []; 
@@ -22,58 +38,29 @@ function CORRS = corrInfoStability(mds,stabilityType,statType)
         
         [stats{a},corrs{a},neurons{a}] = deal(cell(length(ssns)-1,1));
         for s=1:length(ssns)-1
-            cd(mds(ssns(s)).Location);
-            
-            load('TimeCells.mat','TimeCells');
-            load('TemporalInfo.mat','sig'); 
-            load('Placefields.mat','pval');
-            load('PlacefieldStats.mat','PFnHits','PFpcthits','bestPF');
-            load('SpatialInfo.mat','MI');
-            
-            %Matrix index. 
-            idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');
-            
-            %Get time and place cells. 
-            TCs = intersect(TimeCells,find(sig)); 
-            PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>4); 
-            
+            cd(mds(ssns(s)).Location); 
+ 
+            neurons{a}{s} = AcquireTimePlaceCells(mds(ssns(s)),cellGet);   
+            neurons{a}{s} = EliminateUncertainMatches([mds(ssns(s)) mds(ssns(s+1))],neurons{a}{s});
+                             
             %% Get information scores and neurons. 
             switch statType
                 case 'ti'
                     load('TemporalInfo.mat','MI');
                     stats{a}{s} = MI; 
                     
-                    switch stabilityType
-                        case 'time'
-                            neurons{a}{s} = TCs;
-                        case 'place'
-                            neurons{a}{s} = intersect(TCs,PCs);
-                    end
-                    
                 case 'si'
                     load('SpatialInfo.mat','MI');
-                    stats{a}{s} = MI;
-                    
-                    switch stabilityType 
-                        case 'time'
-                            neurons{a}{s} = intersect(TCs,PCs); 
-                        case 'place'
-                            neurons{a}{s} = PCs'; 
-                    end
+                    stats{a}{s} = MI;       
                     
                 case 'fr'
-                    load('Pos_align.mat','PSAbool')
-                    [~,f] = size(PSAbool);
+                    load('Pos_align.mat','PSAbool');
+                    [n,f] = size(PSAbool);
+                    d = diff([zeros(n,1) PSAbool],1,2);
+                    d(d<0) = 0;
+                    stats{a}{s} = sum(d,2)./f;
                     
-                    stats{a}{s} = sum(PSAbool,2)./f;
-                    
-                    switch stabilityType
-                        case 'time'
-                            neurons{a}{s} = TCs;
-                        case 'place'
-                            neurons{a}{s} = PCs'; 
-                    end
-            end
+            end  
             
             %% Correlate tuning curves. 
             switch stabilityType
@@ -85,11 +72,11 @@ function CORRS = corrInfoStability(mds,stabilityType,statType)
             end
             
             %% Normalize.
-            if strcmp(statType,'fr')
-                stats{a}{s} = (stats{a}{s}-min(stats{a}{s}))./range(stats{a}{s}); 
-            else
+%             if strcmp(statType,'fr')
+%                 stats{a}{s} = (stats{a}{s}-min(stats{a}{s}))./range(stats{a}{s}); 
+%             else
                 stats{a}{s}(neurons{a}{s}) = zscore(stats{a}{s}(neurons{a}{s}));
-            end
+%            end
 
         end
         

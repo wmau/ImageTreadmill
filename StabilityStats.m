@@ -108,7 +108,7 @@ function [STATS,stabilityStatus] = StabilityStats(mds,stabilityType,statType)
                 stat(N) = zscore(stat(N));
             end
             
-            stblcrit = .05/length(N);
+            stblcrit = .01/length(N);
            
             good = find(corrs(:,2) < stblcrit);
             bad = find(corrs(:,2) > stblcrit | isnan(corrs(:,2))); 
