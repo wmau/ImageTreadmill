@@ -32,13 +32,13 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
             switch statType
                 case 'ti',cellGet = 'timecells'; 
                 case 'si',cellGet = 'timecells'; 
-                case {'fr','fluor'}, cellGet = 'timecells';
+                case {'fr','fluor','tfw','pfw'}, cellGet = 'timecells';
             end
         case 'place'
             switch statType
                 case 'ti',cellGet = 'placecells'; 
                 case 'si',cellGet = 'placecells'; 
-                case {'fr','fluor'}, cellGet = 'placecells';
+                case {'fr','fluor','tfw','pfw'}, cellGet = 'placecells';
             end
     end
 
@@ -56,10 +56,7 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
         [stable{a},unstable{a}] = deal(cell(1,length(ssns)-1));
         for s = 1:length(ssns)-1
             cd(mds(ssns(s)).Location);
- 
-            %Get place and time cells.
-            TCs = getTimeCells(mds(ssns(s)));
-            
+      
             neurons = AcquireTimePlaceCells(mds(ssns(s)),cellGet);
             neurons = EliminateUncertainMatches([mds(ssns(s)) mds(ssns(s+1))],neurons);  
                         
@@ -67,12 +64,22 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
                 %Temporal information. 
                 case 'ti' 
                     load('TemporalInfo.mat','MI','Ispk','Isec');
-                    stat = MI;                
-           
+                    stat = MI; 
+            
                 %Spatial information.
                 case 'si'
                     load('SpatialInfo.mat','MI','Ispk','Isec');
                     stat = MI;
+                    
+                %Time field width.
+                case 'tfw'
+                    load('TimeCells','curves');
+                    stat = cellfun(@sum, cellfun(@(x) x > 0, curves.tuning,'unif',0));
+                    
+                %Place field width. 
+                case 'pfw' 
+                    load('Placefields.mat','TMap_gauss');
+                    stat = cell2mat(cellfun(@(x) sum(sum(x>0)), TMap_gauss,'unif',0))';
 
                 %Firing rate (really Ca event rate).
                 case 'fr'
@@ -90,13 +97,15 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
                 %Time peak. 
                 case 'pk'
                     [~,stat] = getTimePeak(mds(ssns(s)));
+                    
+                    %Get time cells.
+                    TCs = getTimeCells(mds(ssns(s)));
 
                     %Should only ever be time cells. 
                     neurons = TCs;                              
             end
                      
             
-            %stat = (stat-min(stat))./range(stat);
             %Normalize.
             %if strcmp(statType,'fr')
                 %stat = (stat-min(stat))./range(stat);
@@ -128,7 +137,9 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
             nUnstable = nUnstable + length(unstable{a}{s}); 
             
             %Get the temporal information values. 
+            try
             STATS.stable{a} = [STATS.stable{a}; stat(stable{a}{s})];
+            catch, keyboard; end 
             STATS.unstable{a} = [STATS.unstable{a}; stat(unstable{a}{s})];
         end
         

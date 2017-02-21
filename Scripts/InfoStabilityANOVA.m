@@ -20,6 +20,8 @@
     TimeFR = fullfile(folder,'Stable Time FR');
     Place = fullfile(folder,'Stable Place');
     PlaceFR = fullfile(folder,'Stable Place FR'); 
+    TimeFW = fullfile(folder,'Stable Time Field Width');
+    PlaceFW = fullfile(folder,'Stable Place Field Width');
     
     if saveBool
         c = input('Saving set to true. Are you sure you want to continue? (y/n)','s');
@@ -30,7 +32,7 @@
     end
     
     %Main analysis.
-    figure('Position',[130 240 250 440]);  hold on;
+    figure('Position',[20 240 250 440]);  hold on;
     [sSame,usSame] = ParseInfoStability(fulldataset,'time','ti',teal);
     [sDiff,usDiff] = ParseInfoStability(fulldataset,'time','si',purple);
     MakeErrBar(sDiff,usDiff,purple);
@@ -46,7 +48,7 @@
     ANOVAit(sSame,usSame,sDiff,usDiff);
     
     %Check calcium event frequency.
-    figure('Position',[400 240 250 440]); hold on;
+    figure('Position',[290 240 250 440]); hold on;
     [S,US] = ParseInfoStability(fulldataset,'time','fr',[.7 .7 .7]);
     MakeErrBar(S,US,[.7 .7 .7]);
     title(['P = ',num2str(ranksum(S,US))]);
@@ -61,7 +63,7 @@
     disp(' ');
     
     %Main analysis.
-    figure('Position',[670 240 250 440]); hold on;
+    figure('Position',[560 240 250 440]); hold on;
     [sSame,usSame] = ParseInfoStability(fulldataset,'place','si',purple);
     [sDiff,usDiff] = ParseInfoStability(fulldataset,'place','ti',teal);   
     MakeErrBar(sDiff,usDiff,teal);
@@ -77,7 +79,7 @@
     ANOVAit(sSame,usSame,sDiff,usDiff);
     
     %Check calcium event frequency.
-    figure('Position',[940 240 250 440]); hold on;
+    figure('Position',[830 240 250 440]); hold on;
     [S,US] = ParseInfoStability(fulldataset,'place','fr',[.7 .7 .7]);
     
     MakeErrBar(S,US,[.7 .7 .7]);
@@ -87,7 +89,45 @@
     if saveBool
         print(PlaceFR,'-dpdf');
     end
-
+    
+%% 
+    disp(' ');
+    
+    %Main analysis.
+    figure('Position',[1100 240 250 440]); hold on;
+    [sSame,usSame] = ParseInfoStability(fulldataset,'time','tfw',teal);
+    [sDiff,usDiff] = ParseInfoStability(fulldataset,'time','pfw',purple);   
+    MakeErrBar(sDiff,usDiff,purple);
+    MakeErrBar(sSame,usSame,teal);
+    ylabel('z-scored Firing Field Width');
+    xlabel('Temporal Stability','Color',teal);
+    if saveBool
+        print(TimeFW,'-dpdf');
+    end
+    
+    %Run ANOVA.
+    disp('Running Two-Way ANOVA of MI based on spatial stability.');
+    ANOVAit(sSame,usSame,sDiff,usDiff);   
+  
+%% 
+    disp(' ');
+    
+    %Main analysis.
+    figure('Position',[1370 240 250 440]); hold on;
+    [sSame,usSame] = ParseInfoStability(fulldataset,'place','pfw',purple);
+    [sDiff,usDiff] = ParseInfoStability(fulldataset,'place','tfw',teal);   
+    MakeErrBar(sDiff,usDiff,teal);
+    MakeErrBar(sSame,usSame,purple);
+    ylabel('z-scored Firing Field Width');
+    xlabel('Spatial Stability','Color',purple);
+    if saveBool
+        print(PlaceFW,'-dpdf');
+    end
+    
+    %Run ANOVA.
+    disp('Running Two-Way ANOVA of MI based on spatial stability.');
+    ANOVAit(sSame,usSame,sDiff,usDiff); 
+    
 %%
 function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c)
     animals = unique({fulldataset.Animal});
@@ -102,10 +142,10 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c)
             sExtent = length(stable{a}{s}); 
             usExtent = length(unstable{a}{s});
             
-            if sExtent > 1, sM{a}(s) = median(stats.stable{a}(i:i+sExtent-1));
+            if sExtent > 3, sM{a}(s) = mean(stats.stable{a}(i:i+sExtent-1));
             else, sM{a}(s) = nan; end
                 
-            if usExtent > 1, usM{a}(s) = median(stats.unstable{a}(j:j+usExtent-1)); 
+            if usExtent > 3, usM{a}(s) = mean(stats.unstable{a}(j:j+usExtent-1)); 
             else, usM{a}(s) = nan; end
             
             i = i+sExtent;
