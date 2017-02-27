@@ -51,12 +51,13 @@ function msLinearizedPFs(base,comp)
     f = figure('Position',[170 260 1280 460]); 
     for s=1:nSessions
         neurons = matches(:,s);
+        nNeurons = length(neurons);
         
         if s==1
             %Get the place cells. 
 
             %Linearize trajectory and make matrix. 
-            [~,normRates,~,~,~,edges] = LinearizedPFs_treadmill(sessions(s));
+            [~,normRates,~,~,~,edges] = LinearizedPFs_treadmill(sessions(s),'plotit',false);
             
             %Trim matrix to only include place cells. 
             normRates = normRates(neurons,:);
@@ -66,27 +67,36 @@ function msLinearizedPFs(base,comp)
             [~,order] = sort(inds); 
             plotme = normRates(order,:);
             
+            [bad,~] = find(isnan(plotme));
+            plotme(bad,:) = 0;
+            
             %Plot. 
-            subplot(1,nSessions,dateOrder(s));
-            imagesc(edges,1:nNeurons:nNeurons,plotme); colormap hot; 
-            xlabel('Distance'); title(dateTitles{s});
+            subplot(1,nSessions,dateOrder(s)); 
+            imagesc(plotme); colormap hot; hold on;
+            plot(inds(order),1:nNeurons,'color',[.58 .44 .86],'linewidth',5);
+            xlabel('Distance'); title(dateTitles{s}); axis tight; 
             
         else
             neurons = neurons(order);
             %Linearize trajectory and find spatial responses. 
-            [~,normRates] = LinearizedPFs_treadmill(sessions(s));
+            [~,normRates] = LinearizedPFs_treadmill(sessions(s),'plotit',false);
                
             %Deal linearized place maps. 
-            plotme = zeros(size(plotme));             
+            plotme = zeros(nNeurons,length(edges)-1);             
             for n=1:length(neurons)
                 if ~isnan(neurons(n)) && neurons(n)>0
                     plotme(n,:) = normRates(neurons(n),:);
+                else, plotme(n,:) = 0;
                 end               
             end
+            [bad,~] = find(isnan(plotme));
+            plotme(bad,:) = 0;
             
             %Plot. 
-            subplot(1,nSessions,dateOrder(s));
-            imagesc(edges,1:nNeurons:nNeurons,plotme); colormap hot; 
+            subplot(1,nSessions,dateOrder(s)); 
+            imagesc(plotme); colormap hot; hold on;
+            plot(inds(order),1:nNeurons,'color',[.58 .44 .86],'linewidth',5,...
+                'linestyle',':');
             xlabel('Distance'); title(dateTitles{s});
         end
         

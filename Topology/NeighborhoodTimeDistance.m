@@ -101,8 +101,8 @@ function NeighborhoodTimeDistance(md,thresholds)
     hold on;
     l = boundedline(thresholds,surrogate,ci,'alpha');
     l.Color = [.5 .5 1]; l.LineStyle = '--';
-    xlabel('Distance Threshold [\mum]');
-    ylabel('Rank Distance');
+    xlabel('Neighborhood Radius [microns]');
+    ylabel('Norm. Rank Difference');
     axis tight; 
     set(gca,'tickdir','out');
 end

@@ -142,10 +142,10 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c)
             sExtent = length(stable{a}{s}); 
             usExtent = length(unstable{a}{s});
             
-            if sExtent > 3, sM{a}(s) = mean(stats.stable{a}(i:i+sExtent-1));
+            if sExtent > 5, sM{a}(s) = nanmean(stats.stable{a}(i:i+sExtent-1));
             else, sM{a}(s) = nan; end
                 
-            if usExtent > 3, usM{a}(s) = mean(stats.unstable{a}(j:j+usExtent-1)); 
+            if usExtent > 5, usM{a}(s) = nanmean(stats.unstable{a}(j:j+usExtent-1)); 
             else, usM{a}(s) = nan; end
             
             i = i+sExtent;
@@ -185,9 +185,12 @@ function ANOVAit(sSame,usSame,sDiff,usDiff)
         {'Dimension','Stability'},'display','off');
     comps = multcompare(stats,'dimension',[1,2],'display','off','ctype','hsd');
     
-    disp(['Main effect of dimension F = ',num2str(tbl{2,6}),', P = ',num2str(tbl{2,7})]);
-    disp(['Main effect of stability F = ',num2str(tbl{3,6}),', P = ',num2str(tbl{3,7})]);
-    disp(['Interaction F = ',num2str(tbl{4,6}),', P = ',num2str(tbl{4,7})]);
+   disp(['Main effect of dimension F(',num2str(tbl{2,3}),',',num2str(tbl{5,3}),...
+        ') = ',num2str(tbl{2,6}),', P = ',num2str(tbl{2,7})]);
+    disp(['Main effect of stability F(',num2str(tbl{3,3}),',',num2str(tbl{5,3}),...
+        ') = ',num2str(tbl{3,6}),', P = ',num2str(tbl{3,7})]);
+    disp(['Interaction F(',num2str(tbl{4,3}),',',num2str(tbl{5,3}),...
+        ') = ',num2str(tbl{4,6}),', P = ',num2str(tbl{4,7})]);
     disp(['Difference between stable and unstable, same dimension P = ',num2str(comps(5,6))]);
     disp(['Difference between stable and unstable, opposite dimension P = ',num2str(comps(2,6))]);
     

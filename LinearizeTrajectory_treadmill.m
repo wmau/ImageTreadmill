@@ -143,7 +143,7 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             bad = ismember(angidx,find(n<10)); angidx(bad)=[]; sparserad(bad)=[];    %Get rid of low sampling. 
             meanrad = accumarray(angidx,sparserad,[nbins,1],@mean);
             
-            mazedef = smooth(meanrad,nbins/20,'moving'); 
+            mazedef = smooth(meanrad,nbins,'moving'); 
 
             [xdef,ydef] = pol2cart(angdef,mazedef);
             cumdist = [0; cumsum(hypot(diff(xdef),diff(ydef)))];

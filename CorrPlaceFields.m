@@ -10,10 +10,12 @@ function corrStats = CorrPlaceFields(ref,ssn,noi,varargin)
     p.addRequired('noi',@(x) isnumeric(x)); 
     p.addParameter('pftype','placefieldsunsmoothed',@(x) ischar(x));
     p.addParameter('corrtype','pearson',@(x) ischar(x)); 
+    p.addParameter('shuffle',false,@(x) islogical(x));
     
     p.parse(ref,ssn,noi,varargin{:});
     pftype = p.Results.pftype;
     corrtype = p.Results.corrtype;
+    shuffle = p.Results.shuffle;
 
 %% Match neurons. 
     ssns = [ref,ssn]; 
@@ -30,7 +32,9 @@ function corrStats = CorrPlaceFields(ref,ssn,noi,varargin)
 %% Do correlations.
     for i = 1:size(matchMat,1)
         n1 = matchMat(i,1);
-        n2 = matchMat(i,2);
+        
+        if shuffle, n2 = matchMat(randsample(size(matchMat,1),1),2);
+        else, n2 = matchMat(i,2); end
         
         %Placefields. 
         pf1 = DATA.(pftype){1}{n1}(:);

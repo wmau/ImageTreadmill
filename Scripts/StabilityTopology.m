@@ -17,48 +17,54 @@
     [D,stabilityStatus] = StabilityLocations(fulldataset,'time');
     [s,r,S,R,c] = UnpackDs(D,stabilityStatus); 
     
-    figure; hold on;
-        histogram(s,'binwidth',.05,'edgecolor','none','normalization','probability');
-        histogram(r,'binwidth',.05,'edgecolor','none','normalization','probability');
-        [~,p] = kstest2(s,r); 
-            title(['P = ',num2str(p)]);
-            set(gca,'tickdir','out');
-            xlabel('Norm. Distance (z-microns)');
-            ylabel('Proportion');
+%     figure; hold on;
+%         histogram(s,'binwidth',.05,'edgecolor','none','normalization','probability');
+%         histogram(r,'binwidth',.05,'edgecolor','none','normalization','probability');
+%         [~,p] = kstest2(s,r); 
+%             title(['P = ',num2str(p)]);
+%             set(gca,'tickdir','out');
+%             xlabel('Norm. Distance (z-microns)');
+%             ylabel('Proportion');
             
     figure('Position',[790 220 250 440]); hold on;
+        m = [mean(S) mean(R)];
+        sem = [std(S)/sqrt(length(S)) std(R)/sqrt(length(R))];
         for i=1:length(S)
-            plot([1,2],[S(i),R(i)],'-o','color',c(i,:),'linewidth',3);
+            plot([1,2],[S(i),R(i)],'-','color',c(i,:));
         end
-        p = ranksum(S,R);
+        errorbar([1,2],m,sem,'linewidth',5,'color','k');
+        p = signrank(S,R);
         set(gca,'xticklabel',{'Stable','Random'});
         set(gca,'xtick',[1:2],'tickdir','out');
         xlim([0.5,2.5]);
-        ylabel('Norm. Centroid Distance [z-microns]');
+        ylabel('Mean Interneuronal Distance [microns]');
         title(['P = ',num2str(p)]);
         
 %% 
     [D,stabilityStatus] = StabilityLocations(fulldataset,'place');
     [s,r,S,R,c] = UnpackDs(D,stabilityStatus); 
     
-    figure; hold on;
-        histogram(s,'binwidth',.05,'edgecolor','none','normalization','probability');
-        histogram(r,'binwidth',.05,'edgecolor','none','normalization','probability');
-        [~,p] = kstest2(s,r); 
-            title(['P = ',num2str(p)]);
-            set(gca,'tickdir','out');
-            xlabel('Norm. Distance (z-microns)');
-            ylabel('Proportion');
+%     figure; hold on;
+%         histogram(s,'binwidth',.05,'edgecolor','none','normalization','probability');
+%         histogram(r,'binwidth',.05,'edgecolor','none','normalization','probability');
+%         [~,p] = kstest2(s,r); 
+%             title(['P = ',num2str(p)]);
+%             set(gca,'tickdir','out');
+%             xlabel('Norm. Distance (z-microns)');
+%             ylabel('Proportion');
             
     figure('Position',[790 220 250 440]); hold on;
+        m = [mean(S) mean(R)];
+        sem = [std(S)/sqrt(length(S)) std(R)/sqrt(length(R))];
         for i=1:length(S)
-            plot([1,2],[S(i),R(i)],'-o','color',c(i,:),'linewidth',3);
+            plot([1,2],[S(i),R(i)],'-','color',c(i,:));
         end
-        p = ranksum(S,R);
+        errorbar([1,2],m,sem,'linewidth',5,'color','k');
+        p = signrank(S,R);
         set(gca,'xticklabel',{'Stable','Random'});
         set(gca,'xtick',[1:2],'tickdir','out');
         xlim([0.5,2.5]);
-        ylabel('Norm. Centroid Distance [z-microns]');
+        ylabel('Mean Interneuronal Distance [microns]');
         title(['P = ',num2str(p)]);
         
 %%    
@@ -85,14 +91,19 @@ function [s,r,S,R,c] = UnpackDs(D,stabilityStatus)
             temp(isnan(temp)) = [];
             
             %Z-score.
-            stableTemp = bsxfun(@rdivide, bsxfun(@minus, temp, m), sd);
+            %stableTemp = bsxfun(@rdivide, bsxfun(@minus, temp, m), sd);
+            stableTemp = temp; 
             
+            %rsamp = D{a}{sesh}(unstable,unstable);
             rsamp = randsample(union(stable,unstable),1000,true);
             rsamp = D{a}{sesh}(stable,rsamp); 
             rsamp = rsamp(:);
             rsamp(isnan(rsamp)) = [];
-            rsamp = bsxfun(@rdivide, bsxfun(@minus, rsamp, m), sd);
             
+            %rsamp = bsxfun(@rdivide, bsxfun(@minus, rsamp, m), sd);
+            
+            
+           
             s = [s; stableTemp];
             r = [r; rsamp];
             

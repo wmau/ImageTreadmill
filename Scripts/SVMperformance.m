@@ -60,9 +60,10 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
             mean(sTimeFRshuffle)];
     figure; hold on;
     for i=1:3
-        b(i) = bar(i,acc(i),.5);
+        b(i) = bar(i,acc(i),.5,'facealpha',.5);
     end
     [b(1:3).FaceColor] = deal(timecolor);
+    b(1).EdgeColor = timecolor;
     b(2).EdgeColor = spacecolor;
     b(3).EdgeColor = frcolor;
     [b.LineWidth] = deal(3);
@@ -97,10 +98,11 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
             mean(sPlaceFRshuffle)];
     figure; hold on;
     for i=1:3
-        b(i) = bar(i,acc(i),.5);
+        b(i) = bar(i,acc(i),.5,'facealpha',.5);
     end
     [b(1:3).FaceColor] = deal(spacecolor);
     b(1).EdgeColor = timecolor;
+    b(2).EdgeColor = spacecolor;
     b(3).EdgeColor = frcolor;
     [b.LineWidth] = deal(3);
 %     [h,p]=boundedline(x,y,e,'alpha');

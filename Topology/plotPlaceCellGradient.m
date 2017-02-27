@@ -16,7 +16,7 @@ function plotPlaceCellGradient(md)
     nNeurons = size(PSAbool,1);
     nPCs = length(PlaceCells); 
     c = colormap(jet(nPCs)); 
-    [~,~,~,order] = LinearizedPFs_treadmill(md);
+    [~,~,~,order] = LinearizedPFs_treadmill(md,'plotit',false);
     PlaceCells = PlaceCells(order);
     
     PlotNeurons(md,1:nNeurons,[.7 .7 .7],1);

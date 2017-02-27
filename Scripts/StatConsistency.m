@@ -57,11 +57,19 @@ for a=1:nAnimals
         S = [S; temp(stable,:)];
         US = [US; temp(unstable,:)];
         
-        if length(stable) > 1, SM{a}{s} = median(log10(temp(stable,:)),1);
-        else, SM{a}{s} = nan(1,2); end
+        if length(stable) > 4
+            sTemp = temp(stable,:); 
+            sTemp(sTemp(:,2)==0,:) = [];
+            SM{a}{s} = mean(log10(sTemp),1);
+        else, SM{a}{s} = nan(1,2);
+        end
         
-        if length(unstable) > 1, USM{a}{s} = median(log10(temp(unstable,:)),1);
-        else, USM{a}{s} = nan(1,2); end;
+        if length(unstable) > 4
+            uTemp = temp(unstable,:);
+            uTemp(uTemp(:,2)==0,:) = [];
+            USM{a}{s} = mean(log10(uTemp),1);
+        else, USM{a}{s} = nan(1,2); 
+        end
         
         
     end
@@ -86,7 +94,7 @@ set(gca,'tickdir','out');
 axis tight;
 yLims = get(gca,'ylim'); xLims = get(gca,'xlim');
 line(xLims,yLims,'color','k','linewidth',2);
-xlabel('Day 1'); ylabel('Day 2');
+xlabel('Day 0'); ylabel('Day 1');
 title('Mutual Info. [bits]');
 %text(xLims(1),yLims(2),['Stable P = ',num2str(sR), ' Unstable P = ',num2str(usR)]);
 if saveBool, print(scattername,'-dpdf'); end
@@ -104,8 +112,8 @@ figure('Position',[840 230 290 470]); hold on;
     errorbar([1,2],nanmean(USM),USSEM,'color',col,'linestyle','--','linewidth',5);
 
 ylabel('Log_{10} Mutual Info. [bits]');
-set(gca,'xticklabel',{'Day 1','Day 2'});
-set(gca,'xtick',[1:2],'tickdir','out');
+set(gca,'xticklabel',{'Day 0','Day 1'});
+set(gca,'xtick',[1:2],'tickdir','out','linewidth',2);
 xlim([0.5,2.5]);
 legend({'Stable','Unstable'},'Location','southwest');
 if saveBool, print(linename,'-dpdf'); end
@@ -117,9 +125,12 @@ X = [SM(:);USM(:)];
 [p,tbl,stats,terms] = anovan(X,grps,'model','full','varnames',{'Stability','Session'},...
     'display','off');
 comps = multcompare(stats,'dimension',[1,2],'display','off','ctype','hsd');
-disp(['Main effect of stability F = ',num2str(tbl{2,6}),', P = ',num2str(tbl{2,7})]);
-disp(['Main effect of session F = ',num2str(tbl{3,6}),', P = ',num2str(tbl{3,7})]);
-disp(['Interaction F = ',num2str(tbl{4,6}),', P = ',num2str(tbl{4,7})]);
+disp(['Main effect of stability F(',num2str(tbl{2,3}),',',num2str(tbl{5,3}),...
+        ') = ',num2str(tbl{2,6}),', P = ',num2str(tbl{2,7})]);
+    disp(['Main effect of session F(',num2str(tbl{3,3}),',',num2str(tbl{5,3}),...
+        ') = ',num2str(tbl{3,6}),', P = ',num2str(tbl{3,7})]);
+    disp(['Interaction F(',num2str(tbl{4,3}),',',num2str(tbl{5,3}),...
+        ') = ',num2str(tbl{4,6}),', P = ',num2str(tbl{4,7})]);
 disp(['Difference between Day 1 and Day 2 for unstable cells P = ',num2str(comps(2,6))]);
 disp(['Difference between Day 1 and Day 2 for stable cells P = ',num2str(comps(5,6))]);
 %%

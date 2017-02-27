@@ -5,16 +5,11 @@ function PlaceCellTopology(md)
 
 %%
     cd(md.Location);
-    load('Placefields.mat','pval');
-    load('SpatialInfo.mat','MI');
-    load('PlacefieldStats.mat','PFnHits','bestPF');
-    idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
-    PCcrit = .01;
-    PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>4);
+    PCs = getPlaceCells(md,.01);
     nPCs = length(PCs);
     
     
-    [~,~,~,order] = LinearizedPFs_treadmill(md);
+    [~,~,~,order] = LinearizedPFs_treadmill(md,'plotit',false);
     order = order./max(order);
     
     centroids = getNeuronCentroids(md,'neurons',PCs);
@@ -34,7 +29,9 @@ function PlaceCellTopology(md)
             d(i,j) = sqrt((x2-x1)^2 + (y2-y1)^2);
             
             %Sequence rank difference.
+            try
             pd(i,j) = order(i) - order(j);
+            catch, keyboard; end 
             
         end
         
@@ -42,13 +39,13 @@ function PlaceCellTopology(md)
     
     d = d(~isnan(d));
     pd = abs(pd(~isnan(pd)));
-    [~,p] = corr(pd,d);
+    [R,p] = corr(pd,d);
     
     dots = scatter(pd,d,10,'filled');
     alpha(dots,.2); 
     lsline;
     xlabel('Rank distance'); 
-    ylabel('Anatomical distance [\mum]');
+    ylabel('Anatomical distance [microns]');
     title(['p = ',num2str(p)]);
 end
     

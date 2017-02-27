@@ -56,7 +56,7 @@ function StabilityOverDays(mds)
             r{d} = [r{d}, meanShuffleCorrs{a}(d,:)];
             m{d} = [m{d}, meanCorrs{a}(d)];
             color{d} = [color{d}; c(a,:)];
-            %p{d} = [p{d}, sum(meanCorrs{a}(d)<meanShuffleCorrs{a}(d,:))/size(meanShuffleCorrs{a},2)];
+            p{d} = [p{d}, sum(meanCorrs{a}(d)<meanShuffleCorrs{a}(d,:))/size(meanShuffleCorrs{a},2)];
         end
     end
             

@@ -28,7 +28,7 @@ function [Mdl,accuracy,shuffle,p] = ClassifyStability(mds,stabilityCriterion,pre
 %
 
 %% Set up.
-    STATS = StabilityStatsEarlyLate(mds,stabilityCriterion,predictor,'early');
+    STATS = PartitionStats(mds,stabilityCriterion,predictor);
     B = 500;
     
     %Concatenate statistics.
