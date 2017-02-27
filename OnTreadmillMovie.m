@@ -22,7 +22,7 @@ function OnTreadmillMovie(md,clim,movietype,varargin)
     
     HalfWindow = 0; 
     neuraldata = 'FinalOutput.mat';
-    load('ProcOut.mat','Xdim','Ydim');
+    load('MovieDims.mat','Xdim','Ydim');
     if ~isempty(varargin)
         if any(strcmp('halfwindow',varargin))   %HalfWindow (should be 10 for comparing D1 movies to T2 trace). 
             HalfWindow = varargin{find(strcmp('halfwindow',varargin))+1}; 
@@ -50,11 +50,13 @@ function OnTreadmillMovie(md,clim,movietype,varargin)
             h5file = fullfile(pwd,'DFF.h5'); 
         case 'slpdf'
             h5file = fullfile(pwd,'SLPDF.h5'); 
+        case 'bpdff'
+            h5file = fullfile(pwd,'BPDFF.h5');
     end
 
 %% Load data and process. 
     %Imaging data. 
-    load(fullfile(pwd,neuraldata),'FT','NeuronImage'); 
+    load(fullfile(pwd,neuraldata),'PSAbool','NeuronImage'); 
     nNeurons = length(NeuronImage); 
     %load(fullfile(pwd,'CC.mat'),'cc');
     load(fullfile(pwd,'TimeCells.mat'),'TodayTreadmillLog','TimeCells','movies'); 
@@ -65,10 +67,10 @@ function OnTreadmillMovie(md,clim,movietype,varargin)
         
     %Align and get indices where mouse was on treadmill. 
     Pix2CM = 0.1256; sf = 0.6246;
-    [x,y,~,~,FToffset,~,~,~] = AlignImagingToTracking(Pix2CM,FT,HalfWindow); 
+    [x,y,~,~,FToffset,~,~,~] = AlignImagingToTracking(Pix2CM,PSAbool,HalfWindow); 
     x = x./Pix2CM*sf; 
     y = y./Pix2CM*sf; 
-    treadmillInds = getTreadmillEpochs(TodayTreadmillLog,movies.t); 
+    treadmillInds = TodayTreadmillLog.inds;
     nRuns = size(treadmillInds,1); 
   
 %% Initialize movie properties.     
@@ -91,7 +93,7 @@ function OnTreadmillMovie(md,clim,movietype,varargin)
     tInc = 0;
     ifigure = figure('Position',[260 240 560 420]); 
     tfigure = figure('Position',[840 240 560 420]);
-    for thisEpoch=[1 3 4 5]
+    for thisEpoch=[19 20 22 23]
         if TodayTreadmillLog.complete(thisEpoch)
             sFrame = treadmillInds(thisEpoch,1) + FToffset;
             eFrame = treadmillInds(thisEpoch,2) + FToffset; 
@@ -102,7 +104,7 @@ function OnTreadmillMovie(md,clim,movietype,varargin)
                 frame = h5read(h5file,'/Object',[1 1 i+HalfWindow 1],[Xdim Ydim 1 1]);
 
                 %Active neurons.
-                active = find(FT(:,i));
+                active = find(PSAbool(:,i));
 
                 %Display the imaging movie frame. 
                 set(0,'currentfigure',ifigure); 
@@ -151,7 +153,7 @@ function OnTreadmillMovie(md,clim,movietype,varargin)
                 set(0,'currentfigure',tfigure); 
                 imagesc(flipud(frame)); 
                 hold on;
-                t = findclosest(trackingread.currentTime,movies.t); 
+                t = findclosest(trackingread.currentTime,movies.aviFrame); 
                 plot(x(t),y(t),'r.'); hold off; 
                 annotation(gcf,'textbox',[0.6, 0.8, 0.2, 0.07],'String',...
                 {['t = ',num2str(round(tInc,1)),' seconds']},'Color','red',...
