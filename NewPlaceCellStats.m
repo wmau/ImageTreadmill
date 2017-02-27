@@ -1,4 +1,4 @@
-function [newPCStat,r] = NewPlaceCellStats(base,comp,statType,varargin)
+function [newPCStatS1,r1,newPCStatS2,r2] = NewPlaceCellStats(base,comp,statType,varargin)
 %
 %
 %
@@ -15,10 +15,13 @@ function [newPCStat,r] = NewPlaceCellStats(base,comp,statType,varargin)
     plotit = p.Results.plotit;
 
 %%
-    cd(base.Location);
-    newPCs = getNewPlaceCells(base,comp);
+    
+    [newPCsS1,newPCsS2] = getNewPlaceCells(base,comp);
     S1PCs = getPlaceCells(base,.01);
+    S2PCs = getPlaceCells(comp,.01);
     S1TCs = getTimeCells(base);
+    S2TCs = getTimeCells(comp);
+    cd(base.Location);
 
     binsize = .1;
     switch statType
@@ -40,8 +43,7 @@ function [newPCStat,r] = NewPlaceCellStats(base,comp,statType,varargin)
             load('TemporalInfo.mat','MI');
             n = length(MI);
             stat = MI; 
-
-            %If looking cross modally, look at all neurons.
+      
             pool = find(~ismember(1:n,S1TCs));
     end
     
@@ -49,22 +51,52 @@ function [newPCStat,r] = NewPlaceCellStats(base,comp,statType,varargin)
     %that are currently not place cells. This will include the cells that
     %are not categorized as place cells but eventually become categorizd as
     %place cells in the subsequent session.
-    stat(pool) = zscore(stat(pool));
-    newPCStat = stat(newPCs);   
+    %stat(pool) = zscore(stat(pool));
+    newPCStatS1 = stat(newPCsS1);   
     
     %Randomly sample from the pool of not-place cells. 
-    r = randsample(stat(pool),1000,true);
+    r1 = randsample(stat,1000,true);
     
 %     load('TemporalInfo.mat','MI');
 %     MI(pool) = zscore(MI(pool)); 
 %     r = MI(newPCs);
     
-    [~,p] = kstest2(r,newPCStat);
+    [~,p] = kstest2(r1,newPCStatS1);
     
     if plotit
         figure; hold on
-        histogram(r,'normalization','probability','binwidth',binsize,'edgecolor','none');
-        histogram(newPCStat,'normalization','probability','binwidth',binsize,'edgecolor','none');
+        histogram(r1,'normalization','probability','binwidth',binsize,'edgecolor','none');
+        histogram(newPCStatS1,'normalization','probability','binwidth',binsize,'edgecolor','none');
         title(['P = ',num2str(p)]);
     end
+    
+%% Get stats of new time cells. 
+    cd(comp.Location);
+    switch statType
+        case 'fr'
+            load('Pos_align.mat','PSAbool');
+            [n,f] = size(PSAbool);
+            d = diff([zeros(n,1) PSAbool],1,2);
+            d(d<0) = 0;
+            stat = sum(d,2)./f; 
+
+            pool = find(~ismember(1:n,S2PCs));
+        case 'ti'
+            load('TemporalInfo.mat','MI');
+            stat = MI; 
+            n = length(MI);
+            
+            pool = find(~ismember(1:n,S2PCs));            
+        case 'si'
+            load('SpatialInfo.mat','MI');
+            stat = MI; 
+            
+            n = length(MI);
+            pool = find(~ismember(1:n,S2TCs)); 
+    end
+    
+    r2 = randsample(stat(pool),1000,true);
+    newPCStatS2 = stat(newPCsS2);
+    
+    
 end

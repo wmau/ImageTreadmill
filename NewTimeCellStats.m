@@ -1,4 +1,4 @@
-function [newTCStat,r] = NewTimeCellStats(base,comp,statType,varargin)
+function [newTCStatS1,r1,newTCStatS2,r2] = NewTimeCellStats(base,comp,statType,varargin)
 %
 %
 %
@@ -15,10 +15,12 @@ function [newTCStat,r] = NewTimeCellStats(base,comp,statType,varargin)
     plotit = p.Results.plotit;
 
 %%
-    cd(base.Location);
-    newTCs = getNewTimeCells(base,comp);
+    [newTCsS1,newTCsS2] = getNewTimeCells(base,comp);
     S1TCs = getTimeCells(base);
+    S2TCs = getTimeCells(comp);
     S1PCs = getPlaceCells(base,.01);
+    S2PCs = getPlaceCells(comp,.01);
+    cd(base.Location);
 
     binsize = .1;
     switch statType
@@ -48,22 +50,51 @@ function [newTCStat,r] = NewTimeCellStats(base,comp,statType,varargin)
     %that are currently not place cells. This will include the cells that
     %are not categorized as place cells but eventually become categorizd as
     %place cells in the subsequent session.
-    stat(pool) = zscore(stat(pool));
-    newTCStat = stat(newTCs);   
+    %stat(pool) = zscore(stat(pool));
+    newTCStatS1 = stat(newTCsS1);   
     
     %Randomly sample from the pool of not-place cells. 
-    r = randsample(stat(pool),1000,true);
+    r1 = randsample(stat,1000,true);
     
 %     load('SpatialInfo.mat','MI');
 %     MI(pool) = zscore(MI(pool)); 
 %     r = MI(newTCs);
 
-    [~,p] = kstest2(r,newTCStat);
-    
     if plotit
+        [~,p] = kstest2(r1,newTCStatS1);
         figure; hold on
-        histogram(r,'normalization','probability','binwidth',binsize,'edgecolor','none');
-        histogram(newTCStat,'normalization','probability','binwidth',binsize,'edgecolor','none');
+        histogram(r1,'normalization','probability','binwidth',binsize,'edgecolor','none');
+        histogram(newTCStatS1,'normalization','probability','binwidth',binsize,'edgecolor','none');
         title(['P = ',num2str(p)]);
     end
+    
+%% Get stats of new time cells. 
+    cd(comp.Location);
+    switch statType
+        case 'fr'
+            load('Pos_align.mat','PSAbool');
+            [n,f] = size(PSAbool);
+            d = diff([zeros(n,1) PSAbool],1,2);
+            d(d<0) = 0;
+            stat = sum(d,2)./f; 
+
+            pool = find(~ismember(1:n,S2TCs));
+        case 'ti'
+            load('TemporalInfo.mat','MI');
+            stat = MI; 
+            n = length(MI);
+            
+            pool = find(~ismember(1:n,S2TCs));           
+        case 'si'
+            load('SpatialInfo.mat','MI');
+            stat = MI; 
+            n = length(MI); 
+            
+            pool = find(~ismember(1:n,S2PCs));
+    end
+    
+    r2 = randsample(stat,1000,true);
+    newTCStatS2 = stat(newTCsS2);
+    
+    
 end
