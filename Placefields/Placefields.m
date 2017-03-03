@@ -64,6 +64,8 @@ function Placefields(MD,varargin)
     name_append = ip.Results.name_append;
     
 %% Set up.
+
+%     disp(['Running Placefields for ' MD.Animal ' - ' MD.Date ' - session ' num2str(MD.Session)])
     if aligned
         load(Pos_data,...
             'PSAbool','x_adj_cm','y_adj_cm','speed','xmin','xmax','ymin','ymax','FToffset'); 
@@ -122,7 +124,7 @@ function Placefields(MD,varargin)
     end
     
     %Compute mutual information.
-    MI = spatInfo(TMap_unsmoothed,RunOccMap,PSAbool,true);
+    MI = spatInfo(TMap_unsmoothed, RunOccMap, PSAbool, true, 'name_append', name_append);
     
 %% Get statistical significance of place field using mutual information.
     %Preallocate. 

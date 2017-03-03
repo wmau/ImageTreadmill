@@ -78,16 +78,17 @@ function [ ] = Placefields_half( MD, calc_mode, exclude_frames, name_append, var
     end
 
     %% Run Placefields for each half
+    Placefields_halves = cell(1,2);
     for j = 1:2
         disp(['Calculating PFs for half # ' num2str(j)])
         Placefields(MD, 'name_append', [name_append '_' calc_mode num2str(j)], ...
             'exclude_frames', exclude_half{j}, varargin{:});
         PFfilename = fullfile(dirstr,['Placefields' name_append '_' calc_mode num2str(j) '.mat']);
-        Placefields_half{j} = load(PFfilename);
+        Placefields_halves{j} = load(PFfilename);
         delete(PFfilename);
     end
     
-    save(fullfile(dirstr,['Placefields' name_append '_' calc_mode '.mat']),'Placefields_half');
+    save(fullfile(dirstr,['Placefields' name_append '_' calc_mode '.mat']),'Placefields_halves');
 end
 
 %% Build odd and even epoch frames
