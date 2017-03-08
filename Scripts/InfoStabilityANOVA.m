@@ -51,7 +51,8 @@
     figure('Position',[290 240 250 440]); hold on;
     [S,US] = ParseInfoStability(fulldataset,'time','fr',[.7 .7 .7]);
     MakeErrBar(S,US,[.7 .7 .7]);
-    title(['P = ',num2str(ranksum(S,US))]);
+    [p,~,z] = ranksum(S,US,'method','approximate');
+    title(['Z = ',num2str(z.zval), ' P = ',num2str(p)]);
     ylabel('Norm. Ca Event Freq.');
     xlabel('Temporal Stability','Color',teal);
     if saveBool
@@ -83,7 +84,8 @@
     [S,US] = ParseInfoStability(fulldataset,'place','fr',[.7 .7 .7]);
     
     MakeErrBar(S,US,[.7 .7 .7]);
-    title(['P = ',num2str(ranksum(S,US))]);
+    [p,~,z] = ranksum(S,US,'method','approximate');
+    title(['Z = ',num2str(z.zval), ' P = ',num2str(p)]);
     ylabel('Norm. Ca Event Freq.');
     xlabel('Spatial Stability','Color',purple);
     if saveBool
@@ -142,10 +144,10 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c)
             sExtent = length(stable{a}{s}); 
             usExtent = length(unstable{a}{s});
             
-            if sExtent > 5, sM{a}(s) = nanmean(stats.stable{a}(i:i+sExtent-1));
+            if sExtent > 4, sM{a}(s) = nanmean(stats.stable{a}(i:i+sExtent-1));
             else, sM{a}(s) = nan; end
                 
-            if usExtent > 5, usM{a}(s) = nanmean(stats.unstable{a}(j:j+usExtent-1)); 
+            if usExtent > 4, usM{a}(s) = nanmean(stats.unstable{a}(j:j+usExtent-1)); 
             else, usM{a}(s) = nan; end
             
             i = i+sExtent;
