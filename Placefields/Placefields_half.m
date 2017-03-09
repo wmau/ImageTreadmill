@@ -65,6 +65,8 @@ function [ ] = Placefields_half( MD, calc_mode, exclude_frames, name_append, var
             ind_use_half{1}(odd_frames) = true;
             ind_use_half{2}(even_frames) = true;
         otherwise
+            % Add in functionality here to use a specific halfway point if
+            % desired!
     end
     
     % Incorporate excluded frames
