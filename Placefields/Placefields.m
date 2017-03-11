@@ -50,6 +50,7 @@ function Placefields(MD,varargin)
     ip.addParameter('Pos_data','Pos_align.mat',@(x) ischar(x));
     ip.addParameter('Tenaspis_data','FinalOutput.mat',@(x) ischar(x)); 
     ip.addParameter('name_append','',@ischar);
+    ip.KeepUnmatched = true;
     
     ip.parse(MD,varargin{:});
     
@@ -65,7 +66,6 @@ function Placefields(MD,varargin)
     
 %% Set up.
 
-%     disp(['Running Placefields for ' MD.Animal ' - ' MD.Date ' - session ' num2str(MD.Session)])
     if aligned
         load(Pos_data,...
             'PSAbool','x_adj_cm','y_adj_cm','speed','xmin','xmax','ymin','ymax','FToffset'); 
@@ -90,6 +90,7 @@ function Placefields(MD,varargin)
 
     end
     
+   
     %Basic variables. 
     [nNeurons,nFrames] = size(PSAbool); 
     velocity = convtrim(speed,ones(1,2*20))./(2*20);    %Smooth velocity (cm/s).
@@ -98,6 +99,13 @@ function Placefields(MD,varargin)
     isrunning = good;                                   %Running frames that were not excluded. 
     isrunning(velocity < minspeed) = false;
     
+%     keyboard
+% %% De-bugging spot for aligning exclude_frames
+%     
+%     figure
+%     frames_plot = 1:length(x);
+%     plot(frames_plot,x,'k',frames_plot(good), x(good),'r*')
+%     
 %% Get occupancy map. 
     lims = [xmin xmax;
             ymin ymax];
