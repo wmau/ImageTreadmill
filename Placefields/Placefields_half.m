@@ -26,22 +26,30 @@ function [ ] = Placefields_half( MD, calc_mode, exclude_frames, name_append, var
     ip.addRequired('calc_mode',@(a) ischar(a) && (strcmpi(a,'half') || strcmpi(a,'oddeven')));
     ip.addRequired('exclude_frames', @(x) isnumeric(x)); 
     ip.addRequired('name_append', @ischar);
+    ip.addParameter('half_custom', nan, @(a) isnumeric(a) && round(a) == a); % custom halfway point based on aligned Pos.mat file (run AlignImagingData and plot x/y to find frame number).
     ip.KeepUnmatched = true;
     % Note that other varargins will be checked in Placefields function
     
     ip.parse(MD, calc_mode, exclude_frames, name_append, varargin{:});
+    
+    half_custom = ip.Results.half_custom;
 
     %% Calculate indices for each half
     load(fullfile(dirstr,'FinalOutput.mat'),'PSAbool');
-    load(fullfile(dirstr,'Pos.mat'),'time_interp');
-    Flength = min([size(PSAbool,2), length(time_interp)]);
+    % Align imaging and tracking
+    [~,~,~,~,FToffset,~,~,time_interp,~] = AlignImagingToTracking(MD.Pix2CM, PSAbool, 0);
+    Flength = length(PSAbool);
     
     ind_use_half{1} = false(1,Flength);
     ind_use_half{2} = false(1,Flength);
     switch calc_mode
         
         case 'half' % Get indices to include for each half
-            half = round(Flength/2);
+            if isnan(half_custom) % If no custom halfway point is specified, just divide up time on the maze by 2
+                half = round(length(time_interp)/2)+FToffset;
+            else % Use custom halfway point based on aligned Pos.mat file (run AlignImagingData and plot x/y to find frame number).
+                half = half_custom + FToffset;
+            end
             ind_use_half{1}(1:half) = true; 
             ind_use_half{2}(half+1:Flength) = true; 
         case 'oddeven'
@@ -90,7 +98,7 @@ function [ ] = Placefields_half( MD, calc_mode, exclude_frames, name_append, var
         delete(PFfilename);
     end
     
-    save(fullfile(dirstr,['Placefields' name_append '_' calc_mode '.mat']),'Placefields_halves');
+    save(fullfile(dirstr,['Placefields' name_append '_' calc_mode '.mat']),'Placefields_halves','calc_mode');
 end
 
 %% Build odd and even epoch frames
