@@ -55,7 +55,9 @@ function DATA = CompileMultiSessionData(MD,args)
                     'ti',...
                     'placecells',...
                     'placeorder',...
-                    'timeorder'};
+                    'timeorder',...
+                    'placefieldcentroids',...
+                    'tfcorr'};
 
     %Check that the arguments match template. 
     for i=1:nArgs
@@ -208,6 +210,23 @@ function DATA = CompileMultiSessionData(MD,args)
             TCs = getTimeCells(MD(i));
             DATA.timeorder{i} = zeros(nNeurons,1);
             DATA.timeorder{i}(TCs) = order./max(order);
+        end
+        
+        %PLACE FIELD CENTROID. 
+        if any(strcmp('placefieldcentroids',args))
+            load('PlacefieldStats.mat','PFcentroids','PFnHits');
+            [~,bestPF] = max(PFnHits,[],2); 
+            idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');
+            DATA.placefieldcentroids{i} = PFcentroids(idx); 
+        end
+        
+        if any(strcmp('tfcorr',args)) 
+            load('FinalOutput.mat','NumNeurons');
+            if i~=nSessions
+                DATA.tfcorr{i} = CorrTrdmllTrace(MD(i),MD(i+1),1:NumNeurons);
+            else           
+                DATA.tfcorr{i} = nan(NumNeurons,2);
+            end
         end
     end
     
