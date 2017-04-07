@@ -9,4 +9,5 @@ function TCs = getTimeCells(md)
     load('TemporalInfo.mat','sig'); 
     
     TCs = intersect(TimeCells,find(sig));
+    %TCs = TimeCells;
 end

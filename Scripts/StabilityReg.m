@@ -106,10 +106,10 @@ m = [mean(stableM), mean(unstableM)];
 sem = [std(stableM)/sqrt(length(stableM)) std(unstableM)/sqrt(length(unstableM))];
 errorbar([1,2],m,sem,'color','k','linewidth',5);
 
-[pCD] = signrank(stableM,unstableM);
-title(['P = ',num2str(pCD)]);
+[pCD,~,z] = signrank(stableM,unstableM,'method','approximate');
+title(['Z = ',num2str(z.zval),' P = ',num2str(pCD)]);
 set(gca,'xticklabel',{'Stable','Unstable'},'tickdir','out',...
-    'linewidth',2,'xtick',[1:2]);
+    'linewidth',4,'xtick',[1:2],'fontsize',15);
 xlim([0.5,2.5]); ylim([0,3]);
 ylabel('Mean Centroid Drift [microns]');
 
@@ -122,8 +122,20 @@ for i=1:4
     s = [s; cell2mat(stableCentroidDrifts{i}')];
     us = [us; cell2mat(unstableCentroidDrifts{i}')];
 end
-[~,p] = kstest2(s,us)
+[~,p] = kstest2(s,us);
+[N,edges] = histcounts(s,'binwidth',.1);
+[N,edges] = hist(s,edges,'normalization','probability');
+N = N./sum(N);
 figure;
-hold on;
-histogram(s,'normalization','probability','edgecolor','none','binwidth',.1);
-histogram(us,'normalization','probability','edgecolor','none','binwidth',.1);
+stairs(edges,N,'linewidth',4);
+hold on
+[N,edges] = histcounts(us,'binwidth',.1);
+[N,edges] = hist(us,edges,'normalization','probability');
+N = N./sum(N);
+stairs(edges,N,'linewidth',4);
+set(gca,'tickdir','out','linewidth',4,'fontsize',15);
+xlim([0 3.3])
+legend({'Stable','Unstable'});
+ylabel('Proportion');
+xlabel('Centroid drift [microns]');
+title(['KS P = ',num2str(p)]); 

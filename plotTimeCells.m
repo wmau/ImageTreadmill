@@ -138,7 +138,7 @@ function plotTimeCells(md,T,varargin)
                     plot(x,y,x(treadmillruns & FT(TimeCells(thisNeuron),:)),y(treadmillruns & FT(TimeCells(thisNeuron),:)),'r.','MarkerSize',16);
                     axis off; title(['Neuron #',num2str(TimeCells(thisNeuron))]);
                 subplot(2,2,2);     %Raster. 
-                    imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
+                    imagesc([0:T],[1:sum(complete)],ratebylap(:,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps'); 
             elseif pf
                 subplot(2,2,1);     %Place map. 
@@ -147,16 +147,17 @@ function plotTimeCells(md,T,varargin)
                         title(['p = ', num2str(pval(TimeCells(thisNeuron)))]);
                         axis off; colormap hot; freezeColors;
                 subplot(2,2,2);     %Raster. 
-                    imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
+                    imagesc([0:T],[1:sum(complete)],ratebylap(:,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps'); 
                         title(['Neuron #',num2str(TimeCells(thisNeuron))])
             else              
                 subplot(2,2,1:2);   %Raster. 
-                    imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
+                    imagesc([0:T],[1:sum(complete)],ratebylap(:,:,TimeCells(thisNeuron)));
                         colormap gray; ylabel('Laps','fontsize',18); c = colorbar; c.Position(1) = 0.92;
                         title(['Neuron #',num2str(TimeCells(thisNeuron))]);
                         set(gca,'fontsize',16);
             end
+            set(gca,'ytick',[1,sum(complete)]);
             
             subplot(2,2,3:4);   %Tuning curve.
                 yyaxis right; 

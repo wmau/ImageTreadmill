@@ -12,7 +12,7 @@ switch statType
 end
 PCcrit = .01;
 
-saveBool = true;
+saveBool = false;
 folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
 scattername = fullfile(folder,['Stable ',statType,' Scatter']);
 linename = fullfile(folder,['Stable ',statType,' Drop']);
@@ -45,26 +45,32 @@ for a=1:nAnimals
             neurons);
         
         switch statType
-            case 'si', corrs = CorrPlaceFields(fulldataset(ssns(s)),fulldataset(ssns(s+1)),neurons);
-            case 'ti', corrs = CorrTrdmllTrace(fulldataset(ssns(s)),fulldataset(ssns(s+1)),neurons);
+            case 'si'
+                corrs = CorrPlaceFields(fulldataset(ssns(s)),fulldataset(ssns(s+1)),neurons);
+                tuningStatus = PCRemap(fulldataset(ssns(s)),fulldataset(ssns(s+1)));
+            case 'ti'
+                corrs = CorrTrdmllTrace(fulldataset(ssns(s)),fulldataset(ssns(s+1)),neurons);
+                tuningStatus = TCRemap(fulldataset(ssns(s)),fulldataset(ssns(s+1)));
         end
         
         stblcrit = .01/length(neurons);
-        stable = intersect(find(corrs(:,2) < stblcrit),neurons);
-        unstable = intersect(find(corrs(:,2) > stblcrit | isnan(corrs(:,2))),neurons);
-        
+%         stable = intersect(find(corrs(:,2) < stblcrit),neurons);
+%         unstable = intersect(find(corrs(:,2) > stblcrit | isnan(corrs(:,2))),neurons);
+        stable = intersect(find(tuningStatus(:,2)==1),neurons);
+        unstable = intersect(find(tuningStatus(:,2)<1),neurons);
+
         temp = msStats(fulldataset(ssns(s):ssns(s+1)),statType,1:NumNeurons);
         S = [S; temp(stable,:)];
         US = [US; temp(unstable,:)];
         
-        if length(stable) > 4
+        if length(stable) > 3
             sTemp = temp(stable,:); 
             sTemp(sTemp(:,2)==0,:) = [];
             SM{a}{s} = mean(log10(sTemp),1);
         else, SM{a}{s} = nan(1,2);
         end
         
-        if length(unstable) > 4
+        if length(unstable) > 3
             uTemp = temp(unstable,:);
             uTemp(uTemp(:,2)==0,:) = [];
             USM{a}{s} = mean(log10(uTemp),1);

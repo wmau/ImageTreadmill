@@ -27,6 +27,6 @@ function msMapStability(base,comp,stabilityType)
     hold on; 
     PlotNeurons(base,stable,color,2);
     PlotNeurons(base,unstable,[1 0 0 .5],2);
-
+    line([0 100*1.10],[0 0],'linewidth',5,'color','k');
             
     end

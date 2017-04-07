@@ -17,17 +17,14 @@ if saveBool
         saveBool = false;
     end
 end
-
-figure(1); hold on;
+%%
+figure('Position',[520   380   290   420]); hold on
 [ttiDuration,ttiStats] = InformationOverDaysStable(fulldataset,'time','ti',teal);    
 [tsiDuration,tsiStats] = InformationOverDaysStable(fulldataset,'time','si',purple);
 
-figure;
-[tbl,stats,comps] = ANOVAit(ttiDuration,ttiStats,tsiDuration,tsiStats);
-
 e = get(gca,'Children');
-e(1).XData = e(1).XData + .2;
-set(gca,'xtick',[0:4]);
+%e(1).XData = e(1).XData + .2;
+set(gca,'xtick',[0:1:4],'linewidth',4,'tickdir','out','fontsize',15);
 e(1).Color = purple;
 e(2).Color = teal;
 legend({'Temporal','Spatial'},'location','northwest');
@@ -35,17 +32,17 @@ if saveBool
     print(time,'-dpdf');
 end
 
-figure; hold on;
+figure;
+[tbl,stats,comps] = ANOVAit(ttiDuration,ttiStats,tsiDuration,tsiStats);
+
+%%
+figure('Position',[520   380   290   420]); hold on;
 [ssiDuration,ssiStats] = InformationOverDaysStable(fulldataset,'place','si',purple); 
 [stiDuration,stiStats] = InformationOverDaysStable(fulldataset,'place','ti',teal);
 
-figure;
-[tbl,stats,comps] = ANOVAit(ssiDuration,ssiStats,stiDuration,stiStats);
-    
-
 e = get(gca,'Children');
-e(1).XData = e(1).XData + .2;
-set(gca,'xtick',[0:4]);
+%e(1).XData = e(1).XData + .2;
+set(gca,'xtick',[0:1:4],'linewidth',4,'tickdir','out','fontsize',15);
 e(1).Color = teal;
 e(2).Color = purple;
 legend({'Spatial','Temporal'},'location','northwest');
@@ -53,6 +50,9 @@ if saveBool
     print(place,'-dpdf');
 end
 
+figure;
+[tbl,stats,comps] = ANOVAit(ssiDuration,ssiStats,stiDuration,stiStats);
+    
 function [tbl,stats,comps] = ANOVAit(sameDuration,sameStats,diffDuration,diffStats)
 %
 %

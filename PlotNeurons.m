@@ -41,7 +41,7 @@ function PlotNeurons(md,neurons,col,thickness)
     end
     hold off; 
     xlim([0 Ydim]); ylim([0 Xdim]); 
-    %line([0 100*1.10],[0 0],'linewidth',5,color,'k');
+    %line([0 100*1.10],[0 0],'linewidth',5,'color','k');
     axis equal; axis off;
      
 end

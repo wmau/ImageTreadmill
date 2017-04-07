@@ -31,7 +31,7 @@
         end
     end
     
-    %Main analysis.
+%% Main analysis.
     figure('Position',[20 240 250 440]);  hold on;
     [sSame,usSame] = ParseInfoStability(fulldataset,'time','ti',teal);
     [sDiff,usDiff] = ParseInfoStability(fulldataset,'time','si',purple);
@@ -92,7 +92,7 @@
         print(PlaceFR,'-dpdf');
     end
     
-%% 
+% 
     disp(' ');
     
     %Main analysis.
@@ -101,14 +101,14 @@
     [sDiff,usDiff] = ParseInfoStability(fulldataset,'time','pfw',purple);   
     MakeErrBar(sDiff,usDiff,purple);
     MakeErrBar(sSame,usSame,teal);
-    ylabel('z-scored Firing Field Width');
+    ylabel('z-scored Reliability');
     xlabel('Temporal Stability','Color',teal);
     if saveBool
         print(TimeFW,'-dpdf');
     end
     
     %Run ANOVA.
-    disp('Running Two-Way ANOVA of MI based on spatial stability.');
+    disp('Running Two-Way ANOVA of reliability based on temporal stability.');
     ANOVAit(sSame,usSame,sDiff,usDiff);   
   
 %% 
@@ -120,14 +120,14 @@
     [sDiff,usDiff] = ParseInfoStability(fulldataset,'place','tfw',teal);   
     MakeErrBar(sDiff,usDiff,teal);
     MakeErrBar(sSame,usSame,purple);
-    ylabel('z-scored Firing Field Width');
+    ylabel('z-scored Reliability');
     xlabel('Spatial Stability','Color',purple);
     if saveBool
         print(PlaceFW,'-dpdf');
     end
     
     %Run ANOVA.
-    disp('Running Two-Way ANOVA of MI based on spatial stability.');
+    disp('Running Two-Way ANOVA of reliability based on spatial stability.');
     ANOVAit(sSame,usSame,sDiff,usDiff); 
     
 %%
@@ -144,10 +144,10 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c)
             sExtent = length(stable{a}{s}); 
             usExtent = length(unstable{a}{s});
             
-            if sExtent > 4, sM{a}(s) = nanmean(stats.stable{a}(i:i+sExtent-1));
+            if sExtent > 3, sM{a}(s) = nanmean(stats.stable{a}(i:i+sExtent-1));
             else, sM{a}(s) = nan; end
                 
-            if usExtent > 4, usM{a}(s) = nanmean(stats.unstable{a}(j:j+usExtent-1)); 
+            if usExtent > 3, usM{a}(s) = nanmean(stats.unstable{a}(j:j+usExtent-1)); 
             else, usM{a}(s) = nan; end
             
             i = i+sExtent;

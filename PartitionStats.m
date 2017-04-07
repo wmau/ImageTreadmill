@@ -73,14 +73,21 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
                     
                 %Time field width.
                 case 'tfw'
-                    load('TimeCells','curves');
-                    stat = cellfun(@sum, cellfun(@(x) x > 0, curves.tuning,'unif',0));
-                    
+%                     load('TimeCells','curves');
+%                     stat = cellfun(@sum, cellfun(@(x) x > 0, curves.tuning,'unif',0));
+                    load('TimefieldStats.mat','TFpcthits');
+                    stat = TFpcthits;
+
                 %Place field width. 
                 case 'pfw' 
                     load('Placefields.mat','TMap_gauss');
-                    stat = cell2mat(cellfun(@(x) sum(sum(x>0)), TMap_gauss,'unif',0))';
-
+                    load('PlacefieldStats.mat','PFnHits','PFarea','PFpcthits');
+                    [~,bestPF] = max(PFnHits,[],2);
+                    idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');
+                    %stat = cell2mat(cellfun(@(x) sum(x(:) > 0), TMap_gauss,'unif',0))';
+                    stat = PFpcthits(idx)';
+                    stat(isnan(stat)) = 0;
+                    
                 %Firing rate (really Ca event rate).
                 case 'fr'
                     load('Pos_align.mat','PSAbool');
@@ -111,35 +118,60 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
                 %stat = (stat-min(stat))./range(stat);
                 %stat(neurons) = (stat(neurons)-min(stat(neurons)))./range(stat(neurons));
             %else
+%             if any(strcmp(statType,{'tfw','pfw'}))
+%                 switch stabilityType
+%                     case 'time'
+%                         switch statType
+%                             case 'tfw', stat(neurons) = zscore(stat(neurons));
+%                             case 'pfw'
+%                                 PCs = getPlaceCells(mds(ssns(s)),.01);
+%                                 mu = mean(stat(PCs));
+%                                 sigma = std(stat(PCs));
+%                                 stat(neurons) = bsxfun(@rdivide, bsxfun(@minus, stat(neurons), mu),sigma);
+%                         end
+%                     case 'place'
+%                         switch statType
+%                             case 'tfw'
+%                                 TCs = getTimeCells(mds(ssns(s)));
+%                                 mu = mean(stat(TCs));
+%                                 sigma = std(stat(TCs));
+%                                 stat(neurons) = bsxfun(@rdivide, bsxfun(@minus, stat(neurons), mu),sigma);
+%                             case 'pfw', stat(neurons) = zscore(stat(neurons));
+%                         end
+%                 end
+%             else
                 stat(neurons) = zscore(stat(neurons));
-            %end
+%            end
                            
             switch stabilityType
                 case 'time'           
                     %Get correlation coefficients and p-values. 
                     corrs = CorrTrdmllTrace(mds(ssns(s)),mds(ssns(s+1)),neurons);
-
+                    %tuningStatus = TCRemap(mds(ssns(s)),mds(ssns(s+1)));
+                    
                 case 'place'
                     %Get the correlation coefficients and p-values.
-                    corrs = CorrPlaceFields(mds(ssns(s)),mds(ssns(s+1)),neurons);       
+                    corrs = CorrPlaceFields(mds(ssns(s)),mds(ssns(s+1)),neurons); 
+                    %tuningStatus = PCRemap(mds(ssns(s)),mds(ssns(s+1))); 
             end
             
             %[~,stblcrit] = fdr_bh(corrStats(~isnan(corrStats(:,2)),2));
             stblcrit = .01/length(neurons);
 
-            %Stable time cells based on correlation.
+            %Stable cells based on correlation.
             stable{a}{s} = intersect(find(corrs(:,2) < stblcrit),neurons);
             unstable{a}{s} = intersect(find(corrs(:,2) >= stblcrit | isnan(corrs(:,2))),neurons);
-                 
+%             stable{a}{s} = intersect(find(tuningStatus(:,2)==1),neurons);
+%             unstable{a}{s} = intersect(find(tuningStatus(:,2)<1),neurons);
+            
+            
             %Get number of stable and unstable cells. Add this one per
             %session but track the number per animal. 
             nStable = nStable + length(stable{a}{s}); 
             nUnstable = nUnstable + length(unstable{a}{s}); 
             
             %Get the temporal information values. 
-            try
             STATS.stable{a} = [STATS.stable{a}; stat(stable{a}{s})];
-            catch, keyboard; end 
             STATS.unstable{a} = [STATS.unstable{a}; stat(unstable{a}{s})];
         end
         

@@ -17,19 +17,19 @@ if saveBool
 end
 
 disp('Classifying temporal stability based on temporal information.');
-[~,sTimeTIaccuracy,sTimeTIshuffle,sTimeTIp] = ClassifyStability(fulldataset,'time','TI',krnl);
+[~,sTimeTIaccuracy,sTimeTIshuffle,sTimeTIp] = ClassifyStability(fulldataset,'time','ti',krnl);
 
 disp('Classifying temporal stability based on spatial information.');
-[~,sTimeSIaccuracy,sTimeSIshuffle,sTimeSIp] = ClassifyStability(fulldataset,'time','SI',krnl);
+[~,sTimeSIaccuracy,sTimeSIshuffle,sTimeSIp] = ClassifyStability(fulldataset,'time','si',krnl);
 
 disp('Classifying temporal stability based on transient frequency.');
 [~,sTimeFRaccuracy,sTimeFRshuffle,sTimeFRp] = ClassifyStability(fulldataset,'time','FR',krnl);
 
 disp('Classifying spatial stability based on spatial information.');
-[~,sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = ClassifyStability(fulldataset,'place','SI',krnl);
+[~,sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = ClassifyStability(fulldataset,'place','si',krnl);
 
 disp('Classifying spatial stability based on temporal information.');
-[~,sPlaceTIaccuracy,sPlaceTIshuffle,sPlaceTIp] = ClassifyStability(fulldataset,'place','TI',krnl);
+[~,sPlaceTIaccuracy,sPlaceTIshuffle,sPlaceTIp] = ClassifyStability(fulldataset,'place','ti',krnl);
 
 disp('Classifying spatial stability based on transient frequency.');
 [~,sPlaceFRaccuracy,sPlaceFRshuffle,sPlaceFRp] = ClassifyStability(fulldataset,'time','FR',krnl);

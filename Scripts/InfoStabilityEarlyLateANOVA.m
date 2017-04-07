@@ -49,7 +49,8 @@
     figure('Position',[400 240 250 440]); hold on;
     [S,US] = ParseInfoStability(fulldataset,'time','fr',[.7 .7 .7],'early');
     MakeErrBar(S,US,[.7 .7 .7]);
-    title(['P = ',num2str(ranksum(S,US))]);
+    [p,~,z] = ranksum(S,US);
+    title(['Z = ',num2str(z.zval),'P = ',num2str(p)]);
     ylabel('Norm. Ca Event Freq.');
     xlabel('Temporal Stability','Color',teal);
     if saveBool
@@ -77,7 +78,8 @@
     figure('Position',[940 240 250 440]); hold on;
     [S,US] = ParseInfoStability(fulldataset,'time','fr',[.7 .7 .7],'late');
     MakeErrBar(S,US,[.7 .7 .7]);
-    title(['P = ',num2str(ranksum(S,US))]);
+    [p,~,z] = ranksum(S,US);
+    title(['Z = ',num2str(z.zval),'P = ',num2str(p)]);
     ylabel('Norm. Ca Event Freq.');
     xlabel('Temporal Stability','Color',teal);
     if saveBool
@@ -118,6 +120,7 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c,trdm
     set(gca,'xtick',[1:2],'tickdir','out');
     %title(['P = ',num2str(p)]);
     xlim([0.5,2.5]);
+    set(gca,'linewidth',4);
 end
 
 %%
@@ -127,6 +130,7 @@ function [sM,usM,sSEM,usSEM] = MakeErrBar(stable,unstable,c)
     usM = nanmean(unstable);       usSEM = nanstd(unstable)./sqrt(nSessions); 
     
     errorbar([1,2],[sM,usM],[sSEM,usSEM],'color',c,'linewidth',5);
+    set(gca,'linewidth',4);
 end
 
 %%

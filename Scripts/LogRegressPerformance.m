@@ -59,9 +59,10 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
             mean(sTimeFRshuffle)];
     figure; hold on;
     for i=1:3
-        b(i) = bar(i,acc(i),.5);
+        b(i) = bar(i,acc(i),.5,'facealpha',.5);
     end
     [b(1:3).FaceColor] = deal(timecolor);
+    b(1).EdgeColor = timecolor;
     b(2).EdgeColor = spacecolor;
     b(3).EdgeColor = frcolor;
     [b.LineWidth] = deal(3);
@@ -75,7 +76,7 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
 %     h.LineWidth = 2;
 %     h.Color = 'b';
 %     p.FaceColor = 'b';
-    %ylim([0.3 0.8]);
+    ylim([0.3 0.8]);
     set(gca,'tickdir','out','linewidth',2,'xtick',[1:3]);
     ylabel('Accuracy');
     xticklabels({'Temporal Stability | TI','Temporal Stability | SI','Temporal Stability | TR'})
@@ -96,10 +97,11 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
             mean(sPlaceFRshuffle)];
     figure; hold on;
     for i=1:3
-        b(i) = bar(i,acc(i),.5);
+        b(i) = bar(i,acc(i),.5,'facealpha',.5);
     end
     [b(1:3).FaceColor] = deal(spacecolor);
     b(1).EdgeColor = timecolor;
+    b(2).EdgeColor = spacecolor;
     b(3).EdgeColor = frcolor;
     [b.LineWidth] = deal(3);
 %     [h,p]=boundedline(x,y,e,'alpha');
@@ -112,7 +114,7 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
         line([i-w/2 i+w/2],[y(i) y(i)],'color','b','linewidth',2);
     end
     
-    %ylim([0.3 0.8]);
+    ylim([0.3 0.8]);
     set(gca,'tickdir','out','linewidth',2,'xtick',[1:3]);
     ylabel('Accuracy');
     xticklabels({'Spatial Stability | TI','Spatial Stability | SI','Spatial Stability | TR'})
@@ -120,4 +122,3 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
     if saveBool
         print(placeFileName,'-dpdf');
     end
-    

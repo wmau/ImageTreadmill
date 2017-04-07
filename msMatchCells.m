@@ -1,5 +1,5 @@
 function [matchMat,mapRows,mapCols] = msMatchCells(mapMD,md,neurons,trim)
-%matchMat = msMatchCells(mapMD,md,neurons)
+%[matchMat,mapRows,mapCols] = msMatchCells(mapMD,md,neurons,trim)
 %
 %   Matches all specified neurons across sessions specified in md. 
 %
