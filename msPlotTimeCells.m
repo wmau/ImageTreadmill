@@ -48,7 +48,9 @@ function msPlotTimeCells(md,varargin)
             'ratebylap',...
             'curves',...
             'delays',...
-            'complete'};
+            'complete',...
+            'ti',...
+            'tfcorr'};
     if pf
         args{end+1} = 'placefields'; 
         args{end+1} = 'runoccmaps'; 
@@ -63,6 +65,8 @@ function msPlotTimeCells(md,varargin)
     CURVES = DATA.curves; 
     DELAYS = DATA.delays; 
     COMPLETE = DATA.complete; 
+    TI = DATA.ti;
+    TFCORR = DATA.tfcorr;
     Ts = cell2mat(DATA.t); 
     if pf
         PFS = DATA.placefields; 
@@ -129,7 +133,7 @@ function msPlotTimeCells(md,varargin)
     if pf 
         fPos = [-1300 -40 630 180*nSessions];
     else 
-        fPos = [-1300 -40 520 180*nSessions];
+        fPos = [-1300 -40 370 180*nSessions];
     end
     
     
@@ -146,6 +150,9 @@ function msPlotTimeCells(md,varargin)
         %neuron was mapped, but inactive on stem. 
         for thisSession=1:nSessions
             n = neurons(thisSession);
+            
+            if isnan(n) || n==0, detection = ' Not detected'; 
+            else, detection = []; end
             
             %PLACE FIELD. 
             if ~isnan(n) && n~=0 && pf
@@ -218,6 +225,9 @@ function msPlotTimeCells(md,varargin)
                 %Plot raster. 
                 imagesc(0:Ts(thisSession),1:5:sum(goodLaps),plotme);
                 colormap gray; freezeColors;
+                
+                if thisSession~=nSessions, set(gca,'xtick',[]); end
+                
                 ylabel('Laps'); title(['Neuron #',num2str(n)]); 
             else
                 imagesc(0); 
@@ -256,15 +266,20 @@ function msPlotTimeCells(md,varargin)
                 
                 %Labels. 
                 title(dateTitles{thisSession});
-                xlabel('Time [s]'); ylabel('Rate');
                 yLims = get(gca,'ylim');
                 ylim([0,yLims(2)]); xlim([0,t{thisSession}(end)]);
+                ylabel('Rate');
+                
+                if thisSession~=nSessions, set(gca,'xtick',[]); end
+                if thisSession==nSessions, xlabel('Time [s]'); end
+                
                 set(gca,'tickdir','out','linewidth',4);
                 hold off; freezeColors
             else
                 %Flat line. 
                 plot(t{thisSession},zeros(length(t{thisSession}),1),'-r','linewidth',2);
-                title(dateTitles{thisSession});
+                title([dateTitles{thisSession} detection]);
+                set(gca,'xtick',[]);
                 yLims = get(gca,'ylim'); xlim([0,t{thisSession}(end)]);
                 ylim([0,yLims(2)]); freezeColors
             end
@@ -275,6 +290,22 @@ function msPlotTimeCells(md,varargin)
         curveXLims = [min([curveAX.XLim]), max([curveAX.XLim])];
         curveYLims = [min([curveAX.YLim]), max([curveAX.YLim])];
         
+        %Label temporal information.
+        for thisSession=1:nSessions
+            n = neurons(thisSession);
+            
+            if ~isnan(n) && n~=0
+                ax = subplot(nSessions,nCols,thisSession*nCols);
+                set(ax,'units','normalized');
+                text(2.5,0.9*curveYLims(2),['TI = ',num2str(round(TI{thisSession}(n),3)), ' bits']); 
+                
+                if thisSession~=nSessions
+                    text(6,-.5,['R = ',num2str(round(TFCORR{thisSession}(n,1),3))])     
+                end
+            end
+     
+        end
+        
         if pf 
             for j=1:nSessions
                 if pfExist(j)
@@ -284,7 +315,8 @@ function msPlotTimeCells(md,varargin)
             end
             clims = [pfAX.CLim];
             pfLims = [0, max(clims(clims~=1))];
-            set(pfAX(pfExist),'CLim',pfLims); 
+            try set(pfAX(pfExist),'CLim',pfLims); 
+            catch, set(pfAX(pfExist),'CLim',[0 1]); end
             for j=1:nSessions
                 subplot(nSessions,nCols,j*nCols-2);
                 freezeColors;
