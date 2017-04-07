@@ -1,4 +1,4 @@
-function [S1Peaks,S2Peaks] = RankNewTCs(base,comp,varargin)
+function [S1Peaks,S2Peaks,S1] = RankNewTCs(base,comp,varargin)
 %[S1Peaks,S2Peaks] = RankNewTCs(base,comp,varargin)
 %
 %   Gets peaks of new time cells and matches them to the peaks of
@@ -50,29 +50,34 @@ function [S1Peaks,S2Peaks] = RankNewTCs(base,comp,varargin)
     if plotit
         figure('Position',[-1250 250 560 420]);
         %Sorted day 2 new time cells. 
-        subplot(1,2,2);
-            PastalkovaPlot(comp,'TimeCells',S2);
-            title('Day 2');
-
+        subplot(1,2,2); hold on;
+            [~,~,~,TCDay] = PastalkovaPlot(comp,'TimeCells',S2); 
             nTCs = length(S2order); 
-            hold on;
             plot(peaks,[1:nTCs],'color',teal,'linewidth',3);
-        
-        %New time cells on day 1 sorted in the same order as day 2. 
-        subplot(1,2,1); 
-            PastalkovaPlot(base,'TimeCells',S1,'order',S2order);
-            title('Day 1');
 
-            hold on;
-            plot(peaks,[1:nTCs],'color',teal,'linewidth',3);
+            title('Day 0');
+            set(gca,'ytick',[1,nTCs]);
         
+            TCMaxes = max(TCDay,[],2); 
+        %New time cells on day 1 sorted in the same order as day 2. 
+        subplot(1,2,1); hold on;
+            [~,~,~,preTCDay] = PastalkovaPlot(base,'TimeCells',S1,'order',S2order,'plotit',false);
+            T = size(preTCDay,2)/4; 
+            imagesc([0:T],[1:nTCs],preTCDay./TCMaxes);
+            set(gca,'ydir','reverse'); axis tight;
+            plot(peaks,[1:nTCs],'color',teal,'linewidth',3,'linestyle','--');
+            
+            set(gca,'ytick',[1,nTCs]);
+            title('Day -1');  
+            ylabel('Neurons');
+       
         %Scatter plot of peaks. 
-        figure;
-        scatter(S1Peaks,S2Peaks,'.');
-        [R,p] = corr(S1Peaks,S2Peaks,'type','spearman');
-        title(['R = ',num2str(R), ' p = ',num2str(p)]);
-        xlabel('Day 1 Peak'); 
-        ylabel('Day 2 Peak');
+%         figure;
+%         scatter(S1Peaks,S2Peaks,'.');
+%         [R,p] = corr(S1Peaks,S2Peaks,'type','spearman');
+%         title(['R = ',num2str(R), ' p = ',num2str(p)]);
+%         xlabel('Day 1 Peak'); 
+%         ylabel('Day 2 Peak');
     end
     
     

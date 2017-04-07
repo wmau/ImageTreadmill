@@ -1,4 +1,4 @@
-function [peaks1,peaks2] = RankNewPCs(base,comp,varargin)
+function [peaks1,peaks2,S1] = RankNewPCs(base,comp,varargin)
 %[S1Peaks,S2Peaks] = RankNewTCs(base,comp,varargin)
 %
 %   Gets peaks of new time cells and matches them to the peaks of
@@ -41,26 +41,34 @@ function [peaks1,peaks2] = RankNewPCs(base,comp,varargin)
         figure('Position',[-1250 250 560 420]); 
         %Sorted day 2 new time cells. 
         subplot(1,2,2); hold on;
-            LinearizedPFs_treadmill(comp,'PlaceCells',S2);
-            title('Day 2');
-            
+            PCDay = LinearizedPFs_treadmill(comp,'PlaceCells',S2);
             nPCs = length(S2order);
             plot(peaks1,[1:nPCs],'color',purple,'linewidth',3);
-        
+            
+            title('Day 0');
+            set(gca,'ytick',[1,nPCs]);  
+            set(gca,'xtick',[1,size(PCDay,2)]);
+            
+            PCMaxes = max(PCDay,[],2); 
         %New time cells on day 1 sorted in the same order as day 2. 
         subplot(1,2,1); hold on;
-            LinearizedPFs_treadmill(base,'PlaceCells',S1,'order',S2order);
-            title('Day 1');
-          
-            plot(peaks1,[1:nPCs],'color',purple,'linewidth',3);
+            prePCDay = LinearizedPFs_treadmill(base,'PlaceCells',S1,'order',S2order,'plotit',false);
+            imagesc([1:size(prePCDay,2)],[1:nPCs],prePCDay./PCMaxes); axis tight;
+            set(gca,'ydir','reverse'); axis tight;
+            plot(peaks1,[1:nPCs],'color',purple,'linewidth',3,'linestyle','--');
+            
+            title('Day -1');
+            set(gca,'ytick',[1,nPCs]);
+            set(gca,'xtick',[1,size(PCDay,2)]);
+            ylabel('Neurons');
 
         %Scatter plot of orders.  
-        figure; hold on;
-        scatter(peaks1,peaks2,'.');
-        [R,p] = corr(peaks1,peaks2,'type','spearman');
-        title(['R = ',num2str(R), ' p = ',num2str(p)]);
-        xlabel('Day 1 Rank'); 
-        ylabel('Day 2 Rank');
+%         figure; hold on;
+%         scatter(peaks1,peaks2,'.');
+%         [R,p] = corr(peaks1,peaks2,'type','spearman');
+%         title(['R = ',num2str(R), ' p = ',num2str(p)]);
+%         xlabel('Day 1 Rank'); 
+%         ylabel('Day 2 Rank');
         
     end
     

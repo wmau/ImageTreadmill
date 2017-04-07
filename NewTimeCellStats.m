@@ -1,4 +1,4 @@
-function [newTCStatS1,r1,newTCStatS2,r2] = NewTimeCellStats(base,comp,statType,varargin)
+function [newTCStatS1,r1,stat1,newTCStatS2,r2,stat2] = NewTimeCellStats(base,comp,statType,varargin)
 %
 %
 %
@@ -29,19 +29,19 @@ function [newTCStatS1,r1,newTCStatS2,r2] = NewTimeCellStats(base,comp,statType,v
             [n,f] = size(PSAbool);
             d = diff([zeros(n,1) PSAbool],1,2);
             d(d<0) = 0;
-            stat = sum(d,2)./f; 
+            stat1 = sum(d,2)./f; 
 
             pool = find(~ismember(1:n,S1TCs));
         case 'ti'
             load('TemporalInfo.mat','MI');
             n = length(MI);
-            stat = MI; 
+            stat1 = MI; 
             
             pool = find(~ismember(1:n,S1TCs));
         case 'si'
             load('SpatialInfo.mat','MI');
             n = length(MI);
-            stat = MI; 
+            stat1 = MI; 
 
             pool = find(~ismember(1:n,S1PCs));
     end
@@ -51,10 +51,11 @@ function [newTCStatS1,r1,newTCStatS2,r2] = NewTimeCellStats(base,comp,statType,v
     %are not categorized as place cells but eventually become categorizd as
     %place cells in the subsequent session.
     %stat(pool) = zscore(stat(pool));
-    newTCStatS1 = stat(newTCsS1);   
+    newTCStatS1 = stat1(newTCsS1);   
     
-    %Randomly sample from the pool of not-place cells. 
-    r1 = randsample(stat,1000,true);
+    %Randomly sample from the pool of all cells. 
+    good = EliminateUncertainMatches([base,comp],1:n);
+    r1 = randsample(stat1(good),1000,true);
     
 %     load('SpatialInfo.mat','MI');
 %     MI(pool) = zscore(MI(pool)); 
@@ -76,25 +77,26 @@ function [newTCStatS1,r1,newTCStatS2,r2] = NewTimeCellStats(base,comp,statType,v
             [n,f] = size(PSAbool);
             d = diff([zeros(n,1) PSAbool],1,2);
             d(d<0) = 0;
-            stat = sum(d,2)./f; 
+            stat2 = sum(d,2)./f; 
 
             pool = find(~ismember(1:n,S2TCs));
         case 'ti'
             load('TemporalInfo.mat','MI');
-            stat = MI; 
+            stat2 = MI; 
             n = length(MI);
             
             pool = find(~ismember(1:n,S2TCs));           
         case 'si'
             load('SpatialInfo.mat','MI');
-            stat = MI; 
+            stat2 = MI; 
             n = length(MI); 
             
             pool = find(~ismember(1:n,S2PCs));
     end
     
-    r2 = randsample(stat,1000,true);
-    newTCStatS2 = stat(newTCsS2);
+    good = EliminateUncertainMatches([comp,base],1:n);
+    r2 = randsample(stat2(good),1000,true);
+    newTCStatS2 = stat2(newTCsS2);
     
     
 end
