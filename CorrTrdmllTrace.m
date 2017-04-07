@@ -45,8 +45,10 @@ function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
                 tf2 = mean(DATA.(tracetype){2}(:,:,n2))';
         end
         
+%         tf1 = tf1./max(tf1);
+%         tf2 = tf2./max(tf2);
         [corrStats(n1,1),corrStats(n1,2)] = corr(tf1,tf2,'type',corrtype);
         
-        if isnan(corrStats(n1,1)), corrStats(n1,:) = 0 ; end
+        if isnan(corrStats(n1,1)), corrStats(n1,1) = 0; corrStats(n1,2) = 1; end
     end
 end
