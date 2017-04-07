@@ -33,12 +33,13 @@
             plot([1,2],[S(i),R(i)],'-','color',c(i,:));
         end
         errorbar([1,2],m,sem,'linewidth',5,'color','k');
-        p = signrank(S,R);
+        [p,~,z] = ranksum(S,R);
         set(gca,'xticklabel',{'Stable','Random'});
         set(gca,'xtick',[1:2],'tickdir','out');
         xlim([0.5,2.5]);
         ylabel('Mean Interneuronal Distance [microns]');
-        title(['P = ',num2str(p)]);
+        title(['Z = ',num2str(z.zval),' P = ',num2str(p)]);
+        set(gca,'tickdir','out','linewidth',4,'fontsize',15);
         
 %% 
     [D,stabilityStatus] = StabilityLocations(fulldataset,'place');
@@ -60,12 +61,14 @@
             plot([1,2],[S(i),R(i)],'-','color',c(i,:));
         end
         errorbar([1,2],m,sem,'linewidth',5,'color','k');
-        p = signrank(S,R);
-        set(gca,'xticklabel',{'Stable','Random'});
+        [p,~,z] = ranksum(S,R);
+        %set(gca,'xticklabel',{'Stable','Random'});
+        set(gca,'xticklabel',{'Stable','Unstable'});
         set(gca,'xtick',[1:2],'tickdir','out');
         xlim([0.5,2.5]);
         ylabel('Mean Interneuronal Distance [microns]');
-        title(['P = ',num2str(p)]);
+        title(['Z = ',num2str(z.zval),' P = ',num2str(p)]);
+        set(gca,'tickdir','out','linewidth',4,'fontsize',15);
         
 %%    
 function [s,r,S,R,c] = UnpackDs(D,stabilityStatus)
@@ -94,9 +97,10 @@ function [s,r,S,R,c] = UnpackDs(D,stabilityStatus)
             %stableTemp = bsxfun(@rdivide, bsxfun(@minus, temp, m), sd);
             stableTemp = temp; 
             
-            %rsamp = D{a}{sesh}(unstable,unstable);
-            rsamp = randsample(union(stable,unstable),1000,true);
-            rsamp = D{a}{sesh}(stable,rsamp); 
+            rsamp = D{a}{sesh}(unstable,unstable);
+%             rsamp = randsample(union(stable,unstable),1000,true);   %TO GET ONLY UNSTABLE, UN-UNION HERE
+%             rsamp = D{a}{sesh}(stable,rsamp); 
+            
             rsamp = rsamp(:);
             rsamp(isnan(rsamp)) = [];
             

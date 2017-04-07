@@ -98,6 +98,7 @@ function [rate,normRates,sortedRates,order,X,edges,peakInds] = LinearizedPFs_tre
     if ~order, [peakInds,order] = sort(peakInds(PCs)); 
     else, temp = peakInds(PCs); peakInds = temp(order); end
     sortedRates = normRates(PCs(order),:);
+    rate = rate(PCs(order),:);
     
     if plotit
         imagesc(1:size(sortedRates,2),1:length(PCs),sortedRates);
