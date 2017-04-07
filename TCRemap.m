@@ -1,4 +1,4 @@
-function tuningStatus = TCRemap(ref,ssn)
+function [tuningStatus,d] = TCRemap(ref,ssn)
 %tuningStatus = TCRemap(ref,ssn)
 %
 %   Finds how time cells in one sessions are consistent across other days. 
@@ -31,7 +31,7 @@ function tuningStatus = TCRemap(ref,ssn)
     
 %% Find the indices in MAP corresponding to sessions of interest.
     mapMD = getMapMD(ref);
-    matchMat = msMatchCells(mapMD,ssns,TIMECELLS{1},false);  
+    matchMat = msMatchCells(mapMD,ssns,TIMECELLS{1},true);  
     
 %% Indicate whether a neuron has remapped or not. 
     %Find time resolution of the tuning curves. 
@@ -46,9 +46,9 @@ function tuningStatus = TCRemap(ref,ssn)
         'Different time resolutions found in tuning curves! Rerun FindTimeCells!');
     tResolution = unique(tResolution);              %seconds. 
     
-    window = .75;                                   %seconds.
-    binWindow = round(1/tResolution*window);        %bins.
-    tuningStatus = nan(nNeurons,nSessions);         %Preallocate. 
+    window = 1;                                             %seconds.
+    binWindow = round(1/tResolution*window);                %bins.
+    [d,tuningStatus] = deal(nan(nNeurons,nSessions));       %Preallocate. 
     nTCs = size(matchMat,1);
     
     %For each time cell in the base session...
@@ -90,6 +90,7 @@ function tuningStatus = TCRemap(ref,ssn)
 
                 %All possible combinations. 
                 [b,c] = meshgrid(baseBins,compBins); 
+                if ~isempty(b) && ~isempty(c), d(n1,s-1) = min(min(abs(b-c)))*tResolution; end
 
                 %Grid of time field comparisons within the binWindow. 
                 sameTimeField = abs(b-c) <= binWindow; 
@@ -100,11 +101,11 @@ function tuningStatus = TCRemap(ref,ssn)
                 %Subtract. Order of these if statements matters here! 
                 %If no longer a time cell from lack of a response or not
                 %listed in TIMECELLS, -1. 
-                if isempty(b) || ~ismember(n2,TIMECELLS{s})
-                    tuningStatus(n1,s) = -1; 
+%                 if isempty(b) || ~ismember(n2,TIMECELLS{s})
+%                     tuningStatus(n1,s) = -1; 
                 %If sigcurve of the two sessions are within binWindow
                 %bins, 1.               
-                elseif any(sameTimeField)
+                if any(sameTimeField)
                     tuningStatus(n1,s) = 1; 
                 %If comparison sigcurve is still a time cell, but encodes a
                 %different time, 0.
