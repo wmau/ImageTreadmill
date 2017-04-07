@@ -24,7 +24,7 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
     end
 
 %% Get a mapping matrix for neurons without recounting.
-    [MAP,stabilityDuration,stats,stillthere] = deal(cell(nAnimals,1));
+    [MAP,stabilityDuration,stats,stillthere,coeffs] = deal(cell(nAnimals,1));
     for a=1:nAnimals
         ssns = find(strcmp(animals{a},{mds.Animal}));
         
@@ -50,7 +50,7 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
         %Matrix containing all our cells for this animal.
         MAP{a} = MAP{a}(allrows,mapCols);
         [stabilityDuration{a},stats{a},stillthere{a}] = deal(nan(size(MAP{a})));
- 
+        coeffs{a} = cell(size(MAP{a}));
 %% Determine # days stable. 
         for s=1:length(ssns)-1
             cd(mds(ssns(s)).Location);
@@ -114,6 +114,7 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
             end
             stillthere{a}(idx,s) = true;
 %% 
+            [coeffs{a}{:,s}] = deal(nan(1,length(ssns)-1));
             for ss=s+1:length(ssns)
                 %corrMe = EliminateUncertainMatches([mds(ssns(s)),mds(ssns(ss))],toCorr);
                 
@@ -139,7 +140,17 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
                 %Add a day to stable neurons. 
                 ind = idx(idx & stillthere{a}(idx,s));
                 stabilityDuration{a}(ind,s) = stabilityDuration{a}(ind,s)+1;
-                stillthere{a}(uidx,s) = false;
+                stillthere{a}(uidx,s) = false;             
+                           
+                %Get correlation coefficient.               
+                [~,idx] = ismember(neurons,MAP{a}(:,s));
+                bad = idx==0; 
+                neurons(bad) = [];
+                idx(bad) = [];
+                corrs(isnan(corrs(:,1)),1) = 0;
+                for n=1:length(neurons)
+                    coeffs{a}{idx(n),s}(ss-1) = corrs(neurons(n),1);
+                end
                 
             end
             
@@ -170,6 +181,29 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
     errorbar(unique(flatDur),m,sem,'linewidth',2,'color',c,'capsize',0,'marker','o');
     xlabel('Days Stable');
     ylabel('Mutual Information [z-scored bits]');
-    set(gca,'tickdir','out');
     
+    
+%% 
+    COEFFS = cell(1,max(cellfun(@(x) size(x,2),stats)));
+    grps = [];
+    for a=1:nAnimals
+        nSessions = length(find(strcmp(animals{a},{mds.Animal})))-1;
+        
+        for s=1:nSessions
+            temp = cell2mat(coeffs{a}(:,s));
+            
+            for ss=s:nSessions        
+                good = find(~isnan(temp(:,s)));
+                COEFFS{ss} = [COEFFS{ss}; temp(good,ss)];
+                grps = [grps; ss*ones(length(good),1)];
+            end
+        end
+        
+    end
+    
+    coeffN = cellfun('length',COEFFS);
+   	coeffMu = cellfun(@mean,COEFFS); 
+    coeffSEM = cellfun(@std,COEFFS)./sqrt(coeffN); 
+    
+    flatCoeffs = cell2mat(cellfun(@(x) x(:), COEFFS,'unif',false)');
 end
