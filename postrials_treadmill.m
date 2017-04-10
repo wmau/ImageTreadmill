@@ -1,4 +1,4 @@
-function Alt = postrials_treadmill(md,plot_each_trial)
+function Alt = postrials_treadmill(md,varargin)
 %function data = postrials(x,y,plot_each_trial,...)
 %   
 %   This function takes mouse position data and sorts them into trial
@@ -29,17 +29,30 @@ function Alt = postrials_treadmill(md,plot_each_trial)
 %   TIP: To find frames for a particular trial of interest, you can do:
 %       data.frames(data.trial == TRIAL_OF_INTEREST).
 %
-
+%%
+    p = inputParser;
+    p.addRequired('md',@(x) isstruct(x));
+    p.addParameter('plotEachTrial',false,@(x) islogical(x));
+    p.addParameter('suppressOutput',true,@(x) islogical(x)); 
+    
+    p.parse(md,varargin{:});
+    
+    plotEachTrial = p.Results.plotEachTrial; 
+    suppressOutput = p.Results.suppressOutput;
+    
 %% Get XY coordinates.
     cd(md.Location);
     load('Pos_align.mat','x_adj_cm','y_adj_cm');
     x = x_adj_cm; y = y_adj_cm; 
     
+    load('TimeCells.mat','TodayTreadmillLog');
+    direction = TodayTreadmillLog.direction; 
+    
     [~,folder] = fileparts(md.Location); 
     blocked = ~isempty(strfind(folder,'blocked'));  
 
 %% Label position data with section numbers. 
-    bounds = sections_treadmill(x,y,'alternation',0);
+    bounds = sections_treadmill(x,y,direction,0);
     [sect,rot_x,rot_y] = getsection_treadmill(x,y,bounds);
     
 %% Define important section numbers. 
@@ -104,7 +117,7 @@ function Alt = postrials_treadmill(md,plot_each_trial)
                 end
              
                 %Plot laps. 
-                if plot_each_trial
+                if plotEachTrial
                     figure(this_trial);
                     plot(x(epochs(this_trial):epochs(next)), y(epochs(this_trial):epochs(next))); 
                     xlim([min(x) max(x)]); ylim([min(y) max(y)]); 
@@ -114,8 +127,9 @@ function Alt = postrials_treadmill(md,plot_each_trial)
                 %Notify user of possible errors in the trial sorting script. This
                 %catches when the mouse appears on both maze arms in what the
                 %script believed to be a single trial. 
-                if (ismember(left, sect(epochs(this_trial):epochs(next))) && trialtype(this_trial) == 2) || ...
-                        (ismember(right, sect(epochs(this_trial):epochs(next))) && trialtype(this_trial) == 1)
+                if ((ismember(left, sect(epochs(this_trial):epochs(next))) && trialtype(this_trial) == 2) || ...
+                        (ismember(right, sect(epochs(this_trial):epochs(next))) && trialtype(this_trial) == 1)) && ...
+                        ~suppressOutput
                     disp(['Warning: This epoch may contain more than one trial: Trial ', num2str(this_trial)]);
                 end       
                 

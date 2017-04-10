@@ -223,7 +223,7 @@ function msPlotTimeCells(md,varargin)
                 plotme = plotme(:,~isnan(plotme(1,:)));
 
                 %Plot raster. 
-                imagesc(0:Ts(thisSession),1:5:sum(goodLaps),plotme);
+                imagesc(0:Ts(thisSession),1:sum(goodLaps),plotme);
                 colormap gray; freezeColors;
                 
                 if thisSession~=nSessions, set(gca,'xtick',[]); end
@@ -233,6 +233,7 @@ function msPlotTimeCells(md,varargin)
                 imagesc(0); 
                 colormap gray; axis off; freezeColors
             end
+            set(gca,'ytick',[1,sum(COMPLETE{thisSession})]);
             
             %TUNING CURVE. 
             curveAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols);
@@ -300,7 +301,15 @@ function msPlotTimeCells(md,varargin)
                 text(2.5,0.9*curveYLims(2),['TI = ',num2str(round(TI{thisSession}(n),3)), ' bits']); 
                 
                 if thisSession~=nSessions
-                    text(6,-.5,['R = ',num2str(round(TFCORR{thisSession}(n,1),3))])     
+                    TCs = getTimeCells(md(thisSession));
+                    TCs = EliminateUncertainMatches([md(thisSession),md(thisSession+1)],TCs);
+                    
+                    crit = 0.01/length(TCs);
+                    if TFCORR{thisSession}(n,2) < crit
+                        c = [0 .5 .5]; 
+                    else, c = 'r';
+                    end 
+                    text(6,-.5,['R = ',num2str(round(TFCORR{thisSession}(n,1),3))],'color',c)     
                 end
             end
      

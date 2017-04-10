@@ -54,14 +54,14 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             cosang = cos(angs);
             behind = onstem & cosang>0;
             ahead = onstem & cosang<0;
-            maxback = max(radii(behind) .* cosang(behind)); 
+            maxfrontback = max(radii(behind) .* cosang(behind)); 
             maxfront = -min(radii(ahead) .* cosang(ahead)); 
 
             %Create a polar definition of the maze based on the mean of the
             %radius at each angle bin. 
             angdef=(pi/nbins:2*pi/nbins:2*pi)';
             sparseang = [angs(~onstem)'; 0; pi];
-            sparserad = [radii(~onstem)'; maxback; maxfront]; 
+            sparserad = [radii(~onstem)'; maxfrontback; maxfront]; 
             [~,angidx] = histc(sparseang,0:2*pi/nbins:2*pi);
             meanrad = accumarray(angidx,sparserad,[nbins,1],@mean);
             mazedef = [meanrad((round(nbins/2)+1):nbins); meanrad; ...
@@ -106,7 +106,7 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             %Use radius for when the mouse is on the stem. 
             %Max radius minus linearized radius is the distance already
             %traversed. 
-            X(onstem) = maxback + radii(onstem) .* -cosang(onstem); 
+            X(onstem) = maxfrontback + radii(onstem) .* -cosang(onstem); 
             X(X(onstem)<0) = 0;                     %Distance can't be less than 0.
             X(X(onstem)>stemlength) = stemlength;   %Distance on stem can't be longer than length of stem. 
             
@@ -116,11 +116,11 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             [sect,x,y] = getsection_treadmill(x,y,bounds); 
 
             %Indices where mouse was on stem. 
-            onstem = sect==2 | sect==1 | sect==3; 
+%            onstem = sect==2 | sect==1 | sect==3; 
             
             %Find middle of the stem. 
             centroidx = mean([bounds.choice.x(1),bounds.base.x(2)]); 
-            centroidy = mean(y(onstem)); 
+            centroidy = mean([min(y), max(y)]); 
             stemlength = diff([bounds.choice.x(1),bounds.base.x(2)]); 
 
             %Convert from Cartesian coordinates to polar coordinates. 
@@ -129,21 +129,20 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             
             %Get the extreme radii on the stem. 
             cosang = cos(angs);
-            behind = onstem' & cosang>0;
-            ahead = onstem' & cosang<0;
-            maxback = max(radii(behind) .* cosang(behind)); 
-            maxfront = max(radii(ahead) .* -cosang(ahead)); 
+%             behind = onstem' & cosang>0;
+%             ahead = onstem' & cosang<0;
+            maxfrontback = stemlength/2;
             
             %Create a polar definition of the maze based on the mean of the
             %radius at each angle bin while the mouse is on not the stem. 
-            sparseang = [angs(~onstem)'; 0; pi];
-            sparserad = [radii(~onstem)'; maxback; maxfront]; 
-            angdef=linspace(0,2*pi,nbins)';
+            sparseang = [angs'; 0; pi];
+            sparserad = [radii'; maxfrontback; maxfrontback]; 
+            angdef = linspace(0,2*pi,nbins)';
             [n,angidx] = histc(sparseang,angdef);
-            bad = ismember(angidx,find(n<10)); angidx(bad)=[]; sparserad(bad)=[];    %Get rid of low sampling. 
+            bad = ismember(angidx,find(n<8)); angidx(bad)=[]; sparserad(bad)=[];    %Get rid of low sampling. 
             meanrad = accumarray(angidx,sparserad,[nbins,1],@mean);
             
-            mazedef = smooth(meanrad,nbins,'moving'); 
+            mazedef = smooth(meanrad,3,'moving'); 
 
             [xdef,ydef] = pol2cart(angdef,mazedef);
             cumdist = [0; cumsum(hypot(diff(xdef),diff(ydef)))];
@@ -155,9 +154,9 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             %Use radius for when the mouse is on the stem. 
             %Max radius minus linearized radius is the distance already
             %traversed. 
-            X(onstem) = maxback + radii(onstem) .* -cosang(onstem); 
-            X(X(onstem)<0) = 0;                     %Distance can't be less than 0.
-            X(X(onstem)>stemlength) = stemlength;   %Distance on stem can't be longer than length of stem.         
+%            X(onstem) = maxfrontback + radii(onstem) .* -cosang(onstem); 
+%            X(X(onstem)<0) = 0;                     %Distance can't be less than 0.
+%            X(X(onstem)>stemlength) = stemlength;   %Distance on stem can't be longer than length of stem.         
     end
         
 end

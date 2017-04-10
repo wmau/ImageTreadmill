@@ -1,4 +1,5 @@
-function [rate,normRates,sortedRates,order,X,edges,peakInds] = LinearizedPFs_treadmill(MD,varargin)
+function [rate,normRates,sortedRates,order,X,edges,peakInds] = ...
+    LinearizedPFs_treadmill(MD,varargin)
 %[normRate,sortedRate] = LinearizedPFs_treadmill(MD,FT)
 %
 %   Linearizes trajectory then computes place fields by binning FT
@@ -56,13 +57,19 @@ function [rate,normRates,sortedRates,order,X,edges,peakInds] = LinearizedPFs_tre
     [nNeurons,nFrames] = size(PSAbool); 
     
     %Exclude treadmill epochs. 
-    peakInds = TodayTreadmillLog.inds;
-    i=[];
-    for e=1:size(peakInds,1)
-        i = [i,peakInds(e,1):peakInds(e,2)];
+    inds = TodayTreadmillLog.inds;
+    excludeFrames=[]; 
+    nSeconds = 2;
+    extraExclude = 20*nSeconds;
+    for e=1:size(inds,1)
+        window = (inds(e,1)-extraExclude):(inds(e,2)+extraExclude);
+        window = window(window>1);
+        window = window(window<nFrames);
+
+        excludeFrames = [excludeFrames, window];
     end
     onTM = false(1,nFrames); 
-    onTM(i) = true; 
+    onTM(excludeFrames) = true; 
     
     %Speed threshold. 
     isrunning = speed>minspeed; 
