@@ -1,4 +1,4 @@
-function raster = LinearizedPF_raster(md,varargin)
+function [raster,smoothCurve,curve] = LinearizedPF_raster(md,varargin)
 %
 %
 %
@@ -20,8 +20,8 @@ function raster = LinearizedPF_raster(md,varargin)
     
     if isempty(neurons)
         neurons = getPlaceCells(md,.01);
-        nNeurons = length(neurons);
     end
+    nNeurons = length(neurons);
     
 %%
     currDir = pwd;
@@ -69,41 +69,54 @@ function raster = LinearizedPF_raster(md,varargin)
     parsed = postrials_treadmill(md);
     trials = parsed.summary(:,1)'; 
     
-    thisNeuron = 1;
     keepgoing = true;
-    raster = zeros(max(trials),nBins,nNeurons);
     bins = [1:0.001:nBins]';
-    while keepgoing && plotit
-        f = figure(49); 
-        f.Position = [550 180 360 565];
+    raster = zeros(max(trials),nBins,nNeurons);
+    curve = zeros(nNeurons,nBins);
+    smoothCurve = zeros(nNeurons,size(bins,1)); 
+    
+    for thisNeuron = 1:nNeurons    
         for thisTrial = trials
-            spkpos = X(parsed.trial==thisTrial & PSAbool(neurons(thisNeuron),:) & isrunning & ~onTM);
+            if ~isnan(neurons(thisNeuron)) && neurons(thisNeuron)>0
+                spkpos = X(parsed.trial==thisTrial & PSAbool(neurons(thisNeuron),:) & isrunning & ~onTM);
+            else
+                spkpos = [];
+            end
 
             [occ,edges] = histcounts(X(parsed.trial==thisTrial),nBins);
             binned = histcounts(spkpos,edges);
 
             raster(thisTrial,:,thisNeuron) = binned./occ;
+
         end
         
         %Smooth.
-        curve = nanmean(raster(:,:,thisNeuron));
-        smoothfit = fit([1:nBins]',curve','smoothingspline');
-        curve = feval(smoothfit,bins);
+        curve(thisNeuron,:) = nanmean(raster(:,:,thisNeuron));
+        smoothfit = fit([1:nBins]',curve(thisNeuron,:)','smoothingspline');
+        smoothCurve(thisNeuron,:) = feval(smoothfit,bins)';
+    end
         
-        %Plot.
+    %Plot.
+    if plotit
+        while keepgoing
+
+        f = figure(49); 
+        f.Position = [550 180 360 565];
         subplot(2,1,1); 
             imagesc(raster(:,:,thisNeuron)); 
             colormap hot; caxis([0 1.2]);
-            set(gca,'xtick',[],'ytick',[1,max(trials)]);
+            set(gca,'xtick',[],'ytick',[1,max(trials)],'linewidth',4);
             ylabel('Laps'); 
         subplot(2,1,2); 
-            plot(bins,curve,'color',[.58 .44 .86],'linewidth',5);
+            plot(bins,smoothCurve(thisNeuron,:),'color',[.58 .44 .86],'linewidth',5);
             xlabel('Linearized Distance');
             ylabel('Rate');
             yLims = get(gca,'ylim');
             ylim([0 yLims(2)]);
-            
+            set(gca,'linewidth',4);
+
         [keepgoing,thisNeuron] = scroll(thisNeuron,nNeurons,f);
+        end
     end
     
     cd(currDir);
