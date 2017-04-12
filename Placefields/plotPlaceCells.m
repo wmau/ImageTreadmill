@@ -77,9 +77,8 @@ function plotPlaceCells(md,varargin)
             colormap hot;           
             title(['PF Area = ',num2str(PFarea(neurons(thisNeuron)))]);
 
-        print(fullfile(folder,[md.Animal,' PC #',num2str(neurons(thisNeuron))]),'-dpdf');
-            
-        figure(50);
+        %print(fullfile(folder,[md.Animal,' PC #',num2str(neurons(thisNeuron))]),'-dpdf');
+                    
         [keepgoing,thisNeuron] = scroll(thisNeuron,nPCs,f);
         close all;
     end

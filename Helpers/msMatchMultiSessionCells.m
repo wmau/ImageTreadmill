@@ -1,7 +1,7 @@
 function map = msMatchMultiSessionCells(mds,neurons)
-%
-%
-%
+%map = msMatchMultiSessionCells(mds,neurons)
+%   
+%   
 
 %% 
     nSessions = length(mds);
@@ -21,6 +21,9 @@ function map = msMatchMultiSessionCells(mds,neurons)
         [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(s),neurons{s},false);
         rows = [rows; mapRows];
     end
+    
+    %No copies. 
+    rows = unique(rows);
     
     %Get only the neurons and sessions specified. 
     map = MAP(rows,mapCols);
