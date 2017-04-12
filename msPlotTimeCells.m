@@ -298,9 +298,11 @@ function msPlotTimeCells(md,varargin)
             if ~isnan(n) && n~=0
                 ax = subplot(nSessions,nCols,thisSession*nCols);
                 set(ax,'units','normalized');
+                %Label temporal information. 
                 text(2.5,0.9*curveYLims(2),['TI = ',num2str(round(TI{thisSession}(n),3)), ' bits']); 
                 
                 if thisSession~=nSessions
+                    %Purely for determining critical p-value. 
                     TCs = getTimeCells(md(thisSession));
                     TCs = EliminateUncertainMatches([md(thisSession),md(thisSession+1)],TCs);
                     
@@ -309,7 +311,9 @@ function msPlotTimeCells(md,varargin)
                         c = [0 .5 .5]; 
                     else, c = 'r';
                     end 
-                    text(6,-.5,['R = ',num2str(round(TFCORR{thisSession}(n,1),3))],'color',c)     
+                    
+                    %Label correlation coefficient. 
+                    text(6,-.2*curveYLims(2),['R = ',num2str(round(TFCORR{thisSession}(n,1),3))],'color',c)     
                 end
             end
      
