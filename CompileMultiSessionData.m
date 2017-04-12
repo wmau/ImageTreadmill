@@ -57,7 +57,8 @@ function DATA = CompileMultiSessionData(MD,args)
                     'placeorder',...
                     'timeorder',...
                     'placefieldcentroids',...
-                    'tfcorr'};
+                    'tfcorr',...
+                    'pfcorr'};
 
     %Check that the arguments match template. 
     for i=1:nArgs
@@ -220,12 +221,23 @@ function DATA = CompileMultiSessionData(MD,args)
             DATA.placefieldcentroids{i} = PFcentroids(idx); 
         end
         
+        %TIME FIELD TUNING CURVE CORRELATION
         if any(strcmp('tfcorr',args)) 
             load('FinalOutput.mat','NumNeurons');
             if i~=nSessions
                 DATA.tfcorr{i} = CorrTrdmllTrace(MD(i),MD(i+1),1:NumNeurons);
             else           
                 DATA.tfcorr{i} = nan(NumNeurons,2);
+            end
+        end
+        
+        %PLACE FIELD CORRELATION.
+        if any(strcmp('pfcorr',args))
+            load('FinalOutput.mat','NumNeurons');
+            if i~=nSessions
+                DATA.pfcorr{i} = CorrPlaceFields(MD(i),MD(i+1),1:NumNeurons);
+            else
+                DATA.pfcorr{i} = nan(NumNeurons,2);
             end
         end
     end
