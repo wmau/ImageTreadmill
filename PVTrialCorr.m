@@ -1,15 +1,19 @@
 function [R,p,dayMeans] = PVTrialCorr(mds,varargin)
+%[R,p,dayMeans] = PVTrialCorr(mds,varargin)
 %
+%   Performs pairwise correlations on population vectors for each treadmill
+%   run. 
 %
-%
-
+    
 %% Parse inputs.
     p = inputParser;
     p.addRequired('mds',@(x) isstruct(x)); 
     p.addParameter('useIntervals',false,@(x) islogical(x));
+    p.addParameter('timeCellsOnly',true,@(x) islogical(x)); 
     
     p.parse(mds,varargin{:});
     useIntervals = p.Results.useIntervals; 
+    timeCellsOnly = p.Results.timeCellsOnly;
     
 %%
     nSessions = length(mds); 
@@ -41,8 +45,16 @@ function [R,p,dayMeans] = PVTrialCorr(mds,varargin)
 %% Get significance intervals. 
     sigInterval = cell(nTCs,1); 
     for s=1:nSessions      
+        cd(mds(s).Location); 
+        
         %Get time cells from this session.
-        thisSessionTCs = getTimeCells(mds(s)); 
+        if timeCellsOnly
+            thisSessionTCs = getTimeCells(mds(s)); 
+        %Or just all the neurons. 
+        else
+            load('FinalOutput.mat','NumNeurons');
+            thisSessionTCs = 1:NumNeurons;
+        end
         
         %Get position in matrix.
         neurons = map(:,s); 
@@ -123,7 +135,7 @@ function [R,p,dayMeans] = PVTrialCorr(mds,varargin)
     
     dayMeans = zeros(nSessions,1);
     for s=1:nSessions
-        thisSessionRs = R(lines(s):lines(s+1),lines(s):lines(s+1)); 
+        thisSessionRs = R(lines(s):lines(s+1),1:lines(2)); 
         
         dayMeans(s) = nanmean(nanmean(thisSessionRs));
     end
