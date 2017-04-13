@@ -14,24 +14,25 @@ function [R,p,dayMeans] = PVTrialCorr(mds,varargin)
     p.parse(mds,varargin{:});
     useIntervals = p.Results.useIntervals; 
     timeCellsOnly = p.Results.timeCellsOnly;
-    
-%%
-    nSessions = length(mds); 
-    
-    %Get mapping matrix. 
-    mapMD = getMapMD(mds);
-    load(fullfile(mapMD.Location,'batch_session_map.mat')); 
-    
+ 
 %% Gather data across days.
     %Get all the time cells that existed among all recording sessions.
+    nSessions = length(mds); 
     TCs = cell(nSessions,1);
     nTrials = zeros(nSessions,1);
     for s=1:nSessions
+        cd(mds(s).Location);
+        
         %Get time cells. 
-        TCs{s} = getTimeCells(mds(s));
+        if timeCellsOnly
+            TCs{s} = getTimeCells(mds(s));
+             %Or just all the neurons. 
+        else
+            load('FinalOutput.mat','NumNeurons');
+            TCs{s} = 1:NumNeurons;
+        end
         
         %Get number of laps.
-        cd(mds(s).Location); 
         load('TimeCells.mat','TodayTreadmillLog'); 
         nTrials(s) = sum(TodayTreadmillLog.complete); 
         
