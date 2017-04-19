@@ -1,5 +1,5 @@
-function [alignedDiffs,stable,unstable,dayDelta,alignedDays] = DiffInfoFromPeak(mds,cellType,infoType,varargin)
-%[alignedDiffs,stable,unstable] = DiffInfoFromPeak(mds,cellType,infoType,varargin)
+function [alignedDiffs,stable,unstable,dayDelta,alignedDays,alignedOtherI] = DiffInfoFromPeak(mds,cellType,infoType,varargin)
+%[alignedDiffs,stable,unstable,dayDelta,alignedDays,alignedOtherI] = DiffInfoFromPeak(mds,cellType,infoType,varargin)
 %
 %
 
@@ -27,7 +27,7 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays] = DiffInfoFromPeak(
     nNeurons = size(map,1);
     
 %% Get all informations.
-    [stability,I] = deal(nan(size(map)));
+    [stability,I,otherI] = deal(nan(size(map)));
     for s=1:nSessions
         cd(mds(s).Location);
         
@@ -40,32 +40,48 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays] = DiffInfoFromPeak(
         %Get neurons this session whose TI we're extracting. 
         neurons = map(:,s); 
         mapped = find(neurons>0);
+        goodCells = neurons(mapped);
         
         %Dump into matrix.
-        I(mapped,s) = MI(neurons(mapped));
+        I(mapped,s) = MI(goodCells);
         
-        %Determine stability.
-        switch cellType
-            case 'time', nCodingCells = length(getTimeCells(mds(s))); 
-            case 'place',nCodingCells = length(getPlaceCells(mds(s),.01)); 
-        end       
-        crit = .01/nCodingCells;
+        %Get information from other dimension.
+        switch infoType
+            case 'ti', load('SpatialInfo.mat','MI');
+            case 'si', load('TemporalInfo.mat','MI');
+        end
+        otherI(mapped,s) = MI(goodCells); 
         
-        %Perform cross-days correlation.
+        %Perform cross-days correlation to determine stability.
         if s~=nSessions
             switch cellType
-                case 'time', corrStats = CorrTrdmllTrace(mds(s),mds(s+1),neurons(mapped));
-                case 'place',corrStats = CorrPlaceFields(mds(s),mds(s+1),neurons(mapped));
+                case 'time', codingCells = getTimeCells(mds(s)); 
+                case 'place',codingCells = getPlaceCells(mds(s),.01); 
+            end       
+            codingCells = EliminateUncertainMatches([mds(s),mds(s+1)],codingCells);
+            nCodingCells = length(codingCells);
+            crit = .01/nCodingCells;
+        
+            existsAcrossOneDay = EliminateUncertainMatches([mds(s),mds(s+1)],neurons(mapped));
+            switch cellType
+                case 'time', corrStats = CorrTrdmllTrace(mds(s),mds(s+1),goodCells);
+                case 'place',corrStats = CorrPlaceFields(mds(s),mds(s+1),goodCells);
             end  
             
-            stability(mapped,s) = corrStats(neurons(mapped),2) < crit;
+            [~,exists] = ismember(neurons,existsAcrossOneDay);
+            exists(exists==0) = [];
+            stability(exists,s) = 0;
+            stability(mapped,s) = corrStats(goodCells,2) < crit;
         end
     end
 
 %% Align to max.
     %Identify the max information and day on which it occurred.
     [peakI,peakDay] = max(I,[],2); 
-    diffFromPeak = I - peakI;
+    otherIPeak = max(otherI,[],2);          %Peaks for other dimension's information.
+    
+    %Get proportions of the peak.
+    propofOtherIPeak = otherI./otherIPeak;
     propOfPeak = I./peakI;
     
     %Max day difference.
@@ -74,7 +90,7 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays] = DiffInfoFromPeak(
     nDays = length(dayDelta);
     
     %Make matrix of aligned information.
-    [alignedDays,alignedDiffs] = deal(nan(nNeurons,nDays));
+    [alignedDays,alignedDiffs,alignedOtherI] = deal(nan(nNeurons,nDays));
     for s=1:nSessions
         %Distance to peak day.
         d = s-peakDay; 
@@ -86,7 +102,10 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays] = DiffInfoFromPeak(
         for n=1:nNeurons
             alignedDiffs(n,alignedColInd(n)) = propOfPeak(n,s);  
             alignedDays(n,alignedColInd(n)) = d(n);
+            
+            alignedOtherI(n,alignedColInd(n)) = propofOtherIPeak(n,s);
         end     
+        
     end
     
     %Determine whether cell was stable for day after the peak.

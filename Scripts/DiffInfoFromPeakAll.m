@@ -9,27 +9,33 @@
     %MD(305:309) = Polaris.
     fulldataset = MD(292:309); 
     
-    cellType = 'place';
-    infoType = 'si';
+    cellType = 'time';
+    infoType = 'ti';
+    disregardStability = false;
+    
+    switch infoType
+        case 'ti', infoTypeStr = 'Temporal';
+        case 'si', infoTypeStr = 'Spatial';
+    end
     
     switch cellType
-        case 'time', c = [0 .5 .5];
-        case 'place',c = [.58 .44 .86];
+        case 'time', c = [0 .5 .5]; otherC = [.58 .44 .86];
+        case 'place',c = [.58 .44 .86]; otherC = [0 .5 .5];
     end
     
     
     animals = unique({fulldataset.Animal});
     nAnimals = length(animals);
     
-    [alignedDiffs,stable,unstable,dayDelta,stableMeans,unstableMeans,alignedDays] = ...
+    [alignedDiffs,stable,unstable,dayDelta,stableMeans,unstableMeans,alignedDays,alignedOtherI] = ...
         deal(cell(nAnimals,1)); 
-    [I,days,stabilityLabel] = deal([]);
+    [I,days,stabilityLabel,otherI,otherIDays] = deal([]);
     figure; hold on;
     for a=1:nAnimals
         ssns = find(strcmp(animals{a},{fulldataset.Animal}));
         
         %Align all the informations to peak.
-        [alignedDiffs{a},stable{a},unstable{a},dayDelta{a},alignedDays{a}] = ...
+        [alignedDiffs{a},stable{a},unstable{a},dayDelta{a},alignedDays{a},alignedOtherI{a}] = ...
             DiffInfoFromPeak(fulldataset(ssns),cellType,infoType,'plotit',false);
         
         %Grab stable information and day vectors. 
@@ -37,7 +43,7 @@
         tempI = tempI(:);
         tempDays = alignedDays{a}(stable{a},:);
         tempDays = tempDays(:); 
-        
+             
         I = [I; tempI];
         days = [days; tempDays];
         stabilityLabel = [stabilityLabel; ones(size(tempI))];
@@ -51,18 +57,33 @@
         I = [I; tempI];
         days = [days; tempDays];
         stabilityLabel = [stabilityLabel; zeros(size(tempI))];
-
+        
+        %Get other dimension of information.
+        tempOtherI = alignedOtherI{a};
+        tempOtherI = tempOtherI(:);
+        tempDays = alignedDays{a};
+        tempDays = tempDays(:);
+        otherIDays = [otherIDays; tempDays]; 
+        otherI = [otherI; tempOtherI];
     end
     
     %Eliminate bad days.
     bad = isnan(days);
     days(bad) = [];
-    daysInd = days + abs(min(days)) + 1;
     I(bad) = [];
     stabilityLabel(bad) = [];
+    
+    %Do the same for the opposite dimension.
+    bad = isnan(otherIDays); 
+    otherIDays(bad) = [];
+    otherI(bad) = [];
+    
+    daysInd = days + abs(min(days)) + 1;
+    otherIDaysInd = otherIDays + abs(min(otherIDays)) + 1; 
     stable = stabilityLabel == 1;
     unstable = stabilityLabel == 0;
     dayDeltaUse = [min(days):max(days)];
+    dayDeltaUseOther = [min(otherIDays):max(otherIDays)];
     
     %Get means and SEM.
     stableMean = accumarray(daysInd(stable),I(stable),[],@nanmean);
@@ -74,22 +95,46 @@
     unstableSEM = accumarray(daysInd(unstable),I(unstable),[],@nanstd); 
     t = tabulate(daysInd(unstable));
     unstableSEM = unstableSEM ./sqrt(t(:,2)); 
+    
+    otherIMean = accumarray(otherIDaysInd,otherI,[],@nanmean);
+    otherISEM = accumarray(otherIDaysInd,otherI,[],@nanstd); 
+    t = tabulate(otherIDaysInd); 
+    otherISEM = otherISEM ./ sqrt(t(:,2)); 
 
     %Plot means across animals.
-    errorbar(dayDeltaUse,stableMean,stableSEM,'color',c,'linewidth',4);
+    errorbar(dayDeltaUse+.1,stableMean,stableSEM,'color',c,'linewidth',4);
     errorbar(dayDeltaUse,unstableMean,unstableSEM,'color','r','linewidth',4);
+    errorbar(dayDeltaUseOther-.1,otherIMean,otherISEM,'color',otherC,'linewidth',4);
     set(gca,'tickdir','out','fontsize',12,'linewidth',4); 
-    xlabel('Days from Peak','fontsize',15);
     ylabel('Fraction of Peak Info.','fontsize',15);
+    xlabel('Days from Peak','fontsize',15);
+    
+    if disregardStability
+        allDays = cell2mat(cellfun(@(x) x(:),alignedDays,'unif',0));
+        allIs = cell2mat(cellfun(@(x) x(:),alignedDiffs,'unif',0));
+        
+        dayX = [min(allDays):max(allDays)];
+        allDaysInd = allDays + abs(min(allDays)) + 1;
+        bad = isnan(allDaysInd); 
+        allDaysInd(bad) = [];
+        allIs(bad) = [];
+        
+        m = accumarray(allDaysInd,allIs,[],@nanmean);
+        sem = accumarray(allDaysInd,allIs,[],@nanstd); 
+        t = tabulate(allDays);
+        sem = sem./sqrt(t(:,2)); 
+              
+        errorbar(dayX+.2,m,sem,'color','k','linewidth',4);
+    end
     
     %ANOVA.
     grps = {days,stabilityLabel};
     [~,tbl,stats] = anovan(I,grps,'model','full','varnames',{'Day','Stability'});
-    comps = multcompare(stats,'dimension',[1,2],'display','off');
+    comps = multcompare(stats,'dimension',[1,2],'display','off','ctype','scheffe');
     disp(['Stable vs. unstable on Day -3 P = ',num2str(comps(8,6))]);
     disp(['Stable vs. unstable on Day -2 P = ',num2str(comps(23,6))]);
     disp(['Stable vs. unstable on Day -1 P = ',num2str(comps(37,6))]);
-    disp(['Stable vs. unstable on Day -0 P = ',num2str(comps(50,6))]);
+    disp(['Stable vs. unstable on Day 0 P = ',num2str(comps(50,6))]);
     disp(['Stable vs. unstable on Day +1 P = ',num2str(comps(62,6))]);
     disp(['Stable vs. unstable on Day +2 P = ',num2str(comps(73,6))]);
     disp(['Stable vs. unstable on Day +3 P = ',num2str(comps(83,6))]);
