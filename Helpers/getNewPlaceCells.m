@@ -1,5 +1,5 @@
 function [newPCsS1,newPCsS2] = getNewPlaceCells(base,comp)
-%
+%[newPCsS1,newPCsS2] = getNewPlaceCells(base,comp)
 %
 %
 
