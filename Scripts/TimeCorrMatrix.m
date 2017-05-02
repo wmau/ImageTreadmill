@@ -12,8 +12,16 @@ loadMD;
 fulldataset = MD(292:309);   
 
 %Parameters to change.
-timeCellsOnly = true;
-useIntervals = true;
+codingCells = 'timecells';
+z = true;
+similarityMetric = 'corr';
+
+switch similarityMetric 
+    case 'corr'
+        yLabel = 'Mean similarity (R)';
+    case 'innerproduct'
+        yLabel = 'Mean similarity (inner product)';
+end
 
 %Number of animals and sessions.
 animals = unique({fulldataset.Animal});
@@ -37,71 +45,80 @@ end
 nAllTrials = sum(cell2mat(nTrials));
     
 %% Do analysis.
-allR_withinTrials = nan(5,5,nAllTrials);        %5x5xAllTrials matrix of within-trial correlations.
 allR_trials = nan(5,5,nSessions);               %5x5xS matrix of across-trial correlations, binned by trial blocks.
 allR_days = nan(5,5,nAnimals);                  %5x5xA matrix of across-trial correlations, binned by day.
 session=1;
 trial=1;
+dayR = cell(nAnimals,1);
+sessionTracker = nan(nSessions,1);
 for a=1:nAnimals
     ssns = find(strcmp(animals{a},{fulldataset.Animal}));
     nSessions = length(ssns);
     
-    for s=1:nSessions
-        allR_withinTrials(:,:,trial:trial+nTrials{a}(s)-1) = PVWithinTrialCorr(fulldataset(ssns(s)),'timeCellsOnly',timeCellsOnly);
-        trial = trial+nTrials{a}(s);
-    end
+    [R,lapNum,sessionNum] = PVTrialCorr2(fulldataset(ssns),'codingcells',codingCells,...
+        'z',z,'similarityMetric',similarityMetric);
+    R_allCells = nanmean(R,3);
     
-    [R,p,lapNum,sessionNum] = PVTrialCorr(fulldataset(ssns),'timeCellsOnly',timeCellsOnly,...
-        'useIntervals',useIntervals);
-    
-    allR_trials(:,:,session:session+length(ssns)-1) = avgCorrMatrixOverAllDays(R,lapNum,...
+    allR_trials(:,:,session:session+length(ssns)-1) = avgCorrMatrixOverAllDays(R_allCells,lapNum,...
         sessionNum,'binByNTrials');
     session = session+length(ssns);
     
-    allR_days(:,:,a) = avgCorrMatrixOverAllDays(R,lapNum,sessionNum,'binByDay');
+    allR_days(:,:,a) = avgCorrMatrixOverAllDays(R_allCells,lapNum,...
+        sessionNum,'binByDay');
+    [~,dayR{a}] = binCoeffs(R_allCells,'processingMode','binByDay','sessionNum',sessionNum); 
 end
 
-close all;
-figure;
-subplot(2,3,1);
-imagesc(nanmean(allR_withinTrials,3));
-axis equal; axis tight; colormap hot;
-set(gca,'tickdir','out');
-xlabel('Treadmill Intervals');
-ylabel('Treadmill Intervals');
-title('Bins = 2s');
+A = cell(nSessions);
+for a=1:nAnimals
+    for s1=1:nSessions
+        for s2=1:nSessions
+            A{s1,s2} = [A{s1,s2}; dayR{a}{s1,s2}];
+        end
+    end
+end
+[m,sem,diags] = collapseByLag(allR_days);
+            
+MATRIX = nanmean(allR_days,3);
+trialMATRIX = nanmean(allR_trials,3);
 
-subplot(2,3,2);
-imagesc(nanmean(allR_trials,3));
+figure('Position',[520   125   640   675]);
+subplot(2,2,1);
+imagesc(MATRIX);
 axis equal; axis tight; colormap hot;
-set(gca,'tickdir','out');
-xlabel('Trial Blocks');
-ylabel('Trial Blocks');
-title('Bins = multiple trials');
-
-subplot(2,3,3);
-imagesc(nanmean(allR_days,3));
-axis equal; axis tight; colormap hot;
-set(gca,'tickdir','out');
-xlabel('Day');
-ylabel('Day');
+set(gca,'ticklength',[0 0],'linewidth',4,'fontsize',12);
+xlabel('Day','fontsize',15);
+ylabel('Day','fontsize',15);
 title('Bins = 1 day');
 
-subplot(2,3,4);
-[wTrialM,wTrialSEM] = collapseByLag(allR_withinTrials);
-errorbar(0:4,wTrialM,wTrialSEM,'linewidth',4);
-set(gca,'tickdir','out');
-xlabel('Lag');
-ylabel('Mean similarity'); 
+subplot(2,2,2);
+errorbar(0:4,m,sem,'linewidth',4,'capsize',0);
+set(gca,'tickdir','out','linewidth',4,'fontsize',12);
+xlabel('Lag','fontsize',15);
+ylabel(yLabel,'fontsize',15); 
+xlim([-.5 4.5]);
 
-subplot(2,3,5);
-[TrialM,TrialSEM] = collapseByLag(allR_trials);
-errorbar(0:4,TrialM,TrialSEM,'linewidth',4);
-set(gca,'tickdir','out');
-xlabel('Lag');
+subplot(2,2,3);
+imagesc(trialMATRIX);
+axis equal; axis tight; colormap hot;
+set(gca,'ticklength',[0 0],'linewidth',4,'fontsize',12);
+xlabel('Trial block','fontsize',15);
+ylabel('Trial block','fontsize',15);
+title('Bins = multiple trials');
 
-subplot(2,3,6);
-[dayM,daySEM] = collapseByLag(allR_days);
-errorbar(0:4,dayM,daySEM,'linewidth',4);
-set(gca,'tickdir','out');
-xlabel('Lag');
+[m,sem,diags] = collapseByLag(allR_trials);
+
+subplot(2,2,4);
+errorbar(0:4,m,sem,'linewidth',4,'capsize',0);
+set(gca,'tickdir','out','linewidth',4,'fontsize',12);
+xlabel('Lag','fontsize',15);
+ylabel(yLabel,'fontsize',15); 
+xlim([-.5 4.5]);
+
+X = cell2mat(diags');
+lags = [];
+for i=1:length(diags)
+    lags = [lags (i-1).*ones(1,length(diags{i}))];
+end
+[~,~,stats] = anovan(X,{lags},'display','off');
+figure;
+c = multcompare(stats);
