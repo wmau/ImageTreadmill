@@ -21,6 +21,7 @@
     switch cellType
         case 'time', c = [0 .5 .5]; otherC = [.58 .44 .86];
         case 'place',c = [.58 .44 .86]; otherC = [0 .5 .5];
+        case 'dual',c = [0 0 0]; otherC = [.5 .5 .5];
     end
     
     

@@ -1,4 +1,4 @@
-function MATRIX = TCEnsembleCorrMatrix(mds)
+function MATRIX = PCEnsembleCorrMatrix(mds)
 %
 %
 %
@@ -24,7 +24,7 @@ function MATRIX = TCEnsembleCorrMatrix(mds)
         for s=1:nSessions
             cd(mds(ssns(s)).Location);
             
-            cellsOfInterest{s} = getTimeCells(mds(ssns(s)));
+            cellsOfInterest{s} = getPlaceCells(mds(ssns(s)),.01);
         end
         
         map = msMatchMultiSessionCells(mds(ssns),cellsOfInterest);
@@ -35,7 +35,7 @@ function MATRIX = TCEnsembleCorrMatrix(mds)
             for s2=s1:nSessions
                 neurons = EliminateUncertainMatches([mds(ssns(s1)) mds(ssns(s2))],neurons);
                 
-                temp = CorrTrdmllTrace(mds(ssns(s1)),mds(ssns(s2)),neurons);
+                temp = CorrPlaceFields(mds(ssns(s1)),mds(ssns(s2)),neurons);
                 
                 MATRIX(s1,s2,a) = nanmean(temp(:,1)); 
                 MATRIX(s2,s1,a) = nanmean(temp(:,1)); 
