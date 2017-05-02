@@ -58,7 +58,8 @@ function DATA = CompileMultiSessionData(MD,args)
                     'timeorder',...
                     'placefieldcentroids',...
                     'tfcorr',...
-                    'pfcorr'};
+                    'pfcorr',...
+                    'dualcells'};
 
     %Check that the arguments match template. 
     for i=1:nArgs
@@ -239,6 +240,11 @@ function DATA = CompileMultiSessionData(MD,args)
             else
                 DATA.pfcorr{i} = nan(NumNeurons,2);
             end
+        end
+        
+        %DUAL TIME-PLACE CELLS
+        if any(strcmp('dualcells',args))
+            DATA.dualcells{i} = AcquireTimePlaceCells(MD(i),'dual');
         end
     end
     

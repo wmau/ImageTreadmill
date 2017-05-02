@@ -41,7 +41,6 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
                 case {'fr','fluor','tfw','pfw'}, cellGet = 'placecells';
             end
     end
-
 %% Compile
     [STATS.stable,STATS.unstable,stable,unstable] = deal(cell(1,nAnimals));
     [nNeurons.stable,nNeurons.unstable] = deal(zeros(1,nAnimals)); 

@@ -64,5 +64,5 @@ function [tbl,stats,comps] = ANOVAit(sameDuration,sameStats,diffDuration,diffSta
     X = [sameStats; diffStats]; 
     grps = {dimension,duration};
     [~,tbl,stats] = anovan(X,grps,'model','full','varnames',{'Dimension','Duration'},'display','on');
-    comps = multcompare(stats,'dimension',[1,2],'display','on');
+    comps = multcompare(stats,'dimension',[1,2],'display','on','ctype','scheffe');
 end

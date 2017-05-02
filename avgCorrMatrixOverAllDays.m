@@ -1,4 +1,4 @@
-function binnedCoeffs = avgCorrMatrixOverAllDays(R,lapNum,sessionNum,processingMode)
+function binnedCoeffs = avgCorrMatrixOverAllDays(R,lapNum,sessionNum,processingMode,varargin)
 %binnedCoeffs = avgCorrMatrixOverAllDays(R,lapNum,sessionNum,processingMode)
 %
 %   Takes the average across multiple binned correlation matrices. The next
@@ -23,8 +23,18 @@ function binnedCoeffs = avgCorrMatrixOverAllDays(R,lapNum,sessionNum,processingM
 %
 
 %% Setup.
+    p = inputParser;
+    p.addRequired('R',@(x) isnumeric(x)); 
+    p.addRequired('lapNum',@(x) isnumeric(x)); 
+    p.addRequired('sessionNum',@(x) isnumeric(x)); 
+    p.addRequired('processingMode',@(x) ischar(x));
+    p.addParameter('nBins',5,@(x) isscalar(x)); 
+    
+    p.parse(R,lapNum,sessionNum,processingMode,varargin{:});
+    
+    nBins = p.Results.nBins;
+    
     nSessions = max(sessionNum);
-    nBins = 5; 
     binnedCoeffs = nan(nBins,nBins,nSessions);
     
 %% Average over sessions.

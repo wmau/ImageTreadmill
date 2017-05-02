@@ -4,7 +4,7 @@ loadMD;
 
 %Sessions and neuron(s). 
 mds = MD(292:295);
-neurons = [107]; 
+neurons = [145]; 
 nNeurons = length(neurons);
 
 mapMD = getMapMD(mds);

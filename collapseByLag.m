@@ -1,4 +1,4 @@
-function [m,sem] = collapseByLag(R)
+function [m,sem,diags] = collapseByLag(R)
 %[m,sem] = collapseByLag(R)
 %
 %   Computes the mean of the diagonals in the correlation coefficient
@@ -29,7 +29,11 @@ function [m,sem] = collapseByLag(R)
             inds = sub2ind([nLags,nLags],row,col);
             
             %Get the diagonal of the R slice. 
-            diagOfR = Rinstance(inds);
+            if isnumeric(Rinstance)
+                diagOfR = Rinstance(inds);
+            elseif iscell(Rinstance)
+                diagOfR = cell2mat(Rinstance(inds)')';
+            end
             
             %Append it to the cell array. 
             diags{l} = [diags{l} diagOfR];
