@@ -1,31 +1,31 @@
-function [R,lapNum,sessionNum] = PVTrialCorr_place(mds,varargin)
-%[R,lapNum,sessionNum] = PVTrialCorr_place(mds,varargin)
+function [R,lapNum,sessionNum] = PVTrialCorr_time(mds,varargin)
+%[R,p,dayMeans] = PVTrialCorr(mds,varargin)
 %
-%   Performs pairwise correlations on population vectors for each trial.
+%   Performs pairwise correlations on population vectors for each treadmill
+%   run. 
 %
     
 %% Parse inputs.
     p = inputParser;
     p.addRequired('mds',@(x) isstruct(x)); 
-    p.addParameter('useIntervals',false,@(x) islogical(x)); 
-    p.addParameter('placeCellsOnly',true,@(x) islogical(x)); 
+    p.addParameter('timeCellsOnly',true,@(x) islogical(x)); 
     p.addParameter('similarityMetric','corr',@(x) ischar(x));
     
     p.parse(mds,varargin{:});
-    placeCellsOnly = p.Results.placeCellsOnly;
+    timeCellsOnly = p.Results.timeCellsOnly;
     similarityMetric = lower(p.Results.similarityMetric);
  
 %% Gather data across days.
-    %Get all the place cells that existed among all recording sessions.
+    %Get all the time cells that existed among all recording sessions.
     nSessions = length(mds); 
     cellsOfInterest = cell(nSessions,1);
     nTrials = zeros(nSessions,1);
     for s=1:nSessions
         cd(mds(s).Location);
         
-        %Get place cells. 
-        if placeCellsOnly
-            cellsOfInterest{s} = getPlaceCells(mds(s),.01);
+        %Get time cells. 
+        if timeCellsOnly
+            cellsOfInterest{s} = getTimeCells(mds(s));
              %Or just all the neurons. 
         else
             load('FinalOutput.mat','NumNeurons');
@@ -33,14 +33,15 @@ function [R,lapNum,sessionNum] = PVTrialCorr_place(mds,varargin)
         end
         
         %Get number of laps.
-        load('SpatialTraces.mat','raster');
-        [nTrials(s),nBins,~] = size(raster); 
+        load('TimeCells.mat','TodayTreadmillLog','T'); 
+        nTrials(s) = sum(TodayTreadmillLog.complete); 
         
     end
     totalTrials = sum(nTrials);
+    nBins = T.*20;
     trialBlocks = [0; cumsum(nTrials)];
     
-    %Map the place cells.
+    %Map the time cells.
     map = msMatchMultiSessionCells(mds,cellsOfInterest); 
     %map = map(all(map>0,2),:);
     nNeurons = size(map,1);
@@ -52,7 +53,9 @@ function [R,lapNum,sessionNum] = PVTrialCorr_place(mds,varargin)
     for s=1:nSessions
         %Load traces. 
         cd(mds(s).Location);
-        load('SpatialTraces.mat','raster'); 
+        load('TreadmillTraces.mat','DFDTTrdmll'); 
+%         DFDTTrdmll = diff(LPtrdmll,[],2);
+%         DFDTTrdmll = padarray(DFDTTrdmll,[0 1 0],0,'pre');
         
         %Get neurons this session that we need to capture. 
         neurons = map(:,s);
@@ -60,16 +63,16 @@ function [R,lapNum,sessionNum] = PVTrialCorr_place(mds,varargin)
         neurons = neurons(mapped);
         nMapped = length(mapped);
         
-        %Capture traces.       
-        for n=1:nMapped                   
-            %Take the raster and transpose to make bins x trial matrix.
-            cellTrace = raster(:,:,neurons(n))'; 
-            PVs(:,trialBlocks(s)+1:trialBlocks(s+1),mapped(n)) = cellTrace;
+        %Capture traces. 
+        for n=1:nMapped
+            %Take raster and transpose to make bins x trial matrix. 
+            cellTrace = DFDTTrdmll(:,:,neurons(n))';
+            PVs(:,trialBlocks(s)+1:trialBlocks(s+1),mapped(n)) = cellTrace; 
         end
-        nTrialsThisSession = size(raster,1);        %# trials this session.
+        nTrialsThisSession = size(DFDTTrdmll,1);
         lapNum(trialBlocks(s)+1:trialBlocks(s+1)) = 1:nTrialsThisSession;
         sessionNum(trialBlocks(s)+1:trialBlocks(s+1)) = s.*ones(1,nTrialsThisSession);
-
+        
     end
     
     

@@ -1,4 +1,4 @@
-function [R,p,lapNum,sessionNum] = PVTrialCorr(mds,varargin)
+function [R,lapNum,sessionNum] = PVTrialCorr(mds,varargin)
 %[R,p,dayMeans] = PVTrialCorr(mds,varargin)
 %
 %   Performs pairwise correlations on population vectors for each treadmill
@@ -10,10 +10,14 @@ function [R,p,lapNum,sessionNum] = PVTrialCorr(mds,varargin)
     p.addRequired('mds',@(x) isstruct(x)); 
     p.addParameter('useIntervals',false,@(x) islogical(x)); 
     p.addParameter('timeCellsOnly',true,@(x) islogical(x)); 
+    p.addParameter('plotit',false,@(x) islogical(x));
+    p.addParameter('similarityMetric','corr',@(x) ischar(x));
     
     p.parse(mds,varargin{:});
     useIntervals = p.Results.useIntervals; 
     timeCellsOnly = p.Results.timeCellsOnly;
+    plotit = p.Results.plotit;
+    similarityMetric = lower(p.Results.similarityMetric);
  
 %% Gather data across days.
     %Get all the time cells that existed among all recording sessions.
@@ -41,6 +45,7 @@ function [R,p,lapNum,sessionNum] = PVTrialCorr(mds,varargin)
     
     %Map the time cells.
     map = msMatchMultiSessionCells(mds,cellsOfInterest); 
+    %map = map(all(map>0,2),:);
     nNeurons = size(map,1);
     
 %% Get significance intervals. 
@@ -87,6 +92,8 @@ function [R,p,lapNum,sessionNum] = PVTrialCorr(mds,varargin)
         %Load traces. 
         cd(mds(s).Location);
         load('TreadmillTraces.mat','DFDTTrdmll'); 
+%         DFDTTrdmll = diff(LPtrdmll,[],2);
+%         DFDTTrdmll = padarray(DFDTTrdmll,[0 1 0],0,'pre');
         load('TimeCells.mat','curves');
         
         %Get neurons this session that we need to capture. 
@@ -121,21 +128,35 @@ function [R,p,lapNum,sessionNum] = PVTrialCorr(mds,varargin)
     end
     
 %% Do correlation.
-    [R,p] = corr(PVs,'rows','pairwise');
+    switch similarityMetric
+        case 'corr'
+            R = corr(PVs,'rows','pairwise');
+        case 'innerproduct'
+            R = nan(totalTrials);
+            for t1=1:totalTrials
+                for t2=1:totalTrials
+                    R(t1,t2) = inner(PVs(:,t1),PVs(:,t2))/nNeurons;
+                end
+            end
+        otherwise
+            error('Invalid similarity metric!');
+    end
     R(logical(eye(size(R)))) = nan;
     
-    figure;
-    imap = imagesc(R); colormap jet; 
-    set(imap,'alphadata',~isnan(R));
-    hold on;
-    newDayStartInd = cumsum(nTrials);
-    newDayStartInd = [1; newDayStartInd];
-%     line([0 0],[0,totalTrials],'color','k','linewidth',4);
-%     line([0,totalTrials],[1 1],'color','k','linewidth',4);
-    for s=1:nSessions+1
-        line([newDayStartInd(s) newDayStartInd(s)],[0,totalTrials],'color','k','linewidth',4);
-        line([0,totalTrials],[newDayStartInd(s) newDayStartInd(s)],'color','k','linewidth',4);
+    if plotit
+        figure;
+        imap = imagesc(R); colormap jet; 
+        set(imap,'alphadata',~isnan(R));
+        hold on;
+        newDayStartInd = cumsum(nTrials);
+        newDayStartInd = [1; newDayStartInd];
+    %     line([0 0],[0,totalTrials],'color','k','linewidth',4);
+    %     line([0,totalTrials],[1 1],'color','k','linewidth',4);
+        for s=1:nSessions+1
+            line([newDayStartInd(s) newDayStartInd(s)],[0,totalTrials],'color','k','linewidth',4);
+            line([0,totalTrials],[newDayStartInd(s) newDayStartInd(s)],'color','k','linewidth',4);
+        end
+        axis equal; axis tight;
     end
-    axis equal; axis tight;
     
 end
