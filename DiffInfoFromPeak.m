@@ -16,6 +16,7 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays,alignedOtherI] = Dif
     switch cellType
         case 'time', cellTypeString = 'timecells'; c = [0 .5 .5];
         case 'place',cellTypeString = 'placecells'; c = [.58 .44 .86];
+        case 'dual',cellTypeString = 'dualcells'; c = [1 1 1];
     end
     DATA = CompileMultiSessionData(mds,{cellTypeString});
     
@@ -57,6 +58,7 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays,alignedOtherI] = Dif
             switch cellType
                 case 'time', codingCells = getTimeCells(mds(s)); 
                 case 'place',codingCells = getPlaceCells(mds(s),.01); 
+                case 'dual', codingCells = AcquireTimePlaceCells(mds(s),'dual');
             end       
             codingCells = EliminateUncertainMatches([mds(s),mds(s+1)],codingCells);
             nCodingCells = length(codingCells);
@@ -66,6 +68,7 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays,alignedOtherI] = Dif
             switch cellType
                 case 'time', corrStats = CorrTrdmllTrace(mds(s),mds(s+1),goodCells);
                 case 'place',corrStats = CorrPlaceFields(mds(s),mds(s+1),goodCells);
+                case 'dual', corrStats = CorrTrdmllTrace(mds(s),mds(s+1),goodCells);
             end  
             
             [~,exists] = ismember(neurons,existsAcrossOneDay);
@@ -83,6 +86,18 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays,alignedOtherI] = Dif
     %Get proportions of the peak.
     propofOtherIPeak = otherI./otherIPeak;
     propOfPeak = I./peakI;
+    
+%     propofOtherIPeak = zscore(otherI,[],2);
+%     propOfPeak = zscore(I,[],2);
+     
+    %Or percent change.
+%     pctChange = I(:,2:end)./I(:,1:end-1);
+%     pctChange = pctChange - 1;
+%     pctChange = [nan(size(pctChange,1),1), pctChange];
+%     
+%     pctOtherChange = otherI(:,2:end)./otherI(:,1:end-1);
+%     pctOtherChange = pctOtherChange - 1;
+%     pctOtherChange = [nan(size(pctOtherChange,1),1), pctOtherChange];
     
     %Max day difference.
     maxDayDelta = nSessions-1; %Plus or minus.

@@ -10,6 +10,7 @@ function [raster,smoothCurve,curve] = LinearizedPF_raster(md,varargin)
     p.addParameter('minspeed',3,@(x) isscalar(x));
     p.addParameter('nBins',80,@(x) isscalar(x)); 
     p.addParameter('neurons',[],@(x) isnumeric(x));
+    p.addParameter('saveBool',false,@(x) islogical(x));
     
     p.parse(md,varargin{:});
     
@@ -17,6 +18,7 @@ function [raster,smoothCurve,curve] = LinearizedPF_raster(md,varargin)
     minspeed = p.Results.minspeed; 
     nBins = p.Results.nBins; 
     neurons = p.Results.neurons; 
+    saveBool = p.Results.saveBool;
     
     if isempty(neurons)
         neurons = getPlaceCells(md,.01);
@@ -105,19 +107,26 @@ function [raster,smoothCurve,curve] = LinearizedPF_raster(md,varargin)
         subplot(2,1,1); 
             imagesc(raster(:,:,thisNeuron)); 
             colormap hot; caxis([0 1.2]);
-            set(gca,'xtick',[],'ytick',[1,max(trials)],'linewidth',4);
-            ylabel('Laps'); 
+            set(gca,'xtick',[],'ytick',[1,max(trials)],'linewidth',4,...
+                'fontsize',12);
+            ylabel('Laps','fontsize',15); 
         subplot(2,1,2); 
             plot(bins,smoothCurve(thisNeuron,:),'color',[.58 .44 .86],'linewidth',5);
-            xlabel('Linearized Distance');
-            ylabel('Rate');
+            xlabel('Linearized Distance','fontsize',15);
+            ylabel('Rate','fontsize',15);
             yLims = get(gca,'ylim');
             ylim([0 yLims(2)]);
-            set(gca,'linewidth',4);
+            set(gca,'linewidth',4,'tickdir','out','fontsize',12);
 
         [keepgoing,thisNeuron] = scroll(thisNeuron,nNeurons,f);
         end
     end
     
+    cd(md.Location);
+    if saveBool
+        save('SpatialTraces.mat','raster','curve','smoothCurve');
+    end
+    
     cd(currDir);
+    
 end
