@@ -1,4 +1,4 @@
-function PropStability(mds,cellType)
+function [pct,stability,map] = PropStability(mds,cellType)
 %
 %
 %
@@ -23,12 +23,15 @@ function PropStability(mds,cellType)
             case 'place'
                 cellsOfInterest{s} = getPlaceCells(mds(s),0.01);
         end
+        if s < nSessions
+            cellsOfInterest{s} = EliminateUncertainMatches([mds(s),mds(s+1)],cellsOfInterest{s});
+        end
     end
     map = msMatchMultiSessionCells(mds,cellsOfInterest);
 
 %%
     %Preallocate stability matrix. 
-    isStable = nan(size(map));
+    [isCoding,isStable] = deal(nan(size(map)));
     for s=1:nSessions-1
         cd(mds(s).Location); 
         
@@ -36,7 +39,7 @@ function PropStability(mds,cellType)
         %the next day. 
         neurons = map(map(:,s+1)>0,s);
         neurons(neurons==0) = [];
-               
+                 
         %Get cell numbers for stability criterion. 
         switch cellType
             case 'time'
@@ -47,6 +50,8 @@ function PropStability(mds,cellType)
         temp = EliminateUncertainMatches([mds(s),mds(s+1)],temp);
         nNeuronsForStabilityCrit = length(temp);
         stableCrit = 0.01/nNeuronsForStabilityCrit;
+        
+        isCoding(:,s) = ismember(map(:,s),temp);
         
         %Do tuning curve correlations.
         switch cellType
@@ -65,5 +70,38 @@ function PropStability(mds,cellType)
         isStable(i,s) = 0;
                  
     end
-    keyboard;
+    
+    %Fill in the last row for isCoding
+    switch cellType
+        case 'time'
+            temp = getTimeCells(mds(end)); 
+        case 'place'
+            temp = getPlaceCells(mds(end),0.01);
+    end
+    isCoding(:,end) = ismember(map(:,end),temp); 
+    
+    good = isStable(:,1:end-1) > 0;
+    %foundCell = map(:,1:end-1) > 0; 
+    
+    %pctDaysStable = sum(good,2) ./ sum(foundCell,2);
+    pctDaysStable = sum(good,2) ./ (size(isStable,2)-1);
+    stability.Stable = find(pctDaysStable == 1);
+    
+    deltaStability = [zeros(size(isStable,1),1) diff(isStable,[],2)];
+    deltaStability(:,end) = isCoding(:,end) & all(isCoding(:,1:end-1) == 0,2);
+    deltaStability(isnan(deltaStability)) = 0;
+    stability.Incoming = find(any(ismember(deltaStability,1),2)); 
+    outgoing = find(any(ismember(deltaStability,-1),2)); 
+    
+    ambiguous = find(all(ismember(deltaStability,0) | isnan(deltaStability),2));
+    ambiguous = setdiff(ambiguous,stability.Stable);
+    stability.Outgoing = union(outgoing,ambiguous);
+    
+    ambiguous = intersect(union(stability.Outgoing,stability.Incoming),stability.Stable);
+    stability.Stable(ismember(stability.Stable,ambiguous)) = [];
+    
+    pct.Stable = length(stability.Stable)/size(map,1);
+    pct.Outgoing = length(stability.Outgoing)/size(map,1);
+    pct.Incoming = length(stability.Incoming)/size(map,1);
+    
 end
