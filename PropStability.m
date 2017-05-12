@@ -87,7 +87,7 @@ function [pct,stability,map] = PropStability(mds,cellType)
     pctDaysStable = sum(good,2) ./ (size(isStable,2)-1);
     stability.Stable = find(pctDaysStable == 1);
     
-    deltaStability = [zeros(size(isStable,1),1) diff(isStable,[],2)];
+    deltaStability = [zeros(size(isCoding,1),1) diff(isCoding,[],2)];
     deltaStability(:,end) = isCoding(:,end) & all(isCoding(:,1:end-1) == 0,2);
     deltaStability(isnan(deltaStability)) = 0;
     stability.Incoming = find(any(ismember(deltaStability,1),2)); 

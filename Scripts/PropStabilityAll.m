@@ -8,8 +8,12 @@
     %MD(300:304) = Bellatrix.
     %MD(305:309) = Polaris.
     fulldataset = [MD(292:299) MD(300:303) MD(305:308)]; 
-    
-    modality = 'time';
+   
+    cellType = 'time';
+    switch cellType
+        case 'time', c = [0 .5 .5];
+        case 'place', c = [.58 .44 .86];
+    end
     
     animals = unique({fulldataset.Animal});
     nAnimals = length(animals);
@@ -18,7 +22,7 @@
     for a=1:nAnimals
         ssns = find(strcmp(animals{a},{fulldataset.Animal}));
         
-        [pct(a),stability(a),map{a}] = PropStability(fulldataset(ssns),modality);
+        [pct(a),stability(a),map{a}] = PropStability(fulldataset(ssns),cellType);
         
         onlyIncoming{a} = setdiff(stability(a).Incoming,stability(a).Outgoing);
         onlyOutgoing{a} = setdiff(stability(a).Outgoing,stability(a).Incoming);
@@ -37,6 +41,8 @@
             ['Incoming (',num2str(iPct),'%)'],...
             ['Both (',num2str(ioPct),'%)'],...
             ['Outgoing (',num2str(oPct),'%)']});
-%     p(1).FaceColor = [0 .5 .5];
-%     p(3).FaceColor = [0 .5 .5];
-%     p(3).FaceAlpha = .5;
+    p(1).FaceColor = c;
+    p(3).FaceColor = c;
+    p(3).FaceAlpha = .3;
+    p(5).FaceColor = [.5 .5 .5];
+    p(7).FaceColor = [0 0 0];
