@@ -1,4 +1,8 @@
-load('FinalTraces.mat','rawtrace');
+cd(MD(292).Location);
+load('FinalOutput.mat','NeuronTraces');
+TimeCells = getTimeCells(MD(292));
+rawtrace = NeuronTraces.RawTrace;
+t = size(rawtrace,2)./20;
 
 figure;
 n = 10;
@@ -14,7 +18,7 @@ set(AX,'YLim',[min([AX.YLim]),max([AX.YLim])],...
     'XLim',[0,max(t)]);
 axis on; set(gca,'ticklength',[0 0]);
 
-minproj = imread('ICmovie_min_proj.tif');
+minproj = imread('MaxProj.tif');
 figure;
 imshow(minproj,[]);
 hold on;

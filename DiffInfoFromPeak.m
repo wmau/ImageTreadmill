@@ -17,11 +17,17 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays,alignedOtherI] = Dif
         case 'time', cellTypeString = 'timecells'; c = [0 .5 .5];
         case 'place',cellTypeString = 'placecells'; c = [.58 .44 .86];
         case 'dual',cellTypeString = 'dualcells'; c = [1 1 1];
+        case 'all',cellTypeString = 'numneurons'; c = [0 .5 .5];
     end
     DATA = CompileMultiSessionData(mds,{cellTypeString});
     
     %Map them.
-    codingCells = DATA.(cellTypeString);
+    switch cellType
+        case {'time','place','dual'}
+            codingCells = DATA.(cellTypeString);
+        case 'all'
+            codingCells = cellfun(@(x) 1:x, DATA.(cellTypeString),'unif',0);
+    end
     map = msMatchMultiSessionCells(mds,codingCells);
     
     %Get total number of neurons. 
@@ -60,6 +66,8 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays,alignedOtherI] = Dif
                 case 'place',codingCells = getPlaceCells(mds(s),.01); 
                 case 'dual', codingCells = AcquireTimePlaceCells(mds(s),'dual');
             end       
+            load(fullfile(mds(s).Location,'FinalOutput.mat'),'NumNeurons');
+            codingCells = 1:NumNeurons;
             codingCells = EliminateUncertainMatches([mds(s),mds(s+1)],codingCells);
             nCodingCells = length(codingCells);
             crit = .01/nCodingCells;
@@ -69,6 +77,11 @@ function [alignedDiffs,stable,unstable,dayDelta,alignedDays,alignedOtherI] = Dif
                 case 'time', corrStats = CorrTrdmllTrace(mds(s),mds(s+1),goodCells);
                 case 'place',corrStats = CorrPlaceFields(mds(s),mds(s+1),goodCells);
                 case 'dual', corrStats = CorrTrdmllTrace(mds(s),mds(s+1),goodCells);
+                case 'all'
+                    switch infoType
+                        case 'ti', corrStats = CorrTrdmllTrace(mds(s),mds(s+1),goodCells);
+                        case 'si', corrStats = CorrPlaceFields(mds(s),mds(s+1),goodCells);
+                    end
             end  
             
             [~,exists] = ismember(neurons,existsAcrossOneDay);

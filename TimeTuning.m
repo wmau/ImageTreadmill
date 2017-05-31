@@ -64,7 +64,7 @@ function [tuningcurve,shufflecurve,p,sigcurve,ci] = TimeTuning(ratebylap,delayse
     
     %Get confidence intervals. 
     shufflecurve = sort(shufflecurve);
-    idxci = round([0.95;0.05].*B);
+    idxci = round([0.975;0.025].*B);
     ci = shufflecurve(idxci,:);
     
     %p-value is the fraction of times that the shuffled response turned out

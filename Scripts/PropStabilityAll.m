@@ -22,7 +22,7 @@
     for a=1:nAnimals
         ssns = find(strcmp(animals{a},{fulldataset.Animal}));
         
-        [pct(a),stability(a),map{a}] = PropStability(fulldataset(ssns),cellType);
+        [pct(a),stability(a),map{a}] = PropStability2(fulldataset(ssns),cellType);
         
         onlyIncoming{a} = setdiff(stability(a).Incoming,stability(a).Outgoing);
         onlyOutgoing{a} = setdiff(stability(a).Outgoing,stability(a).Incoming);

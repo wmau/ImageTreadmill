@@ -1,10 +1,12 @@
+%Warning! Works only if you specify the cell number in the first session. 
+
 clear
 close all;
 loadMD;
 
 %Sessions and neuron(s). 
 mds = MD(292:295);
-neurons = [145]; 
+neurons = [28 113 676]; 
 nNeurons = length(neurons);
 
 mapMD = getMapMD(mds);

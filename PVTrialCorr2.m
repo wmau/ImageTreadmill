@@ -108,7 +108,7 @@ function [R,lapNum,sessionNum,Rmeans] = PVTrialCorr2(mds,varargin)
     if z
         for n=1:nNeurons
             m = nanmean(PVs(:,:,n));
-            sd = nanstd(PVs(:,:,n),[],2);
+            sd = nanstd(PVs(:,:,n),[],1);
 
             PVs(:,:,n) = bsxfun(@minus,PVs(:,:,n),m);
             PVs(:,:,n) = bsxfun(@rdivide,PVs(:,:,n),sd);  

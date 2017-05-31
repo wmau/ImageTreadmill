@@ -1,4 +1,4 @@
-function corrInfo(mds)
+function [r,pval,p] = corrInfo(mds,cellType)
 %
 %
 %
@@ -8,31 +8,39 @@ function corrInfo(mds)
     B = 1000;
     corrtype = 'spearman';
     
+    switch cellType
+        case {'dual','either'}, c = 'k';
+        case 'time', c = [0 .5 .5];
+        case 'place', c = [.58 .44 .86]; 
+    end
+    
     nSessions = length(mds);
-    both = cell(1,nSessions);
-    PCs = cell(1,nSessions);
-    TCs = cell(1,nSessions); 
-    either = cell(1,nSessions);
+    neurons = cell(1,nSessions);
     figure; hold on;
     for s = 1:nSessions
-        both{s} = intersect(DATA.timecells{s},DATA.placecells{s});
-        PCs{s} = setdiff(DATA.placecells{s},DATA.timecells{s});
-        TCs{s} = setdiff(DATA.timecells{s},DATA.placecells{s});
-        either{s} = union(DATA.timecells{s},DATA.placecells{s});   
+        switch cellType
+            case 'dual', neurons{s} = intersect(DATA.timecells{s},DATA.placecells{s});
+            case 'time', neurons{s} = setdiff(DATA.timecells{s},DATA.placecells{s});
+            case 'place', neurons{s} = setdiff(DATA.placecells{s},DATA.timecells{s});
+            case 'either', neurons{s} = union(DATA.timecells{s},DATA.placecells{s});
+        end
     end
     
     for s = 1:nSessions
-        DATA.si{s}(both{s}) = zscore(DATA.si{s}(both{s}));
-        DATA.ti{s}(both{s}) = zscore(DATA.ti{s}(both{s}));
+        DATA.si{s}(neurons{s}) = zscore(DATA.si{s}(neurons{s}));
+        DATA.ti{s}(neurons{s}) = zscore(DATA.ti{s}(neurons{s}));
     end
     
-    SI = cell2mat(cellfun(@(x,y) x(y),DATA.si,both,'unif',0)');
-    TI = cell2mat(cellfun(@(x,y) x(y),DATA.ti,both,'unif',0)');
+    SI = cell2mat(cellfun(@(x,y) x(y),DATA.si,neurons,'unif',0)');
+    TI = cell2mat(cellfun(@(x,y) x(y),DATA.ti,neurons,'unif',0)');
     
-    h = scatter(SI,TI,10,'k','filled');
+    h = scatter(SI,TI,20,c,'filled');
+    set(gca,'tickdir','out','fontsize',12);
     alpha(h,.5); 
+    xlabel('Norm. Spatial Info','fontsize',15);
+    ylabel('Norm. Temporal Info','fontsize',15);
     
-    [r,pval] = corr(SI,TI,'type',corrtype)
+    [r,pval] = corr(SI,TI,'type',corrtype);
 %     r = r^2
 %     pval 
     
@@ -41,6 +49,6 @@ function corrInfo(mds)
         shuffle(i) = corr(SI,TI(randperm(length(TI))),'type',corrtype);
     end
 %     shuffle = shuffle.^2;
-    p = sum(r<shuffle)/B
+    p = sum(r<shuffle)/B;
     
 end

@@ -39,7 +39,7 @@ function [sortedPastalkova,order,peakInds,tilemat] = PastalkovaPlot(MD,varargin)
     if plotit
     imagesc([0:T],[1:length(TimeCells)],sortedPastalkova);
         colormap gray;
-        set(gca,'ydir','reverse'); axis tight;
+        set(gca,'ydir','reverse','ytick',[1,length(TimeCells)]); axis tight;
         xlabel('Time [s]'); ylabel('Neurons'); 
     end
 

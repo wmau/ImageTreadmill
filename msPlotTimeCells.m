@@ -131,9 +131,9 @@ function msPlotTimeCells(md,varargin)
     
     %Main plotting. 
     if pf 
-        fPos = [-1300 -40 630 180*nSessions];
+        fPos = [2600 100 630 180*nSessions];
     else 
-        fPos = [-1300 -40 370 180*nSessions];
+        fPos = [2600 100 370 180*nSessions];
     end
     
     

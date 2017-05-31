@@ -10,7 +10,8 @@ function [m,sem,diags] = collapseByLag(R)
 %
 
 %% Set up.
-    [nLags,~,nInstances] = size(R);     
+    [nRows,nCols,nInstances] = size(R);     
+    nLags = min([nRows nCols]);
     diags = cell(nLags,1);              %Contains the diagonal elements of R slices. 
 
 %% Get the means.
@@ -25,7 +26,7 @@ function [m,sem,diags] = collapseByLag(R)
         for l=1:nLags
             %Get the row and column indices then covert them into linear. 
             row = 1:nLags-l+1;
-            col = l:nLags;
+            col = l:nLags;          %Look carefully -- that's an L.
             inds = sub2ind([nLags,nLags],row,col);
             
             %Get the diagonal of the R slice. 
