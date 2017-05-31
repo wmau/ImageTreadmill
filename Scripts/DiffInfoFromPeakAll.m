@@ -7,11 +7,11 @@
     %MD(296:299) = G48.
     %MD(300:304) = Bellatrix.
     %MD(305:309) = Polaris.
-    fulldataset = MD(292:309); 
+    fulldataset = [MD(292:299) MD(300:303) MD(305:308)];   
     
     cellType = 'time';
     infoType = 'ti';
-    disregardStability = false;
+    disregardStability = true;
     
     switch infoType
         case 'ti', infoTypeStr = 'Temporal';
@@ -21,7 +21,7 @@
     switch cellType
         case 'time', c = [0 .5 .5]; otherC = [.58 .44 .86];
         case 'place',c = [.58 .44 .86]; otherC = [0 .5 .5];
-        case 'dual',c = [0 0 0]; otherC = [.5 .5 .5];
+        case {'all','dual'},c = [0 0 0]; otherC = [.5 .5 .5];
     end
     
     
@@ -31,7 +31,6 @@
     [alignedDiffs,stable,unstable,dayDelta,stableMeans,unstableMeans,alignedDays,alignedOtherI] = ...
         deal(cell(nAnimals,1)); 
     [I,days,stabilityLabel,otherI,otherIDays] = deal([]);
-    figure; hold on;
     for a=1:nAnimals
         ssns = find(strcmp(animals{a},{fulldataset.Animal}));
         
@@ -103,9 +102,9 @@
     otherISEM = otherISEM ./ sqrt(t(:,2)); 
 
     %Plot means across animals.
-    errorbar(dayDeltaUse+.1,stableMean,stableSEM,'color',c,'linewidth',4);
-    errorbar(dayDeltaUse,unstableMean,unstableSEM,'color','r','linewidth',4);
-    errorbar(dayDeltaUseOther-.1,otherIMean,otherISEM,'color',otherC,'linewidth',4);
+    figure; hold on;
+    errorbar(dayDeltaUseOther-.1,otherIMean,otherISEM,'color',otherC,'linewidth',4,...
+        'capsize',0);
     set(gca,'tickdir','out','fontsize',12,'linewidth',4); 
     ylabel('Fraction of Peak Info.','fontsize',15);
     xlabel('Days from Peak','fontsize',15);
@@ -125,18 +124,37 @@
         t = tabulate(allDays);
         sem = sem./sqrt(t(:,2)); 
               
-        errorbar(dayX+.2,m,sem,'color','k','linewidth',4);
+        errorbar(dayX+.1,m,sem,'color',c,'linewidth',4,'capsize',0);
+        
+        withinDim = [ones(size(I)); zeros(size(otherI))];
+        DAYS = [days; otherIDays];
+        Is = [I; otherI];
+        bad = DAYS==-4 & withinDim==0;
+        DAYS(bad) = []; withinDim(bad) = []; 
+        Is(bad) = [];
+        
+        grps = {DAYS, withinDim};
+        
+        [~,tbl,stats] = anovan(Is,grps,'model','full','varnames',{'Days','Within Dimension'});
+        figure;
+        multcompare(stats,'dimension',[1,2],'ctype','scheffe');
+    else
+        errorbar(dayDeltaUse+.1,stableMean,stableSEM,'color',c,'linewidth',4,'capsize',0);
+        errorbar(dayDeltaUse,unstableMean,unstableSEM,'color','r','linewidth',4,'capsize',0);
+    
+        %ANOVA.
+        grps = {days,stabilityLabel};
+        [~,tbl,stats] = anovan(I,grps,'model','full','varnames',{'Day','Stability'});
+        comps = multcompare(stats,'dimension',[1,2],'display','off','ctype','scheffe');
+        disp(['Stable vs. unstable on Day -3 P = ',num2str(comps(8,6))]);
+        disp(['Stable vs. unstable on Day -2 P = ',num2str(comps(23,6))]);
+        disp(['Stable vs. unstable on Day -1 P = ',num2str(comps(37,6))]);
+        disp(['Stable vs. unstable on Day 0 P = ',num2str(comps(50,6))]);
+        disp(['Stable vs. unstable on Day +1 P = ',num2str(comps(62,6))]);
+        disp(['Stable vs. unstable on Day +2 P = ',num2str(comps(73,6))]);
+        disp(['Stable vs. unstable on Day +3 P = ',num2str(comps(83,6))]);
+        disp(['Stable vs. unstable on Day +4 P = ',num2str(comps(92,6))]);
+    
     end
     
-    %ANOVA.
-    grps = {days,stabilityLabel};
-    [~,tbl,stats] = anovan(I,grps,'model','full','varnames',{'Day','Stability'});
-    comps = multcompare(stats,'dimension',[1,2],'display','off','ctype','scheffe');
-    disp(['Stable vs. unstable on Day -3 P = ',num2str(comps(8,6))]);
-    disp(['Stable vs. unstable on Day -2 P = ',num2str(comps(23,6))]);
-    disp(['Stable vs. unstable on Day -1 P = ',num2str(comps(37,6))]);
-    disp(['Stable vs. unstable on Day 0 P = ',num2str(comps(50,6))]);
-    disp(['Stable vs. unstable on Day +1 P = ',num2str(comps(62,6))]);
-    disp(['Stable vs. unstable on Day +2 P = ',num2str(comps(73,6))]);
-    disp(['Stable vs. unstable on Day +3 P = ',num2str(comps(83,6))]);
-    disp(['Stable vs. unstable on Day +4 P = ',num2str(comps(92,6))]);
+    
