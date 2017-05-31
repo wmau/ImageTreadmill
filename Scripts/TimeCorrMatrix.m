@@ -9,12 +9,13 @@ loadMD;
 %MD(296:299) = G48.
 %MD(300:304) = Bellatrix.
 %MD(305:309) = Polaris.
-fulldataset = MD(292:309);   
+fulldataset = [MD(292:299) MD(300:303) MD(305:308)];   
 
 %Parameters to change.
-codingCells = 'timecells';
-z = true;
-similarityMetric = 'corr';
+codingCells = 'timecells';      %Options: timecells or placecells
+z = true;                       
+similarityMetric = 'corr';      %Options: corr or innerproduct.
+c = [0 .5 .5];
 
 switch similarityMetric 
     case 'corr'
@@ -45,74 +46,93 @@ end
 nAllTrials = sum(cell2mat(nTrials));
     
 %% Do analysis.
-allR_trials = nan(5,5,nSessions);               %5x5xS matrix of across-trial correlations, binned by trial blocks.
-allR_days = nan(5,5,nAnimals);                  %5x5xA matrix of across-trial correlations, binned by day.
+nBins = 4;
+binnedByTrials = nan(nBins,nBins,nSessions);               %5x5xS matrix of across-trial correlations, binned by trial blocks.
+binnedByDays = nan(nBins,nBins,nAnimals);                  %5x5xA matrix of across-trial correlations, binned by day.
 session=1;
 trial=1;
 dayR = cell(nAnimals,1);
+R_DayBlocks = [];
 sessionTracker = nan(nSessions,1);
 for a=1:nAnimals
     ssns = find(strcmp(animals{a},{fulldataset.Animal}));
-    nSessions = length(ssns);
     
-    [R,lapNum,sessionNum] = PVTrialCorr2(fulldataset(ssns),'codingcells',codingCells,...
+    %Do activity correlations then take the mean across neurons. R_allcells
+    %describes the entire population.
+    [allTrialRs,lapNum,sessionNum] = PVTrialCorr2(fulldataset(ssns),'codingcells',codingCells,...
         'z',z,'similarityMetric',similarityMetric);
-    R_allCells = nanmean(R,3);
+    R_allCells = nanmean(allTrialRs,3);
     
-    allR_trials(:,:,session:session+length(ssns)-1) = avgCorrMatrixOverAllDays(R_allCells,lapNum,...
-        sessionNum,'binByNTrials');
+    %Bin trials into 5 bins. 
+    [binnedByTrials(:,:,session:session+length(ssns)-1),sessionRs] = ...
+        avgCorrMatrixOverAllDays(R_allCells,lapNum,sessionNum,'binByNTrials','nBins',nBins);
     session = session+length(ssns);
     
-    allR_days(:,:,a) = avgCorrMatrixOverAllDays(R_allCells,lapNum,...
-        sessionNum,'binByDay');
+    %Also collect the same-day correlations.
+    R_DayBlocks = [R_DayBlocks; sessionRs]; 
+    
+    %Bin correlations by days. 
+    binnedByDays(:,:,a) = avgCorrMatrixOverAllDays(R_allCells,lapNum,...
+        sessionNum,'binByDay','nBins',nBins);
+    %dayR is a cell array with one entry per animal. In dayR are 5x5 cells
+    %containing the correlation values for that day by day correlation.
     [~,dayR{a}] = binCoeffs(R_allCells,'processingMode','binByDay','sessionNum',sessionNum); 
 end
 
-A = cell(nSessions);
-for a=1:nAnimals
-    for s1=1:nSessions
-        for s2=1:nSessions
-            A{s1,s2} = [A{s1,s2}; dayR{a}{s1,s2}];
-        end
+    matSize = min(cellfun('length',R_DayBlocks));
+    
+    nSessions = length(R_DayBlocks);
+    allTrialRs = zeros(matSize,matSize,nSessions);
+    for s=1:nSessions
+        allTrialRs(:,:,s) = R_DayBlocks{s}(1:matSize,1:matSize);
     end
-end
-[m,sem,diags] = collapseByLag(allR_days);
+    
+% A = cell(nSessions);
+% for a=1:nAnimals
+%     for s1=1:nSessions
+%         for s2=1:nSessions
+%             A{s1,s2} = [A{s1,s2}; dayR{a}{s1,s2}];
+%         end
+%     end
+% end
             
-MATRIX = nanmean(allR_days,3);
-trialMATRIX = nanmean(allR_trials,3);
+daysMATRIX = nanmean(binnedByDays,3);
+binTrialMATRIX = nanmean(binnedByTrials,3);
+allTrialMATRIX = nanmean(allTrialRs,3);
 
 figure('Position',[520   125   640   675]);
 subplot(2,2,1);
-imagesc(MATRIX);
+imagesc(daysMATRIX);
 axis equal; axis tight; colormap hot;
 set(gca,'ticklength',[0 0],'linewidth',4,'fontsize',12);
 xlabel('Day','fontsize',15);
 ylabel('Day','fontsize',15);
 title('Bins = 1 day');
+colorbar;
 
+[m,sem,diags] = collapseByLag(binnedByDays);
 subplot(2,2,2);
-errorbar(0:4,m,sem,'linewidth',4,'capsize',0);
+errorbar(0:nBins-1,m,sem,'linewidth',4,'capsize',0,'color',c);
 set(gca,'tickdir','out','linewidth',4,'fontsize',12);
 xlabel('Lag','fontsize',15);
 ylabel(yLabel,'fontsize',15); 
-xlim([-.5 4.5]);
+xlim([-.5 nBins-1+.5]);
 
 subplot(2,2,3);
-imagesc(trialMATRIX);
+imagesc(allTrialMATRIX);
 axis equal; axis tight; colormap hot;
 set(gca,'ticklength',[0 0],'linewidth',4,'fontsize',12);
-xlabel('Trial block','fontsize',15);
-ylabel('Trial block','fontsize',15);
-title('Bins = multiple trials');
+xlabel('Trial','fontsize',15);
+ylabel('Trial','fontsize',15);
+colorbar;
 
-[m,sem,diags] = collapseByLag(allR_trials);
-
+[m,sem,diags] = collapseByLag(allTrialRs);
 subplot(2,2,4);
-errorbar(0:4,m,sem,'linewidth',4,'capsize',0);
+errorbar(0:matSize-1,m,sem,'linewidth',4,'capsize',0,'color',c);
 set(gca,'tickdir','out','linewidth',4,'fontsize',12);
 xlabel('Lag','fontsize',15);
 ylabel(yLabel,'fontsize',15); 
-xlim([-.5 4.5]);
+xlim([-.5 matSize+.5]);
 
 X = cell2mat(diags');
 lags = [];
