@@ -1,5 +1,10 @@
 %% Description
 % Performs pairwise correlations of population vectors across scales. 
+% Does a cell-by-cell trace correlation then averages across cells and then
+% across time in two ways: 
+%
+% (1) Dump all correlation coefficients into one day and average. 
+% (2) Average across all trials. 
 
 %% Set up.
 clear;
