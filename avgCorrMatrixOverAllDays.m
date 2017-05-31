@@ -1,4 +1,4 @@
-function binnedCoeffs = avgCorrMatrixOverAllDays(R,lapNum,sessionNum,processingMode,varargin)
+function [binnedCoeffs,chunk] = avgCorrMatrixOverAllDays(R,lapNum,sessionNum,processingMode,varargin)
 %binnedCoeffs = avgCorrMatrixOverAllDays(R,lapNum,sessionNum,processingMode)
 %
 %   Takes the average across multiple binned correlation matrices. The next
@@ -40,22 +40,23 @@ function binnedCoeffs = avgCorrMatrixOverAllDays(R,lapNum,sessionNum,processingM
 %% Average over sessions.
     switch processingMode
         case 'binByNTrials'
+            chunk = cell(nSessions,1);
             for s=1:nSessions
                 %Get only the laps in the current session.
                 theseLaps = sessionNum==s;
                 laps = lapNum(theseLaps);
 
                 %Get only that chunk of R. 
-                chunk = R(theseLaps,theseLaps);
+                chunk{s} = R(theseLaps,theseLaps);
 
                 %Bin and average.
-                binnedCoeffs(:,:,s) = binCoeffs(chunk,'processingMode','binByNTrials',...
+                binnedCoeffs(:,:,s) = binCoeffs(chunk{s},'processingMode','binByNTrials',...
                     'lapNum',laps,'nBins',nBins);
             end    
         case 'binByDay'
             %Bin by day.
             binnedCoeffs = binCoeffs(R,'processingMode','binByDay','sessionNum',...
-                sessionNum);
+                sessionNum,'nBins',nBins);
         otherwise 
             error('Wrong processing mode!');
     end
