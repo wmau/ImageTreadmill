@@ -1,7 +1,8 @@
 function acrossSessionTrialLag(R,lapNum,sessionNum)
 % acrossSessionTrialLag(R,lapNum,sessionNum)
 %
-%
+% Look at lag effects across days AND sessions. e.g., trial 1 on day 1 vs
+% trial 2 on day 2, trial 3 on day 2, trial 4 on day 2, etc.
 
 %% 
     nSessions = max(sessionNum);
