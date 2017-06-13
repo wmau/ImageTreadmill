@@ -17,7 +17,7 @@ loadMD;
 fulldataset = [MD(292:299) MD(300:303) MD(305:308)];   
 
 %Parameters to change.
-codingCells = 'timecells';      %Options: timecells or placecells
+codingCells = 'placecells';      %Options: timecells or placecells
 z = true;                       
 similarityMetric = 'corr';      %Options: corr or innerproduct.
 c = [0 .5 .5];

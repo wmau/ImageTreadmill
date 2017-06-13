@@ -9,7 +9,7 @@ animals = unique({fulldataset.Animal});
 nAnimals = length(animals);
 
 statType = 'si';
-cellType = 'Place';
+cellType = 'Time';
 
 saveBool = true;
 folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
