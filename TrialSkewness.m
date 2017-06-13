@@ -7,7 +7,7 @@ function skew = TrialSkewness(raster)
 
 %%
     nLaps = size(raster,1);
-    [trials,~] = find(raster); 
+    [trials,~] = find(raster>0); 
     
     meanTrial = mean(unique(trials)); 
     skew = meanTrial/nLaps;

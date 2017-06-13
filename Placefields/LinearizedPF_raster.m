@@ -100,6 +100,7 @@ function [raster,smoothCurve,curve] = LinearizedPF_raster(md,varargin)
         
     %Plot.
     if plotit
+        thisNeuron = 1;
         while keepgoing
 
         f = figure(49); 

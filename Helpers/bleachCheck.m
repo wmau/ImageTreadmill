@@ -11,7 +11,7 @@ function [m,sem,chunkID] = bleachCheck(ts,nBins)
     
     [m,sem] = deal(zeros(1,nBins));
     chunkID = zeros(size(ts));
-    for b=1:nBins
+    for b=1:nBins-1
         inds = chunkLims(b)+1:chunkLims(b+1);
         
         m(b) = mean(ts(inds));
