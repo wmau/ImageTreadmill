@@ -5,20 +5,25 @@ B = 1000;
 fulldataset = MD(292:309); 
 
 nSessions = length(fulldataset); 
-[shuffleExample,peaks,skewness] = deal(cell(nSessions,1));
+[shuffleExample,peaks,Tskewness,Pskewness] = deal(cell(nSessions,1));
 for s=1:nSessions
-    skewness{s} = getAllSkewnesses(fulldataset(s)); 
-    shuffleExample{s} = getAllSkewnesses(fulldataset(s),'shuffle',true);
+    Tskewness{s} = getAllSkewnesses(fulldataset(s),'cellType','timecells',...
+        'rasterType','time'); 
+    Pskewness{s} = getAllSkewnesses(fulldataset(s),'cellType','timecells',...
+        'rasterType','place'); 
+    %shuffleExample{s} = getAllSkewnesses(fulldataset(s),'shuffle',true);
     [~,peaks{s}] = getTimePeak(fulldataset(s));
     
     cd(fulldataset(s).Location);
     load('TemporalInfo.mat','MI');
     ti{s} = MI;
 end
-SKEWS = cell2mat(skewness);
-SHUFFLE = cell2mat(shuffleExample);
+TSKEWS = cell2mat(Tskewness);
+PSKEWS = cell2mat(Pskewness);
+%SHUFFLE = cell2mat(shuffleExample);
+scatter(TSKEWS,PSKEWS,'.');
 
-histogram(SKEWS,'edgecolor','none','normalization','probability');
+histogram(TSKEWS,'edgecolor','none','normalization','probability');
 set(gca,'tickdir','out','linewidth',4,'fontsize',12);
 xlabel('Trial skewness','fontsize',15);
 ylabel('Proportion','fontsize',15);
@@ -32,7 +37,7 @@ for i=1:B
     
     shuffleSD(i) = nanstd(cell2mat(shuffle));
 end
-SD = nanstd(SKEWS);
+SD = nanstd(TSKEWS);
 
 histogram(shuffleSD,'edgecolor','none','normalization','probability')
 hold on
