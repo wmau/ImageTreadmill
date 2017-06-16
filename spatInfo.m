@@ -4,7 +4,7 @@ function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,save
 %   Calculates the Shannon mutual information I(X,K) between the random
 %   variables spike count [0,1] and position via the equations: 
 %
-%   (1) I_pos(xi) = sum[k>=0](P_k|xi * log2(P_k|xi / P_k)) 
+%   (1) I_pos(xi) = sum[k>=0](P_k|xi * log(P_k|xi / P_k)) 
 %
 %   (2) MI = sum[i=1->N](P_xi * I_pos(xi)
 %
@@ -38,11 +38,11 @@ function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,save
     P_x = RunOccMap(:)./nFrames;
     okpix = RunOccMap(:) > 4;
     %okpix = RunOccMap(:) > 4 & P_x < .05;       %Dwell must be for more than 4 frames, but less than 5% of total session.
-    P_x = P_x(okpix);                           %Only take good pixels.
+    P_x = P_x(okpix);                            %Only take good pixels.
     
     %Get probability of spiking and not spiking for each neuron.
-    P_k1 = sum(FT,2)./nFrames;
-    P_k0 = 1-P_k1;
+    P_k1 = sum(FT,2)./nFrames;      %Probability of spiking.
+    P_k0 = 1-P_k1;                  %Probability of not spiking. 
     
 %% Compute information metrics. 
     %Preallocate.
@@ -70,7 +70,8 @@ function [MI,Isec,Ispk,Ipos,okpix] = spatInfo(TMaps_unsmoothed,RunOccMap,FT,save
         
         %Compute information content per sec or spk.
         Isec(n) = nansum(P_1x{n}.*P_x.*log2(P_1x{n}./P_k1(n))); %bits/sec
-        Ispk(n) = Isec(n) ./ P_k1(n);                           %bits/spk    
+        Ispk(n) = Isec(n) ./ P_k1(n);                           %bits/spk 
+        
     end
     
     if savetodisk

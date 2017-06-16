@@ -4,7 +4,7 @@ function tempInfo(MD)
 %   Calculates the Shannon mutual information I(X,K) between the random
 %   variables spike count [0,1] and time via the equations: 
 %
-%   (1) I_time(ti) = sum[k>=0](P_k|ti * log2(P_k|ti / P_k)) 
+%   (1) I_time(ti) = sum[k>=0](P_k|ti * log(P_k|ti / P_k)) 
 %
 %   (2) MI = sum[i=1->N](P_xi * I_time(ti)
 %
