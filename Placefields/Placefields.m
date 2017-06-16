@@ -48,6 +48,8 @@ function Placefields(MD,varargin)
     ip.addParameter('aligned',true,@(x) islogical(x));
     ip.addParameter('Pos_data','Pos_align.mat',@(x) ischar(x));
     ip.addParameter('Tenaspis_data','FinalOutput.mat',@(x) ischar(x)); 
+    ip.addParameter('saveName','Placefields.mat',@(x) ischar(x)); 
+    ip.addParameter('saveSI',true,@(x) islogical(x)); 
     
     ip.parse(MD,varargin{:});
     
@@ -59,6 +61,8 @@ function Placefields(MD,varargin)
     aligned = ip.Results.aligned;
     Pos_data = ip.Results.Pos_data;
     Tenaspis_data = ip.Results.Tenaspis_data;
+    saveName = ip.Results.saveName; 
+    saveSI = ip.Results.saveSI;
     
 %% Set up.
     if aligned
@@ -114,7 +118,7 @@ function Placefields(MD,varargin)
     end
     
     %Compute mutual information.
-    MI = spatInfo(TMap_unsmoothed,RunOccMap,PSAbool,true);
+    MI = spatInfo(TMap_unsmoothed,RunOccMap,PSAbool,saveSI);
     
 %% Get statistical significance of place field using mutual information.
     %Preallocate. 
@@ -152,7 +156,7 @@ function Placefields(MD,varargin)
     end
     p.stop; 
     
-    save('Placefields.mat','OccMap','RunOccMap','TCounts','TMap_gauss',...
+    save(saveName,'OccMap','RunOccMap','TCounts','TMap_gauss',...
         'TMap_unsmoothed','minspeed','isrunning','cmperbin','exclude_frames',...
         'xEdges','yEdges','xBin','yBin','pval'); 
 end

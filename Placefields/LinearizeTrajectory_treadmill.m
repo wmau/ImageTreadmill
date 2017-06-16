@@ -116,7 +116,7 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             [sect,x,y] = getsection_treadmill(x,y,bounds); 
 
             %Indices where mouse was on stem. 
-%            onstem = sect==2 | sect==1 | sect==3; 
+            onstem = sect==2 | sect==1 | sect==3; 
             
             %Find middle of the stem. 
             centroidx = mean([bounds.choice.x(1),bounds.base.x(2)]); 
@@ -155,8 +155,8 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             %Max radius minus linearized radius is the distance already
             %traversed. 
 %            X(onstem) = maxfrontback + radii(onstem) .* -cosang(onstem); 
-%            X(X(onstem)<0) = 0;                     %Distance can't be less than 0.
-%            X(X(onstem)>stemlength) = stemlength;   %Distance on stem can't be longer than length of stem.         
+            X(X<0) = 0;                                 %Distance can't be less than 0.
+%            X(X(onstem)>stemlength) = stemlength;      %Distance on stem can't be longer than length of stem.         
     end
         
 end

@@ -41,7 +41,7 @@ function PlacefieldStats(md)
         load('FinalOutput.mat','PSAbool');
         [~,~,~,PSAbool] = AlignImagingToTracking(md.Pix2CM,PSAbool,0);
     end
-    PSAbool = PSAbool(:,isrunning);
+    PSAbool(:,~isrunning) = false;
     
 %% Get basic properties of the placefields
     nNeurons = length(TMap_gauss);
@@ -97,7 +97,7 @@ function PlacefieldStats(md)
                 e = PFepochs{n,p}(epoch,2);
                 
                 %Get activations during traversal epochs.
-                PFactive{n,p}(epoch) = any(PSAbool(n,s:e));                             
+                PFactive{n,p}(epoch) = any(PSAbool(n,s:e));      
             end
         end
         

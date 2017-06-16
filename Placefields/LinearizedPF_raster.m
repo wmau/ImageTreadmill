@@ -1,4 +1,4 @@
-function [raster,smoothCurve,curve] = LinearizedPF_raster(md,varargin)
+function [raster,smoothCurve,curve,X,binocc,parsed] = LinearizedPF_raster(md,varargin)
 %
 %
 %
@@ -68,6 +68,7 @@ function [raster,smoothCurve,curve] = LinearizedPF_raster(md,varargin)
 %% Linearize trajectory and bin responses spatially.
     %Linearized trajectory. 
     X = LinearizeTrajectory_treadmill(x,y,mazetype); 
+    binnocc = nan(size(X));
     parsed = postrials_treadmill(md);
     trials = parsed.summary(:,1)'; 
     
@@ -85,23 +86,23 @@ function [raster,smoothCurve,curve] = LinearizedPF_raster(md,varargin)
                 spkpos = [];
             end
 
-            [occ,edges] = histcounts(X(parsed.trial==thisTrial),nBins);
+            [occ,edges,binocc(parsed.trial==thisTrial)] = histcounts(X(parsed.trial==thisTrial),nBins);
             binned = histcounts(spkpos,edges);
 
             raster(thisTrial,:,thisNeuron) = binned./occ;
-
         end
         
-        %Smooth.
-        curve(thisNeuron,:) = nanmean(raster(:,:,thisNeuron));
-        smoothfit = fit([1:nBins]',curve(thisNeuron,:)','smoothingspline');
-        smoothCurve(thisNeuron,:) = feval(smoothfit,bins)';
     end
         
     %Plot.
     if plotit
         thisNeuron = 1;
         while keepgoing
+             
+        %Smooth.
+        curve(thisNeuron,:) = nanmean(raster(:,:,thisNeuron));
+        smoothfit = fit([1:nBins]',curve(thisNeuron,:)','smoothingspline');
+        smoothCurve(thisNeuron,:) = feval(smoothfit,bins)';        
 
         f = figure(49); 
         f.Position = [550 180 360 565];
