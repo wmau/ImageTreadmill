@@ -17,5 +17,7 @@ function neurons = AcquireTimePlaceCells(md,cellGet)
 %             neurons = setdiff(neurons,TCs);
         case 'dual',neurons = intersect(getTimeCells(md),...
                 getPlaceCells(md,PCcrit));
+        case 'both', neurons = union(getTimeCells(md),...
+                getPlaceCells(md,PCcrit));
     end
 end
