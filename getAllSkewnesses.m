@@ -37,12 +37,16 @@ function skewness = getAllSkewnesses(md,varargin)
                 skewness(thisNeuron) = TrialSkewness(raster);
             end
         case 'place'
-            rasters = LinearizedPF_raster(md,'plotit',false,'neurons',neurons);
+            load('SpatialTraces','raster'); 
+            rasters = raster; 
    
             n = 1;
             for thisNeuron = neurons
-                raster = rasters(:,:,n);
+                raster = rasters(:,:,thisNeuron);
 
+                if shuffle 
+                    raster = raster(randperm(size(raster,1)),:);
+                end
                 skewness(thisNeuron) = TrialSkewness(raster);
                 n = n+1;
             end

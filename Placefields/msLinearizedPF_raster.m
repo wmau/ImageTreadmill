@@ -36,7 +36,7 @@ function msLinearizedPF_raster(mds,varargin)
     
     [rasters,smoothCurve] = deal(cell(nSessions,1));
     for s=1:nSessions
-        [rasters{s},smoothCurve{s}] = LinearizedPF_raster(mds(s),'neurons',map(:,s),...
+        [rasters{s},smoothCurve{s}] = LinearizedPF_raster(mds(s),'neurons',map(map(:,s)>0,s),...
             'plotit',false,'minspeed',minspeed); 
     end
 
@@ -47,7 +47,7 @@ function msLinearizedPF_raster(mds,varargin)
     while keepgoing
         %Make the figure. 
         f = figure(40);
-        f.Position = [-1300 -40 370 180*nSessions];
+        f.Position = [775 170 370 180*nSessions];
         
         %Plot each session.
         for thisSession=1:nSessions
@@ -56,20 +56,24 @@ function msLinearizedPF_raster(mds,varargin)
             
             %Raster. 
             rasterAX(thisSession) = subplot(nSessions,2,thisSession*2-1);
-                imagesc(rasters{thisSession}(:,:,thisNeuron)); 
+            if neuron > 0
+                imagesc(rasters{thisSession}(:,:,neuron)); 
                 title(['Neuron #',num2str(neuron)]);
                 colormap hot; caxis([0 1.2]);
                 set(gca,'xtick',[],'ytick',[1,size(rasters{thisSession},1)]);
                 ylabel('Laps'); 
+            end
 
             %Tuning curve. 
             curveAX(thisSession) = subplot(nSessions,2,thisSession*2);
-                plot(bins,smoothCurve{thisSession}(thisNeuron,:),...
+            if neuron > 0
+                plot(bins,smoothCurve{thisSession}(neuron,:),...
                     'color',purple,'linewidth',2);              
                 ylabel('Rate');     
                 xlim([0 max(bins)]);
                 set(gca,'linewidth',4,'xtick',[0 max(bins)],'xticklabel',...
                     {'0','163'});
+            end
                 
             %Label date or whether neuron was detected. Also label spatial
             %information.
@@ -85,7 +89,9 @@ function msLinearizedPF_raster(mds,varargin)
         end
         
         %Normalize axes to max among all days. 
+        try
         curveYLims = [0, max([curveAX.YLim])];
+        catch, keyboard; end
         set(curveAX,'YLim',curveYLims);
         
         %Label statistics. 

@@ -51,9 +51,9 @@ function TempSpatRasters(md,neurons)
         hold on;
         Ylim = get(gca,'ylim');
         plot(SIGX,SIGY+Ylim(2)*sf,'ro','linewidth',4);
-            xlim([0,T]);
             ylabel('Rate','fontsize',15);
             axis tight; 
+            xlim([0,T]);
             yLims = get(gca,'ylim');
             ylim([0,yLims(2)*(1+sf)]);
             set(gca,'tickdir','out','linewidth',4,'fontsize',12,'xtick',[0 5 10]);
@@ -61,7 +61,7 @@ function TempSpatRasters(md,neurons)
             
         %Track trial raster.
         subplot(2,2,2); 
-        imagesc(placeRaster);
+        imagesc(placeRaster(:,:,neurons(thisNeuron)));
         colormap hot;
         caxis([0 1.2]);
         set(gca,'xtick',[],'ytick',[1,sum(complete)],'linewidth',4,...
@@ -69,12 +69,15 @@ function TempSpatRasters(md,neurons)
         
         %Track tuning curve. 
         subplot(2,2,4);
-        plot(placeCurve,'color',[.58 .44 .86],'linewidth',5);
-        xlabel('Linearized Distance (cm)','fontsize',15);
-        axis tight; 
+        plot(1:length(placeCurve(neurons(thisNeuron),:)),...
+            placeCurve(neurons(thisNeuron),:),...
+            'color',[.58 .44 .86],'linewidth',5);
+        xlabel('Linearized Distance (cm)','fontsize',15);    
         yLims = get(gca,'ylim');
         ylim([0 yLims(2)]);
-        set(gca,'linewidth',4','tickdir','out','fontsize',12);
+        set(gca,'linewidth',4','tickdir','out','fontsize',12,...
+            'xtick',[1,length(placeCurve)],'xticklabel',[0 163]);
+        axis tight; 
            
         [keepgoing,thisNeuron] = scroll(thisNeuron,nNeurons,f); 
         close all;

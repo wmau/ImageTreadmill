@@ -11,6 +11,7 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = LinearizedPF_raster(md,var
     p.addParameter('nBins',80,@(x) isscalar(x)); 
     p.addParameter('neurons',[],@(x) isnumeric(x));
     p.addParameter('saveBool',false,@(x) islogical(x));
+    p.addParameter('calcSig',false,@(x) islogical(x)); 
     
     p.parse(md,varargin{:});
     
@@ -28,6 +29,8 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = LinearizedPF_raster(md,var
 %%
     currDir = pwd;
     cd(md.Location); 
+    load('FinalOutput.mat','NumNeurons'); 
+    nNeuronsTotal = NumNeurons; clear NumNeurons;
     
     %Get treadmill log for excluding treadmill epochs. 
     load('TimeCells.mat','TodayTreadmillLog'); 
@@ -68,15 +71,17 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = LinearizedPF_raster(md,var
 %% Linearize trajectory and bin responses spatially.
     %Linearized trajectory. 
     X = LinearizeTrajectory_treadmill(x,y,mazetype); 
-    binnocc = nan(size(X));
+    binocc = nan(size(X));
     parsed = postrials_treadmill(md);
     trials = parsed.summary(:,1)'; 
     
     keepgoing = true;
     bins = [1:0.001:nBins]';
-    raster = zeros(max(trials),nBins,nNeurons);
-    curve = zeros(nNeurons,nBins);
-    smoothCurve = zeros(nNeurons,size(bins,1)); 
+    raster = zeros(max(trials),nBins,nNeuronsTotal);
+    [curve,sigCurve] = deal(zeros(nNeuronsTotal,nBins));
+    smoothCurve = zeros(nNeuronsTotal,size(bins,1)); 
+    
+    [~,edges] = histcounts(X,nBins);
     
     for thisNeuron = 1:nNeurons    
         for thisTrial = trials
@@ -86,34 +91,58 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = LinearizedPF_raster(md,var
                 spkpos = [];
             end
 
-            [occ,edges,binocc(parsed.trial==thisTrial)] = histcounts(X(parsed.trial==thisTrial),nBins);
+            [occ,~,binocc(parsed.trial==thisTrial)] = ...
+                histcounts(X(parsed.trial==thisTrial),edges);
             binned = histcounts(spkpos,edges);
 
-            raster(thisTrial,:,thisNeuron) = binned./occ;
+            raster(thisTrial,:,neurons(thisNeuron)) = binned./occ;
         end
         
     end
-        
-    %Plot.
+    
+%% Get significance bins.
+    if calcSig
+        load('PlacefieldStats.mat','PFepochs','PFnHits'); 
+        [~,bestPF] = max(PFnHits,[],2);
+
+        for thisNeuron = 1:nNeurons        
+            epochs = PFepochs{neurons(thisNeuron),bestPF(neurons(thisNeuron))};
+            nEpochs = size(epochs,1);
+
+            for e = 1:nEpochs
+                thisEpoch = epochs(e,1):epochs(e,2);
+
+                goodBins = binocc(thisEpoch);
+                goodBins(isnan(goodBins)) = [];
+
+                sigCurve(neurons(thisNeuron),goodBins) = true;
+            end
+
+        end
+    end
+
+%% Plot
     if plotit
         thisNeuron = 1;
         while keepgoing
              
         %Smooth.
-        curve(thisNeuron,:) = nanmean(raster(:,:,thisNeuron));
-        smoothfit = fit([1:nBins]',curve(thisNeuron,:)','smoothingspline');
-        smoothCurve(thisNeuron,:) = feval(smoothfit,bins)';        
+        curve(neurons(thisNeuron),:) = nanmean(raster(:,:,thisNeuron));
+        smoothfit = fit([1:nBins]',curve(neurons(thisNeuron),:)','smoothingspline');
+        smoothCurve(neurons(thisNeuron),:) = feval(smoothfit,bins)';        
 
         f = figure(49); 
         f.Position = [550 180 360 565];
         subplot(2,1,1); 
-            imagesc(raster(:,:,thisNeuron)); 
+            imagesc(raster(:,:,neurons(thisNeuron))); 
             colormap hot; caxis([0 1.2]);
             set(gca,'xtick',[],'ytick',[1,max(trials)],'linewidth',4,...
                 'fontsize',12);
+            title(['Neuron #',num2str(neurons(thisNeuron))],'fontsize',15);
+
             ylabel('Laps','fontsize',15); 
         subplot(2,1,2); 
-            plot(bins,smoothCurve(thisNeuron,:),'color',[.58 .44 .86],'linewidth',5);
+            plot(bins,smoothCurve(neurons(thisNeuron),:),'color',[.58 .44 .86],'linewidth',5);
             xlabel('Linearized Distance','fontsize',15);
             ylabel('Rate','fontsize',15);
             yLims = get(gca,'ylim');
@@ -122,11 +151,18 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = LinearizedPF_raster(md,var
 
         [keepgoing,thisNeuron] = scroll(thisNeuron,nNeurons,f);
         end
+    else
+        for thisNeuron=1:nNeurons
+            %Smooth.
+            curve(neurons(thisNeuron),:) = nanmean(raster(:,:,neurons(thisNeuron)));
+            smoothfit = fit([1:nBins]',curve(neurons(thisNeuron),:)','smoothingspline');
+            smoothCurve(neurons(thisNeuron),:) = feval(smoothfit,bins)';        
+        end
     end
     
     cd(md.Location);
     if saveBool
-        save('SpatialTraces.mat','raster','curve','smoothCurve');
+        save('SpatialTraces.mat','raster','curve','smoothCurve','sigCurve');
     end
     
     cd(currDir);
