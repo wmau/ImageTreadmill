@@ -1,4 +1,5 @@
-function [raster,smoothCurve,curve,X,binocc,parsed] = LinearizedPF_raster(md,varargin)
+function [raster,smoothCurve,curve,X,binocc,parsed] = ...
+    LinearizedPF_raster(md,varargin)
 %
 %
 %
@@ -20,6 +21,7 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = LinearizedPF_raster(md,var
     nBins = p.Results.nBins; 
     neurons = p.Results.neurons; 
     saveBool = p.Results.saveBool;
+    calcSig = p.Results.calcSig;
     
     if isempty(neurons)
         neurons = getPlaceCells(md,.01);
@@ -127,7 +129,7 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = LinearizedPF_raster(md,var
         while keepgoing
              
         %Smooth.
-        curve(neurons(thisNeuron),:) = nanmean(raster(:,:,thisNeuron));
+        curve(neurons(thisNeuron),:) = nanmean(raster(:,:,neurons(thisNeuron)));
         smoothfit = fit([1:nBins]',curve(neurons(thisNeuron),:)','smoothingspline');
         smoothCurve(neurons(thisNeuron),:) = feval(smoothfit,bins)';        
 

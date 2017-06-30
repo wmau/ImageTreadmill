@@ -1,4 +1,4 @@
-function skew = TrialSkewness(raster)
+function skew = TrialSkewness(raster,sigCurve)
 %
 %
 %   Rudimentary way to quantify when in the session a time cell comes
@@ -7,7 +7,7 @@ function skew = TrialSkewness(raster)
 
 %%
     nLaps = size(raster,1);
-    [trials,~] = find(raster>0); 
+    [trials,~] = find(raster(:,sigCurve)>0); 
     
     meanTrial = mean(unique(trials)); 
     skew = meanTrial/nLaps;
