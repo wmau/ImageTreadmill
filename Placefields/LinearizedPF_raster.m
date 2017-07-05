@@ -48,7 +48,8 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = ...
     end
     
        %Load aligned position data. 
-    load(fullfile(pwd,'Pos_align.mat'),'x_adj_cm','y_adj_cm','speed','time_interp','PSAbool');
+    load(fullfile(pwd,'Pos_align.mat'),'x_adj_cm','y_adj_cm','speed',...
+        'time_interp','PSAbool','DFDTtrace');
     x=x_adj_cm; y=y_adj_cm; PSAbool=logical(PSAbool); clear x_adj_cm y_adj_cm;
     [~,nFrames] = size(PSAbool); 
     
@@ -76,11 +77,13 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = ...
     binocc = nan(size(X));
     parsed = postrials_treadmill(md);
     trials = parsed.summary(:,1)'; 
+    nTrials = max(trials);
     
     keepgoing = true;
     bins = [1:0.001:nBins]';
-    raster = zeros(max(trials),nBins,nNeuronsTotal);
-    [curve,sigCurve] = deal(zeros(nNeuronsTotal,nBins));
+    [F,raster] = deal(zeros(nTrials,nBins,nNeuronsTotal));
+    curve = zeros(nNeuronsTotal,nBins);
+    sigCurve = false(nNeuronsTotal,nBins); 
     smoothCurve = zeros(nNeuronsTotal,size(bins,1)); 
     
     [~,edges] = histcounts(X,nBins);
@@ -97,6 +100,10 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = ...
                 histcounts(X(parsed.trial==thisTrial),edges);
             binned = histcounts(spkpos,edges);
 
+            binOccThisTrial = binocc(parsed.trial==thisTrial);
+            traceThisTrial = DFDTtrace(neurons(thisNeuron),parsed.trial==thisTrial); 
+            F(thisTrial,:,neurons(thisNeuron)) = accumarray(binOccThisTrial',...
+                traceThisTrial',[nBins,1],@mean);
             raster(thisTrial,:,neurons(thisNeuron)) = binned./occ;
         end
         
@@ -143,15 +150,21 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = ...
             title(['Neuron #',num2str(neurons(thisNeuron))],'fontsize',15);
 
             ylabel('Laps','fontsize',15); 
-        subplot(2,1,2); 
+        subplot(2,1,2); hold on;          
+            yyaxis right;
+            plot(1:nBins,F(:,:,neurons(thisNeuron)),'-',...
+                'color',[.7 .7 .7 .2],'linewidth',2);
+            set(gca,'ycolor',[.7 .7 .7],'linewidth',4,'tickdir','out','fontsize',12);
+            yyaxis left;
             plot(bins,smoothCurve(neurons(thisNeuron),:),'color',[.58 .44 .86],'linewidth',5);
             xlabel('Linearized Distance','fontsize',15);
             ylabel('Rate','fontsize',15);
             yLims = get(gca,'ylim');
             ylim([0 yLims(2)]);
-            set(gca,'linewidth',4,'tickdir','out','fontsize',12);
+            set(gca,'ycolor',[.58 .44 .86]);
 
         [keepgoing,thisNeuron] = scroll(thisNeuron,nNeurons,f);
+        close all;
         end
     else
         for thisNeuron=1:nNeurons
@@ -164,7 +177,7 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = ...
     
     cd(md.Location);
     if saveBool
-        save('SpatialTraces.mat','raster','curve','smoothCurve','sigCurve');
+        save('SpatialTraces.mat','raster','curve','smoothCurve','sigCurve','nBins');
     end
     
     cd(currDir);
