@@ -1,16 +1,24 @@
 clear;
 loadMD;
 
-B = 500;
+cellType = 'placecells';
+rasterType = 'place';
+
+switch cellType
+    case 'timecells'
+        c = [0 .5 .5];
+    case 'placecells'
+        c = [.58 .44 .86];
+end
+
+B = 100;
 fulldataset = MD(292:309); 
 
 nSessions = length(fulldataset); 
-[shuffleExample,peaks,Tskewness,Pskewness] = deal(cell(nSessions,1));
+[shuffleExample,peaks,skewness] = deal(cell(nSessions,1));
 for s=1:nSessions
-    Tskewness{s} = getAllSkewnesses(fulldataset(s),'cellType','timecells',...
-        'rasterType','time'); 
-    Pskewness{s} = getAllSkewnesses(fulldataset(s),'cellType','placecells',...
-        'rasterType','place'); 
+    skewness{s} = getAllSkewnesses(fulldataset(s),'cellType',cellType,...
+        'rasterType',rasterType); 
     %shuffleExample{s} = getAllSkewnesses(fulldataset(s),'shuffle',true);
     [~,peaks{s}] = getTimePeak(fulldataset(s));
     
@@ -18,25 +26,31 @@ for s=1:nSessions
     %load('TemporalInfo.mat','MI');
     %ti{s} = MI;
 end
-TSKEWS = cell2mat(Tskewness);
-PSKEWS = cell2mat(Pskewness);
+SKEWS = cell2mat(skewness);
 %SHUFFLE = cell2mat(shuffleExample);
-scatter(TSKEWS,PSKEWS,'.');
+%scatter(SKEWS,PSKEWS,'.');
 
-h = histogram(TSKEWS,'edgecolor','none','normalization',...
-    'probability','binwidth',0.02);
+figure; hold on;
+h = histogram(SKEWS,'edgecolor','none','normalization',...
+    'probability','binwidth',0.02,'facecolor',c);
 set(gca,'tickdir','out','linewidth',4,'fontsize',12);
 xlabel('Within-session trial bias','fontsize',15);
-ylabel('Proportion','fontsize',15);
 
 shuffle = cell(nSessions,1);
 shuffleSD = nan(B,1);
 for i=1:B
     for s=1:nSessions
         shuffle{s} = getAllSkewnesses(fulldataset(s),'shuffle',true,...
-            'cellType','timecells','rasterType','time');
+            'cellType',cellType,'rasterType',rasterType);
     end
     
+    if i==1
+        histogram(cell2mat(shuffle),'binwidth',0.02,'facecolor',[.7 .7 .7],...
+            'edgecolor','none','normalization','probability');
+        ylabel(['Proportion of ',rasterType,' cells'],'fontsize',15); 
+        
+        keyboard;
+    end
     shuffleSD(i) = nanstd(cell2mat(shuffle));
 end
 SD = nanstd(PSKEWS);

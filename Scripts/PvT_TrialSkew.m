@@ -3,10 +3,6 @@
 % treadmill and on the track are independent. Do this by correlating "trial
 % skewness" of treadmill vs track trial onset. 
 %
-% Haven't decided whether it's more legit to use time cells or dual
-% time/place cells. To switch between the two, go into getAllSkewnesses and
-% change the line that reads "neurons =
-% AcquireTimePlaceCells(md,'timecells')". 
 
 %% Code.
 clear;

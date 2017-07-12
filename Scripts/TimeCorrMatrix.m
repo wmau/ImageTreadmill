@@ -17,7 +17,7 @@ loadMD;
 fulldataset = [MD(292:299) MD(300:303) MD(305:308)];   
 
 %Parameters to change.
-codingCells = 'placecells';      %Options: timecells or placecells
+codingCells = 'timecells';      %Options: timecells or placecells
 z = true;                       
 similarityMetric = 'corr';      %Options: corr or innerproduct.
 
@@ -146,11 +146,13 @@ xlabel('Lag','fontsize',15);
 ylabel(yLabel,'fontsize',15); 
 xlim([-.5 matSize+.5]);
 
+%% ANOVA by trials. 
 % X = cell2mat(diags');
 % lags = [];
 % for i=1:length(diags)
 %     lags = [lags (i-1).*ones(1,length(diags{i}))];
 % end
+%[~,~,stats] = anovan(X,{lags},'display','off');
 
 
 %% ANOVA by days, all cell entries

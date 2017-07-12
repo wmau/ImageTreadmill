@@ -85,7 +85,8 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(base,comp,Ts,plotit)
                 imagesc([0:Ts(i)],[1:nTimeCells],normtilemat{1}); hold on;
                 plot(sortedPeaks(:,i),[1:nTimeCells],'color',[0 .5 .5],...
                     'linewidth',5);
-                colormap gray; xlabel('Time [s]'); title(dateTitles{i});
+                set(gca,'ytick',[1 nTimeCells]);
+                colormap gray; xlabel('Time (s)'); title(dateTitles{i});
             end
         else %Almost the same as above. 
             %Preallocate. 
@@ -114,12 +115,13 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(base,comp,Ts,plotit)
                 imagesc([0:Ts(i)],[1:nTimeCells],normtilemat{i}); hold on;
                 plot(sortedPeaks(:,1),[1:nTimeCells],'color',[0 .5 .5],...
                     'linestyle',':','linewidth',6);
+                set(gca,'ytick',[]);
                 colormap gray; xlabel('Time [s]'); title(dateTitles{i});
             end
         end
         
         %Label y axis on first plot. 
-        if dateOrder(i)==1 && plotit, ylabel('Neurons'); end
+        if dateOrder(i)==1 && plotit, ylabel('Cell #'); end
     end
          
     if plotit

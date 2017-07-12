@@ -66,7 +66,7 @@ function TrialBreakdownFluor_place(md,neurons,nBlocks,varargin)
             end
             
             %Plot mean of that trial block. 
-            plot(x,mean(F),'color','k','linewidth',3);
+            plot(x,mean(F),'color',[.58 .44 .86],'linewidth',3);
             title(['Trials ',num2str(span(1)),' - ',num2str(span(end))]); 
             set(gca,'tickdir','out','linewidth',4,'fontsize',12);
             

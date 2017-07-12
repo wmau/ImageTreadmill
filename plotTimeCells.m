@@ -186,7 +186,7 @@ function plotTimeCells(md,varargin)
                         axis tight;
                         yLims = get(gca,'ylim');
                         ylim([0, yLims(2)*(1+sf)]);
-                        set(gca,'ycolor',[0 .5 .5]);
+                        set(gca,'ycolor',[0 .5 .5],'fontsize',15);
                     hold off;       
                     title(['I = ',num2str(round(MI(TimeCells(thisNeuron)),3)), ' bits']);
 

@@ -184,7 +184,7 @@ function [raster,smoothCurve,curve,X,binocc,parsed] = ...
     
             ylabel('Laps','fontsize',15); 
         subplot(2,1,2); hold on;                  
-            yyaxis left;
+            if plotTrials, yyaxis left; end
             %Plot tuning curve. 
             plot(bins,smoothCurve(neurons(thisNeuron),:),...
                 'color',[.58 .44 .86],'linewidth',5);
