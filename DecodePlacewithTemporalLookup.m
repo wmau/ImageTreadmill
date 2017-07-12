@@ -1,4 +1,4 @@
-function [DS] = DecodePlaceWithTemporalLookup(md,varargin)
+function [DS,sig] = DecodePlaceWithTemporalLookup(md,varargin)
 %
 %
 %
@@ -11,13 +11,18 @@ function [DS] = DecodePlaceWithTemporalLookup(md,varargin)
     p.addRequired('md');
     load(fullfile(path,'FinalOutput.mat'),'NumNeurons');
     p.addParameter('neurons',1:NumNeurons,@(x) isnumeric(x)); 
+    p.addParameter('neuralActivity','transient',@(x) ischar(x)); 
     p.addParameter('plotit',true,@(x) islogical(x)); 
+    p.addParameter('noTreadmill',true,@(x) islogical(x));
     
     p.parse(md,varargin{:});
     
     neurons = p.Results.neurons;
     if size(neurons,1) > size(neurons,2), neurons = neurons'; end
+    neuralActivity = p.Results.neuralActivity; 
     plotit = p.Results.plotit;
+    noTreadmill = p.Results.noTreadmill;
+    
     B = 100;
     purple = [.58 .44 .86];
     teal = [0 .5 .5];
@@ -34,7 +39,14 @@ function [DS] = DecodePlaceWithTemporalLookup(md,varargin)
     nSpatialBins = max(X); 
 %%
     %Load fluorescence data. 
-    load(fullfile(path,'Pos_align.mat'),'RawTrace'); 
+    switch neuralActivity
+        case 'trace'
+            load(fullfile(path,'Pos_align.mat'),'RawTrace'); 
+            raster = RawTrace;
+        case 'transient'
+            load(fullfile(path,'Pos_align.mat'),'PSAbool'); 
+            raster = PSAbool;
+    end
     
     %Preallocate.
     position = nan(nTrials,longestTrialDuration); 
@@ -50,7 +62,7 @@ function [DS] = DecodePlaceWithTemporalLookup(md,varargin)
         position(r,1:dur) = X(thisTrial);
         
         for n=1:nNeurons
-            trace(r,1:dur,neurons(n)) = RawTrace(neurons(n),thisTrial);
+            trace(r,1:dur,neurons(n)) = raster(neurons(n),thisTrial);
         end
     end
     
@@ -64,20 +76,45 @@ function [DS] = DecodePlaceWithTemporalLookup(md,varargin)
     %Preallocate and some parameters. 
     pLapSample = 0.5;                       %Proportion of sampled laps during bootstrapping.
     nLapSample = round(pLapSample*nTrials); %Number of laps sampled during bootstrapping.
-    x = 1:nSpatialBins;                     %Spatial bins for plotting. 
-    [decodedCurve,observedCurve] = deal(nan(NumNeurons,nSpatialBins));  
-    [dIterations,oIterations] = deal(nan(B,nSpatialBins,NumNeurons)); 
+    
+    if noTreadmill
+        x = 22:nSpatialBins;
+    else
+        x = 1:nSpatialBins;                     %Spatial bins for plotting. 
+    end
+    
+    if noTreadmill
+        [decodedCurve,observedCurve] = deal(nan(NumNeurons,nSpatialBins-22+1));
+        [dIterations,oIterations] = deal(nan(B,nSpatialBins-22+1,NumNeurons));
+    else
+        [decodedCurve,observedCurve] = deal(nan(NumNeurons,nSpatialBins));  
+        [dIterations,oIterations] = deal(nan(B,nSpatialBins,NumNeurons));
+    end
+    sig = nan(NumNeurons,1); 
     keepgoing = true;   
     n = 1;
     
     if plotit && nNeurons > 0
         while keepgoing
             nn = neurons(n);
-            f = figure('Position',[680 560 530 430]); hold on;
+            f = figure('Position',[680 560 265 420]); hold on;
             
             %Make the curve. 
-            [decodedCurve(nn,:),observedCurve(nn,:),dIterations(:,:,nn),oIterations(:,:,nn)] = ...
+            [dC,oC,dI,oI,sig(nn)] = ...
                 MakeCurve(position,lookup,trace,nn,nLapSample,x,B);
+            
+            if noTreadmill
+                decodedCurve(nn,:) = dC(22:end);
+                observedCurve(nn,:) = oC(22:end);
+                dIterations(:,:,nn) = dI(:,22:end); 
+                oIterations(:,:,nn) = oI(:,22:end); 
+            else 
+                decodedCurve(nn,:) = dC;
+                observedCurve(nn,:) = oC;
+                dIterations(nn,:) = dI;
+                oIterations(nn,:) = oI; 
+            end
+
             
             %Sort the matrices for making CIs. 
             sortedDecode = sort(dIterations(:,:,nn)); 
@@ -98,10 +135,19 @@ function [DS] = DecodePlaceWithTemporalLookup(md,varargin)
             h(2).Color = purple; 
             p(2).FaceColor = purple;
             [h.LineWidth] = deal(2); 
-            set(gca,'tickdir','out','fontsize',12,'linewidth',4,'xtick',[1 80],...
-                'xticklabel',[0 163]);
+            if noTreadmill
+                set(gca,'xtick',[22 80],'xticklabel',[0 140]);
+            else
+                set(gca,'xtick',[1 80],'xticklabel',[0 200]); 
+            end
+            set(gca,'tickdir','out','fontsize',12,'linewidth',4);
             xlabel('Position (cm)','fontsize',15); 
-            ylabel('Fluorescence (A.U.)','fontsize',15);
+            switch neuralActivity
+                case 'trace'
+                    ylabel('Fluorescence (A.U.)','fontsize',15);
+                case 'transient'
+                    ylabel('Ca^{2+} transient rate','fontsize',15);
+            end
             title(['Neuron #',num2str(nn)],'fontsize',15); 
 
             [keepgoing,n] = scroll(n,nNeurons,f); 
@@ -109,8 +155,15 @@ function [DS] = DecodePlaceWithTemporalLookup(md,varargin)
         end
     elseif nNeurons > 0
         for nn=neurons
-            [decodedCurve(nn,:),observedCurve(nn,:)] = ...
-                MakeCurve(position,lookup,trace,nn,nLapSample,x,B);
+            [dC,oC,~,~,sig(nn)] = MakeCurve(position,lookup,trace,nn,nLapSample,x,B);
+            
+            if noTreadmill
+                decodedCurve(nn,:) = dC(22:end);
+                observedCurve(nn,:) = oC(22:end);
+            else 
+                decodedCurve(nn,:) = dC;
+                observedCurve(nn,:) = oC;
+            end
         end
     end
 
@@ -143,7 +196,7 @@ function [DS] = DecodePlaceWithTemporalLookup(md,varargin)
 
 end
 
-function [decodedCurve,observedCurve,dIterations,oIterations] = ....
+function [decodedCurve,observedCurve,dIterations,oIterations,sig] = ....
     MakeCurve(position,lookup,trace,neuron,nLaps,x,B)
 
     nSpatialBins = max(position(:));
@@ -171,9 +224,13 @@ function [decodedCurve,observedCurve,dIterations,oIterations] = ....
         good = ~isnan(tempPos); 
 
         %Make empirical tuning curve. 
-        oIterations(i,:) = accumarray(tempPos(good),tempTrace(good),[],@nanmean); 
+        oIterations(i,:) = accumarray(tempPos(good),tempTrace(good),[nSpatialBins 1],@nanmean); 
     end
     
     decodedCurve = nanmean(dIterations); 
     observedCurve = nanmean(oIterations); 
+    
+    temp = repmat(observedCurve,[B,1]); 
+    p = sum(temp<dIterations)./B; 
+    sig = any(p<0.05);
 end

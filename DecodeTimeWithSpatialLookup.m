@@ -1,4 +1,4 @@
-function [DS] = DecodeTimeWithSpatialLookup(md,varargin)
+function [DS,sig] = DecodeTimeWithSpatialLookup(md,varargin)
 %[DS] = DecodeTimeWithSpatialLookup(md,varargin)
 %
 %   
@@ -11,13 +11,16 @@ function [DS] = DecodeTimeWithSpatialLookup(md,varargin)
     p.addRequired('md'); 
     load(fullfile(path,'FinalOutput.mat'),'NumNeurons');
     p.addParameter('neurons',1:NumNeurons,@(x) isnumeric(x)); 
+    p.addParameter('neuralActivity','transient',@(x) ischar(x)); 
     p.addParameter('plotit',true,@(x) islogical(x));
     
     p.parse(md,varargin{:});
     
     neurons = p.Results.neurons;
     if size(neurons,1) > size(neurons,2), neurons = neurons'; end
+    neuralActivity = p.Results.neuralActivity;
     plotit = p.Results.plotit;
+    
     B = 100;
     purple = [.58 .44 .86];
     teal = [0 .5 .5];
@@ -50,8 +53,22 @@ function [DS] = DecodeTimeWithSpatialLookup(md,varargin)
     bin(good) = sub2ind(treadmillDims,xBin(good),yBin(good));
     
 %% Make lookup table.
-    load(fullfile(path,'TreadmillTraces.mat'),'RawTrdmll'); 
-    [~,nTimeBins,~] = size(RawTrdmll);
+    switch neuralActivity
+        case 'trace'
+            load(fullfile(path,'TreadmillTraces.mat'),'RawTrdmll');
+            raster = RawTrdmll;
+            [~,nTimeBins,~] = size(raster);
+        case 'transient'
+            load(fullfile(path,'Pos_align.mat'),'PSAbool');
+            nTimeBins = inds(1,2) - inds(1,1) + 1; 
+            raster = zeros(nRuns,nTimeBins,NumNeurons); 
+            
+            for nn=neurons
+                if ~isempty(nn)
+                    raster(:,:,nn) = buildRasterTrace(inds,PSAbool,nn);
+                end
+            end
+    end
     t = linspace(0,T,nTimeBins);
     
     %Get position in terms of spatial bin. 
@@ -64,7 +81,7 @@ function [DS] = DecodeTimeWithSpatialLookup(md,varargin)
     %Compute lookup table by taking the mean of fluorescence at that bin.
     lookup = nan(NumNeurons,nBins);           %NxT matrix containing lookup values. 
     for n=1:nNeurons
-        traces = RawTrdmll(:,:,neurons(n));
+        traces = raster(:,:,neurons(n));
         lookup(neurons(n),:) = accumarray(position(:),traces(:),[nBins,1],@mean)';
     end
     
@@ -73,6 +90,7 @@ function [DS] = DecodeTimeWithSpatialLookup(md,varargin)
     n = 1;
     [dIterations,oIterations] = deal(nan(B,nTimeBins,NumNeurons)); 
     [decodedCurve,observedCurve] = deal(nan(NumNeurons,nTimeBins));
+    sig = nan(NumNeurons,1); 
     pLapSample = 0.5;
     nLapSample = round(pLapSample*nRuns);
     
@@ -82,9 +100,10 @@ function [DS] = DecodeTimeWithSpatialLookup(md,varargin)
             nn = neurons(n);
             
             %Make decoded and observed curves. 
-            [decodedCurve(nn,:),observedCurve(nn,:),dIterations(:,:,nn),oIterations(:,:,nn)] = ....
-                MakeCurve(position,lookup,RawTrdmll,nn,nLapSample,B);
-            
+            [decodedCurve(nn,:),observedCurve(nn,:),dIterations(:,:,nn),...
+                oIterations(:,:,nn),sig(nn)] = ....
+                MakeCurve(position,lookup,raster,nn,nLapSample,B);
+                  
             %Sort bootstrap samples for CI then take the mean. 
             sortedDecode = sort(dIterations(:,:,nn));
             sortedObserved = sort(oIterations(:,:,nn));
@@ -109,7 +128,12 @@ function [DS] = DecodeTimeWithSpatialLookup(md,varargin)
             h(2).LineWidth = 2; 
             set(gca,'tickdir','out','fontsize',12,'linewidth',4);
             xlabel('Time (s)','fontsize',15);
-            ylabel('Fluorescence (A.U.)','fontsize',15);
+            switch neuralActivity
+                case 'trace'
+                    ylabel('Fluorescence (A.U.)','fontsize',15);
+                case 'transient'
+                    ylabel('Ca^{2+} transient rate','fontsize',15); 
+            end
             title(['Neuron #',num2str(neurons(n))],'fontsize',15);
 
             [keepgoing,n] = scroll(n,nNeurons,f); 
@@ -118,8 +142,9 @@ function [DS] = DecodeTimeWithSpatialLookup(md,varargin)
         end
     elseif nNeurons > 0
         for nn=neurons
-            [decodedCurve(nn,:),observedCurve(nn,:),dIterations(:,:,nn),oIterations(:,:,nn)] = ....
-                MakeCurve(position,lookup,RawTrdmll,nn,nLapSample,B);
+            [decodedCurve(nn,:),observedCurve(nn,:),dIterations(:,:,nn),...
+                oIterations(:,:,nn),sig(nn)] = ....
+                MakeCurve(position,lookup,raster,nn,nLapSample,B);
         end
     end
     
@@ -147,12 +172,13 @@ function [DS] = DecodeTimeWithSpatialLookup(md,varargin)
 
             %Find difference. 
             DS(nn) = trapz(t,abs(dNorm(nn,:)-oNorm(nn,:)));    
+            
         end
     end
     
 end
 
-function [decodedCurve,observedCurve,dIterations,oIterations] = ....
+function [decodedCurve,observedCurve,dIterations,oIterations,sig] = ....
     MakeCurve(position,lookup,traces,neuron,nLapSample,B)
 %% Make the decoded and observed curve based on a lookup table. 
 
@@ -167,10 +193,8 @@ function [decodedCurve,observedCurve,dIterations,oIterations] = ....
         laps = randsample(1:nRuns,nLapSample);
 
         %Extract fluorescence values based on position on the treadmil.
-        try
         predictedTraces = reshape(lookup(neuron,position(laps,:)),...
             [nLapSample,nTimeBins]);
-        catch, keyboard; end
         
         %Tuning curve by taking the mean of predicted traces per lap. 
         dIterations(i,:) = mean(predictedTraces);
@@ -181,6 +205,10 @@ function [decodedCurve,observedCurve,dIterations,oIterations] = ....
     end
     
     %Take the mean over all the iterations of tuning curves. 
-    decodedCurve = mean(dIterations)';
-    observedCurve = mean(oIterations)';
+    decodedCurve = mean(dIterations);
+    observedCurve = mean(oIterations);
+    
+    temp = repmat(observedCurve,[B,1]); 
+    p = sum(temp<dIterations)./B; 
+    sig = any(p<0.05);
 end
