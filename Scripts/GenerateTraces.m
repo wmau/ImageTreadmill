@@ -22,6 +22,7 @@ axis on; set(gca,'ticklength',[0 0]);
 
 movie = 'BPDFF.h5';
 % Get movie information. 
+Set_T_Params(movie);
 [Xdim,Ydim,NumFrames] = Get_T_Params('Xdim','Ydim','NumFrames');
 
 % step 1 build up a maximum projection, using every 5th frame
