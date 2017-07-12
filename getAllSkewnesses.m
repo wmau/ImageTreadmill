@@ -26,7 +26,11 @@ function skewness = getAllSkewnesses(md,varargin)
     neurons = AcquireTimePlaceCells(md,cellType)';
     switch rasterType 
         case 'time'
+            load('TimeCells.mat','curves');
             inds = TrimTrdmllInds(TodayTreadmillLog,T);
+            
+            t_binned = linspace(0,10,size(curves.sig{1},2));
+            t_unbinned = linspace(0,10,inds(1,2)-inds(1,1));
               
             for thisNeuron = neurons
                 raster = buildRasterTrace(inds,PSAbool,thisNeuron);
@@ -34,10 +38,18 @@ function skewness = getAllSkewnesses(md,varargin)
                 if shuffle
                     raster = raster(randperm(size(raster,1)),:);
                 end
-                skewness(thisNeuron) = TrialSkewness(raster);
+                
+                sigCurve = false(1,size(raster,2));
+                sigInds = find(curves.sig{thisNeuron}); 
+                a = t_binned(sigInds(1));
+                b = t_binned(sigInds(end)); 
+                i = findclosest(t_unbinned,a); 
+                j = findclosest(t_unbinned,b);
+                sigCurve(i:j) = true; 
+                skewness(thisNeuron) = TrialSkewness(raster,sigCurve);
             end
         case 'place'
-            load('SpatialTraces','raster'); 
+            load('SpatialTraces','raster','sigCurve'); 
             rasters = raster; 
    
             n = 1;
@@ -47,7 +59,7 @@ function skewness = getAllSkewnesses(md,varargin)
                 if shuffle 
                     raster = raster(randperm(size(raster,1)),:);
                 end
-                skewness(thisNeuron) = TrialSkewness(raster);
+                skewness(thisNeuron) = TrialSkewness(raster,sigCurve(thisNeuron,:));
                 n = n+1;
             end
     end
