@@ -20,7 +20,14 @@ fulldataset = [MD(292:299) MD(300:303) MD(305:308)];
 codingCells = 'placecells';      %Options: timecells or placecells
 z = true;                       
 similarityMetric = 'corr';      %Options: corr or innerproduct.
-c = [0 .5 .5];
+
+switch codingCells
+    case 'timecells'
+        c = [0 .5 .5];
+    case 'placecells'
+        c = [.58 .44 .86];
+end
+        
 
 switch similarityMetric 
     case 'corr'
@@ -139,11 +146,26 @@ xlabel('Lag','fontsize',15);
 ylabel(yLabel,'fontsize',15); 
 xlim([-.5 matSize+.5]);
 
-X = cell2mat(diags');
+% X = cell2mat(diags');
+% lags = [];
+% for i=1:length(diags)
+%     lags = [lags (i-1).*ones(1,length(diags{i}))];
+% end
+
+
+%% ANOVA by days, all cell entries
+X = [];
 lags = [];
-for i=1:length(diags)
-    lags = [lags (i-1).*ones(1,length(diags{i}))];
+for a=1:nAnimals
+    [m,sem,diags] = collapseByLag(dayR{a});
+    X = [X cell2mat(diags')];
+    
+    for i=1:length(diags)
+        lags = [lags (i-1).*ones(1,length(diags{i}))];
+    end
+    
 end
+
 [~,~,stats] = anovan(X,{lags},'display','off');
 figure;
-c = multcompare(stats);
+comp = multcompare(stats);
