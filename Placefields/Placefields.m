@@ -42,7 +42,7 @@ function Placefields(MD,varargin)
     ip = inputParser;
     ip.addRequired('MD',@(x) isstruct(x)); 
     ip.addParameter('exclude_frames',[],@(x) isnumeric(x)); 
-    ip.addParameter('cmperbin',1,@(x) isscalar(x)); 
+    ip.addParameter('cmperbin',2.5,@(x) isscalar(x)); 
     ip.addParameter('minspeed',3,@(x) isscalar(x)); 
     ip.addParameter('B',1000,@(x) isscalar(x));
     ip.addParameter('aligned',true,@(x) islogical(x));
@@ -156,6 +156,7 @@ function Placefields(MD,varargin)
     end
     p.stop; 
     
+    cd(MD.Location);
     save(saveName,'OccMap','RunOccMap','TCounts','TMap_gauss',...
         'TMap_unsmoothed','minspeed','isrunning','cmperbin','exclude_frames',...
         'xEdges','yEdges','xBin','yBin','pval'); 
