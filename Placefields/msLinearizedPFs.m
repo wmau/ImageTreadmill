@@ -1,4 +1,4 @@
-function msLinearizedPFs(base,comp)
+function msLinearizedPFs(base,comp,varargin)
 %multiLinearizedPFs(mapMD,base,comp)
 %
 %   Plots the place fields of place cells in 'base' session then the
@@ -15,11 +15,18 @@ function msLinearizedPFs(base,comp)
 %
 
 %%  Preliminary. 
+    p = inputParser;
+    p.addRequired('base',@(x) isstruct(x));
+    p.addRequired('comp',@(x) isstruct(x));
+    p.addParameter('noTreadmill',true,@(x) islogical(x));
+    
+    p.parse(base,comp,varargin{:});
+    
+    noTreadmill = p.Results.noTreadmill;
     
     %Compile session data. 
     sessions = [base,comp];
     dates = {sessions.Date};
-    sessionNums = [sessions.Session];
     nSessions = length(sessions); 
     
     mapMD = getMapMD(sessions);
@@ -48,7 +55,7 @@ function msLinearizedPFs(base,comp)
     nNeurons = size(matches,1);
     
 %% Plot. 
-    f = figure('Position',[170 260 1280 460]); 
+    f = figure('Position',[170 260 260*nSessions 460]); 
     for s=1:nSessions
         neurons = matches(:,s);
         nNeurons = length(neurons);
@@ -74,7 +81,12 @@ function msLinearizedPFs(base,comp)
             subplot(1,nSessions,dateOrder(s)); 
             imagesc(plotme); colormap hot; hold on;
             plot(inds(order),1:nNeurons,'color',[.58 .44 .86],'linewidth',5);
-            xlabel('Distance'); title(dateTitles{s}); axis tight; 
+            set(gca,'ytick',[1,nNeurons]); axis tight;
+            if noTreadmill
+                xlim([22 80]);
+                set(gca,'xtick',[22 80],'xticklabel',[0 140]);
+            end
+            xlabel('Track position (cm)'); title(dateTitles{s}); 
             
         else
             neurons = neurons(order);
@@ -97,6 +109,11 @@ function msLinearizedPFs(base,comp)
             imagesc(plotme); colormap hot; hold on;
             plot(inds(order),1:nNeurons,'color',[.58 .44 .86],'linewidth',5,...
                 'linestyle',':');
+            set(gca,'ytick',[1,nNeurons]); axis tight;
+            if noTreadmill
+                xlim([22 80]);
+                set(gca,'xtick',[22 80],'xticklabel',[0 140]);
+            end
             xlabel('Distance'); title(dateTitles{s});
         end
         

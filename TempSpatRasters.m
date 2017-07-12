@@ -1,9 +1,18 @@
-function TempSpatRasters(md,neurons)
+function TempSpatRasters(md,neurons,varargin)
 %
 %
 %
 
 %%
+    p = inputParser;
+    p.addRequired('md',@(x) isstruct(x));
+    p.addRequired('neurons',@(x) isnumeric(x));
+    p.addParameter('noTreadmill',true,@(x) islogical(x));
+    
+    p.parse(md,neurons,varargin{:});
+    
+    noTreadmill = p.Results.noTreadmill;
+    
     path = md.Location;
     cd(path); 
     
@@ -67,6 +76,8 @@ function TempSpatRasters(md,neurons)
         set(gca,'xtick',[],'ytick',[1,sum(complete)],'linewidth',4,...
             'fontsize',12);
         
+        if noTreadmill, xlim([22 80]); end
+        
         %Track tuning curve. 
         subplot(2,2,4);
         plot(1:length(placeCurve(neurons(thisNeuron),:)),...
@@ -76,8 +87,13 @@ function TempSpatRasters(md,neurons)
         yLims = get(gca,'ylim');
         ylim([0 yLims(2)]);
         set(gca,'linewidth',4','tickdir','out','fontsize',12,...
-            'xtick',[1,length(placeCurve)],'xticklabel',[0 163]);
+            'xtick',[1,length(placeCurve)],'xticklabel',[0 200]);
         axis tight; 
+        
+        if noTreadmill
+            xlim([22000 80000]);
+            set(gca,'xtick',[22000 80000],'xticklabel',[0 140]);
+        end
            
         [keepgoing,thisNeuron] = scroll(thisNeuron,nNeurons,f); 
         close all;

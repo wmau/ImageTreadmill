@@ -11,12 +11,14 @@ function msLinearizedPF_raster(mds,varargin)
     p.addParameter('minspeed',3,@(x) isscalar(x));
     p.addParameter('nBins',80,@(x) isscalar(x)); 
     p.addParameter('neurons',[],@(x) isnumeric(x)); 
+    p.addParameter('noTreadmill',true,@(x) islogical(x)); 
     
     p.parse(mds,varargin{:}); 
     
     minspeed = p.Results.minspeed; 
     nBins = p.Results.nBins; 
     neurons = p.Results.neurons; 
+    noTreadmill = p.Results.noTreadmill;
     
     if isempty(neurons)
         neurons = getPlaceCells(mds(1),.01);
@@ -61,6 +63,11 @@ function msLinearizedPF_raster(mds,varargin)
                 title(['Neuron #',num2str(neuron)]);
                 colormap hot; caxis([0 1.2]);
                 set(gca,'xtick',[],'ytick',[1,size(rasters{thisSession},1)]);
+                
+                if noTreadmill
+                    xlim([22 max(bins)]);
+                    set(gca,'xtick',[22 max(bins)],'xticklabel',[0 140]); 
+                end
                 ylabel('Laps'); 
             end
 
@@ -70,9 +77,13 @@ function msLinearizedPF_raster(mds,varargin)
                 plot(bins,smoothCurve{thisSession}(neuron,:),...
                     'color',purple,'linewidth',2);              
                 ylabel('Rate');     
-                xlim([0 max(bins)]);
-                set(gca,'linewidth',4,'xtick',[0 max(bins)],'xticklabel',...
-                    {'0','163'});
+                set(gca,'linewidth',4); axis tight; 
+                if noTreadmill 
+                    xlim([22 max(bins)]);
+                    set(gca,'xtick',[22 max(bins)],'xticklabel',[0 140]);
+                else
+                    set(gca,'xtick',[0 max(bins)],'xticklabel',{'0','200'});
+                end
             end
                 
             %Label date or whether neuron was detected. Also label spatial
@@ -89,9 +100,7 @@ function msLinearizedPF_raster(mds,varargin)
         end
         
         %Normalize axes to max among all days. 
-        try
         curveYLims = [0, max([curveAX.YLim])];
-        catch, keyboard; end
         set(curveAX,'YLim',curveYLims);
         
         %Label statistics. 

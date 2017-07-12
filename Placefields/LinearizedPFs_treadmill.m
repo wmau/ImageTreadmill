@@ -22,12 +22,14 @@ function [rate,normRates,sortedRates,order,X,edges,peakInds] = ...
     p.addParameter('plotit',true,@(x) islogical(x));
     p.addParameter('PlaceCells',getPlaceCells(MD,.01),@(x) isnumeric(x));
     p.addParameter('order',false);
+    p.addParameter('noTreadmill',true,@(x) islogical(x)); 
     
     p.parse(MD,varargin{:});
     
     plotit = p.Results.plotit;
     PCs = p.Results.PlaceCells;
     order = p.Results.order; 
+    noTreadmill = p.Results.noTreadmill;
     
 %% Preliminary. 
     %Go to directory. 
@@ -108,11 +110,21 @@ function [rate,normRates,sortedRates,order,X,edges,peakInds] = ...
     rate = rate(PCs(order),:);
     
     if plotit
+        figure('Position',[680 370 290 600]);
         imagesc(1:size(sortedRates,2),1:length(PCs),sortedRates);
-        set(gca,'ydir','reverse'); axis tight;
+        set(gca,'ydir','reverse','ytick',[1,length(PCs)],...
+            'xtick',[1 size(sortedRates,2)],'fontsize',12,...
+            'xticklabel',[0 200]); 
+        axis tight;
+        
+        if noTreadmill
+            xlim([22 80]); 
+            set(gca,'xtick',[22 80],'xticklabel',[0 140]);
+        end
+        
         colormap hot;
-        xlabel('Linearized Distance');
-        ylabel('Neurons');
+        xlabel('Position (cm)','fontsize',15);
+        ylabel('Cell #','fontsize',15);
     end
     
     cd(currdir); 
