@@ -12,7 +12,7 @@ function neurons = AcquireTimePlaceCells(md,cellGet)
 %             PCs = getPlaceCells(md,.01);
 %             neurons = setdiff(neurons,PCs);
         case 'placecells'
-            neurons = getPlaceCells(md,PCcrit)';
+            neurons = getPlaceCells(md,PCcrit);
 %             TCs = getTimeCells(md); 
 %             neurons = setdiff(neurons,TCs);
         case 'dual',neurons = intersect(getTimeCells(md),...

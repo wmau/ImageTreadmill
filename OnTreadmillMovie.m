@@ -93,7 +93,7 @@ function OnTreadmillMovie(md,clim,movietype,varargin)
     tInc = 0;
     ifigure = figure('Position',[260 240 560 420]); 
     tfigure = figure('Position',[840 240 560 420]);
-    for thisEpoch=[3 19 22 23]
+    for thisEpoch=[22 24 27 31 35]
         if TodayTreadmillLog.complete(thisEpoch)
             sFrame = treadmillInds(thisEpoch,1) + FToffset;
             eFrame = treadmillInds(thisEpoch,2) + FToffset; 

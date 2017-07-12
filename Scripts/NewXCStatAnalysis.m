@@ -8,8 +8,8 @@ fulldataset = MD(292:309);
 animals = unique({fulldataset.Animal});
 nAnimals = length(animals);
 
-statType = 'si';
-cellType = 'Time';
+statType = 'ti';
+cellType = 'Place';
 
 saveBool = true;
 folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
@@ -89,6 +89,7 @@ r1 = log10(r1);
 r2 = log10(r2);
 newMean1 = log10(newMean1); 
 newMean2 = log10(newMean2);
+newMean2(~isfinite(newMean2)) = nan;
 R1 = log10(R1);
 R2 = log10(R2);
 

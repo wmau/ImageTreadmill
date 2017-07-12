@@ -6,7 +6,7 @@ function [r,pval,p] = corrInfo(mds,cellType)
 %%
     DATA = CompileMultiSessionData(mds,{'si','ti','timecells','placecells'}); 
     B = 1000;
-    corrtype = 'spearman';
+    corrtype = 'pearson';
     
     switch cellType
         case {'dual','either'}, c = 'k';
@@ -34,13 +34,15 @@ function [r,pval,p] = corrInfo(mds,cellType)
     SI = cell2mat(cellfun(@(x,y) x(y),DATA.si,neurons,'unif',0)');
     TI = cell2mat(cellfun(@(x,y) x(y),DATA.ti,neurons,'unif',0)');
     
-    h = scatter(SI,TI,20,c,'filled');
-    set(gca,'tickdir','out','fontsize',12);
+    h = scatter(SI,TI,50,c);
+    set(gca,'tickdir','out','fontsize',12,'linewidth',4);
     alpha(h,.5); 
+    lsline;
     xlabel('Norm. Spatial Info','fontsize',15);
     ylabel('Norm. Temporal Info','fontsize',15);
     
     [r,pval] = corr(SI,TI,'type',corrtype);
+    title(['R = ',num2str(r),', p = ',num2str(pval)],'fontsize',15);
 %     r = r^2
 %     pval 
     

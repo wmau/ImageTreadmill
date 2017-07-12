@@ -17,6 +17,7 @@ function [dual_pct,mean_rSampDual_pct] = rSampTimePlaceConjoint(md)
     nPCs = length(PCs); 
     
     load('FinalOutput.mat','NumNeurons');
+    N = length(union(TCs,PCs));
     
     rSampDual_pct = nan(B,1);
     for i=1:B
@@ -24,13 +25,13 @@ function [dual_pct,mean_rSampDual_pct] = rSampTimePlaceConjoint(md)
         rSampPlace = randsample(1:NumNeurons,nPCs); 
         rSampDual = intersect(rSampTime,rSampPlace);
         
-        rSampDual_pct(i) = length(rSampDual)/NumNeurons; 
+        rSampDual_pct(i) = length(rSampDual)/N; 
     end
     
-    dual_pct = length(dual)/NumNeurons;
+    dual_pct = length(dual)/N;
     p = sum(dual_pct > rSampDual_pct)/B;
    
-    mean_rSampDual_pct = median(rSampDual_pct); 
+    mean_rSampDual_pct = mean(rSampDual_pct); 
 %     figure;
 %     histogram(rSampDual_pct,'edgecolor','none');
 %     yLims = get(gca,'ylim');

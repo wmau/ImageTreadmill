@@ -29,3 +29,5 @@ set(gca,'linewidth',4,'tickdir','out','linewidth',4,'xtick',[1 2],'xticklabel',.
     {'Conjoint','Random'},'fontsize',12);
 xlim([.5 2.5]);
 ylabel('Proportion');
+
+p = ranksum(randPct,empPct)

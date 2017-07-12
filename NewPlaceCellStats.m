@@ -56,6 +56,7 @@ function [newPCStatS1,r1,stat1,newPCStatS2,r2,stat2] = NewPlaceCellStats(base,co
     
     %Randomly sample from the pool of all cells. 
     good = EliminateUncertainMatches([base,comp],1:n);
+    %good = intersect(good,S1PCs);
     r1 = randsample(stat1(good),1000,true);
     
 %     load('TemporalInfo.mat','MI');
@@ -97,6 +98,7 @@ function [newPCStatS1,r1,stat1,newPCStatS2,r2,stat2] = NewPlaceCellStats(base,co
     end
     
     good = EliminateUncertainMatches([comp,base],1:n);
+    %good = intersect(good,S2PCs);
     r2 = randsample(stat2(good),1000,true);
     newPCStatS2 = stat2(newPCsS2);
     

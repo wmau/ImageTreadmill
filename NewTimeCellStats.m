@@ -55,6 +55,7 @@ function [newTCStatS1,r1,stat1,newTCStatS2,r2,stat2] = NewTimeCellStats(base,com
     
     %Randomly sample from the pool of all cells. 
     good = EliminateUncertainMatches([base,comp],1:n);
+    %good = intersect(good,S1TCs);
     r1 = randsample(stat1(good),1000,true);
     
 %     load('SpatialInfo.mat','MI');
@@ -95,6 +96,7 @@ function [newTCStatS1,r1,stat1,newTCStatS2,r2,stat2] = NewTimeCellStats(base,com
     end
     
     good = EliminateUncertainMatches([comp,base],1:n);
+    %good = intersect(good,S2TCs);
     r2 = randsample(stat2(good),1000,true);
     newTCStatS2 = stat2(newTCsS2);
     

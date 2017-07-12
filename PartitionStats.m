@@ -139,7 +139,11 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
 %                         end
 %                 end
 %             else
-                stat(neurons) = zscore(stat(neurons));
+                stat(stat==0) = nan;
+                mu = nanmean(stat(neurons));
+                sigma = nanstd(stat(neurons)); 
+                stat(neurons) = bsxfun(@rdivide, bsxfun(@minus,stat(neurons),mu),sigma); 
+                %stat(neurons) = zscore(stat(neurons));
 %            end
                            
             switch stabilityType

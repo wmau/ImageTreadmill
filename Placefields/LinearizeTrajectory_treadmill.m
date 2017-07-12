@@ -109,14 +109,14 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             X(onstem) = maxfrontback + radii(onstem) .* -cosang(onstem); 
             X(X(onstem)<0) = 0;                     %Distance can't be less than 0.
             X(X(onstem)>stemlength) = stemlength;   %Distance on stem can't be longer than length of stem. 
-            
+%%            
         %No alternation.
         case {'left','right'}
             bounds = sections_treadmill(x,y,mazetype,0);
             [sect,x,y] = getsection_treadmill(x,y,bounds); 
 
             %Indices where mouse was on stem. 
-            onstem = sect==2 | sect==1 | sect==3; 
+            %onstem = sect==2 | sect==1 | sect==3; 
             
             %Find middle of the stem. 
             centroidx = mean([bounds.choice.x(1),bounds.base.x(2)]); 
@@ -128,7 +128,7 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             angs = mod(angs,2*pi);
             
             %Get the extreme radii on the stem. 
-            cosang = cos(angs);
+%            cosang = cos(angs);
 %             behind = onstem' & cosang>0;
 %             ahead = onstem' & cosang<0;
             maxfrontback = stemlength/2;
@@ -137,6 +137,7 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             %radius at each angle bin while the mouse is on not the stem. 
             sparseang = [angs'; 0; pi];
             sparserad = [radii'; maxfrontback; maxfrontback]; 
+            
             angdef = linspace(0,2*pi,nbins)';
             [n,angidx] = histc(sparseang,angdef);
             bad = ismember(angidx,find(n<8)); angidx(bad)=[]; sparserad(bad)=[];    %Get rid of low sampling. 
@@ -144,6 +145,10 @@ function X = LinearizeTrajectory_treadmill(x,y,mazetype)
             
             mazedef = smooth(meanrad,3,'moving'); 
 
+            switch mazetype
+                case 'right'
+                    angdef = linspace(2*pi,0,nbins)';
+            end
             [xdef,ydef] = pol2cart(angdef,mazedef);
             cumdist = [0; cumsum(hypot(diff(xdef),diff(ydef)))];
             cumdist = cumdist-min(cumdist(cumdist~=0));

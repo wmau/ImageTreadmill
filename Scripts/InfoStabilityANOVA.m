@@ -144,10 +144,10 @@ function [sM,usM] = ParseInfoStability(fulldataset,stabilityType,infoType,c)
             sExtent = length(stable{a}{s}); 
             usExtent = length(unstable{a}{s});
             
-            if sExtent > 3, sM{a}(s) = nanmean(stats.stable{a}(i:i+sExtent-1));
+            if sExtent > 0, sM{a}(s) = nanmean(stats.stable{a}(i:i+sExtent-1));
             else, sM{a}(s) = nan; end
                 
-            if usExtent > 3, usM{a}(s) = nanmean(stats.unstable{a}(j:j+usExtent-1)); 
+            if usExtent > 0, usM{a}(s) = nanmean(stats.unstable{a}(j:j+usExtent-1)); 
             else, usM{a}(s) = nan; end
             
             i = i+sExtent;

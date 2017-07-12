@@ -1,4 +1,4 @@
-function PlaceCellTopology(md)
+function [d,pd] = PlaceCellTopology(md)
 %
 %
 %
@@ -29,9 +29,7 @@ function PlaceCellTopology(md)
             d(i,j) = sqrt((x2-x1)^2 + (y2-y1)^2);
             
             %Sequence rank difference.
-            try
             pd(i,j) = order(i) - order(j);
-            catch, keyboard; end 
             
         end
         

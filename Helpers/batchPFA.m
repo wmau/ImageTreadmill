@@ -42,7 +42,7 @@ function batchPFA(MDs,excluderuns)
         
         %Make place fields. 
         Placefields(MDs(s),'exclude_frames',excludeframes,...
-            'Tenaspis_data','FinalOutput.mat','cmperbin',1);
+            'Tenaspis_data','FinalOutput.mat');
         PlacefieldStats(MDs(s));
     end
     

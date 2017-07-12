@@ -7,9 +7,9 @@
     %MD(296:299) = G48.
     %MD(300:304) = Bellatrix.
     %MD(305:309) = Polaris.
-    fulldataset = [MD(292:299) MD(300:303) MD(305:308)]; 
+    fulldataset = [MD(292:303) MD(305:308)]; 
    
-    cellType = 'time';
+    cellType = 'place';
     switch cellType
         case 'time', c = [0 .5 .5];
         case 'place', c = [.58 .44 .86];
@@ -38,9 +38,9 @@
     figure;
     p = pie([sPct iPct ioPct oPct],[1 0 0 0],...
         {   ['Stable (',num2str(sPct),'%)'],...
-            ['Incoming (',num2str(iPct),'%)'],...
-            ['Both (',num2str(ioPct),'%)'],...
-            ['Outgoing (',num2str(oPct),'%)']});
+            ['Entering (',num2str(iPct),'%)'],...
+            ['Transient (',num2str(ioPct),'%)'],...
+            ['Exiting (',num2str(oPct),'%)']});
     p(1).FaceColor = c;
     p(3).FaceColor = c;
     p(3).FaceAlpha = .3;

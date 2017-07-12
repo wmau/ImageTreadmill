@@ -19,6 +19,6 @@ function PCs = getPlaceCells(md,crit)
     
     [~,bestPF] = max(PFnHits,[],2);
     idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');    
-    PCs = find(pval<crit & MI'>0 & PFnHits(idx) > 10 & PFpcthits(idx) > .2);
+    PCs = find(pval<crit & MI'>0 & PFnHits(idx) > 10 & PFpcthits(idx) > .2)';
     
 end
