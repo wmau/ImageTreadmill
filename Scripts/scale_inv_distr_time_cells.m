@@ -1,5 +1,5 @@
-
-load('Peaks.mat')
+loadMD;
+load(fullfile(MD(292).Location,'Peaks.mat'));
 
 bin_type = 'u';
 

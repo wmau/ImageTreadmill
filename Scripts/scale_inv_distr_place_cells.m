@@ -1,3 +1,6 @@
+loadMD;
+load(fullfile(MD(292).Location,'MapsAndPeaks_PCs.mat'));
+
 bin_type = 'u';
 
 %% take all peak times

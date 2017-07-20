@@ -133,3 +133,61 @@ InfoStabilityANOVA;
 
 %c,e. SVM. 
 SVMperformance; 
+
+%% Supplementary Figure 1. 
+%a,b. Minimum projection and histology. Images saved to disk. 
+
+%c. Example time cells. 
+%From left to right are cells from: G45, G48, Bellatrix, Polaris. 
+plotTimeCells(MD(292),'singletraces','DFDTTrdmll','timecells',240);
+plotTimeCells(MD(296),'singletraces','DFDTTrdmll','timecells',133);
+plotTimeCells(MD(300),'singletraces','DFDTTrdmll','timecells',68);
+plotTimeCells(MD(305),'singletraces','DFDTTrdmll','timecells',66);
+
+%d. Example place cells. 
+LinearizedPF_raster(MD(292),'neurons',84,'plotTrials',true,'noTreadmill',true);
+LinearizedPF_raster(MD(296),'neurons',8,'plotTrials',true,'noTreadmill',true);
+LinearizedPF_raster(MD(301),'neurons',201,'plotTrials',true,'noTreadmill',true);
+LinearizedPF_raster(MD(305),'neurons',372,'plotTrials',true,'noTreadmill',true);
+
+%% Suplementary Figure 2. 
+%a. Scalar fit for time cells.
+scale_inv_distr_time_cells;
+
+%b. Scalar fit for place cells.
+scale_inv_distr_place_cells;
+
+%% Supplementary Figure 3. 
+%a. Time cell gradient. 
+plotTimeCellGradient(MD(292));
+
+%b. Place cell gradient. 
+plotPlaceCellGradient(MD(292)); 
+
+%c. Time cell topology.
+TimeCellTopology(MD(292));
+
+%d. Place cell topology.
+PlaceCellTopology(MD(292));
+
+%e. Place vs time cell topology vs random
+PvT_Topology2;
+
+%% Supplementary Figure 4.
+%Check for bleaching.
+bleachANOVA;
+
+%% Supplementary Figure 5.
+%a,b. Overlaid two registered sessions' neurons.
+OverlayNeurons2; 
+
+%c. Closeups of overlaid neurons over 4 days. I've lost what exact cells
+%were in the figure, but any random 3 should be fine. 
+OverlayNeurons; 
+
+%d. ROI centroid and orientation drifts. 
+getRegistrationDrifts;
+
+%e. Compare ROI displacements of stable, exiting, entering cells. Change
+%cellType variable to 'time' for time cells or 'place' for place cells. 
+CellStabilityStatus; 
