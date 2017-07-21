@@ -74,7 +74,7 @@ function Placefields(MD,varargin)
     else
         load(Pos_data,'xpos_interp','ypos_interp');
         load(Tenaspis_data,'PSAbool'); 
-        [x,y,speed,PSAbool,offset] = AlignImagingToTracking(MD.Pix2CM,PSAbool,0);
+        [x,y,speed,PSAbool,offset] = AlignImagingToTracking(MD.Pix2CM,PSAbool,0,'basedir',MD.Location);
         xmin = min(x); ymin = min(y); 
         xmax = max(x); ymax = max(y);
         
@@ -124,6 +124,7 @@ function Placefields(MD,varargin)
     TMap_gauss = cell(1,nNeurons); 
     TMap_unsmoothed = cell(1,nNeurons); 
     pos = [x;y];
+    %%
     parfor n=1:nNeurons    
         %Make place field.
         [TMap_unsmoothed{n},TCounts{n},TMap_gauss{n}] = ...
@@ -172,5 +173,5 @@ function Placefields(MD,varargin)
     
     save(fullfile(dirstr,['Placefields' name_append '.mat']),'OccMap','RunOccMap','TCounts','TMap_gauss',...
         'TMap_unsmoothed','minspeed','isrunning','cmperbin','exclude_frames',...
-        'xEdges','yEdges','xBin','yBin','pval','x','y','PSAbool'); 
+        'xEdges','yEdges','xBin','yBin','pval','x','y','PSAbool','MI'); 
 end
