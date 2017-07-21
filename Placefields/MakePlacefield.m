@@ -9,9 +9,8 @@ function [TMap_unsmoothed,TCounts,varargout] = ...
 %   INPUTS
 %       FT: logical vector (for one neuron). 
 %
-%       pos: 2xF (F = # frames) where the first row is FT from Tenaspis
-%       output, the second row is x position, and the third row is y
-%       position. All of these should be filtered by isrunning.
+%       pos: 2xF (F = # frames) where the first row is x position, and the 
+%       second row is y position. Both should be filtered by isrunning.
 %   
 %       xEdges & yEdges: output from MakeOccMap.
 %
@@ -62,12 +61,16 @@ function [TMap_unsmoothed,TCounts,varargout] = ...
     
     if smth
         %Make smoothing kernel.
-        gauss_std = gauss_std/cmperbin; 
-        sm = fspecial('gaussian',[round(8*gauss_std,0),round(8*gauss_std)],gauss_std); 
-        
-        %Smooth. 
-        TMap_gauss = imfilter(TMap_unsmoothed,sm);
-        TMap_gauss = TMap_gauss.*Tsum./sum(TMap_gauss(:)); 
+        if Tsum ~=0
+            gauss_std = gauss_std/cmperbin;
+            sm = fspecial('gaussian',[round(8*gauss_std,0),round(8*gauss_std)],gauss_std);
+            
+            %Smooth.
+            TMap_gauss = imfilter(TMap_unsmoothed,sm);
+            TMap_gauss = TMap_gauss.*Tsum./sum(TMap_gauss(:));
+        elseif Tsum == 0 % edge case
+            TMap_gauss = TMap_unsmoothed;
+        end
         
         %Dump into varargout.
         TMap_gauss(RunOccMap==0) = nan;
