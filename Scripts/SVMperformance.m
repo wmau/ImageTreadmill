@@ -50,37 +50,25 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
 
 %% Plot time stability.
     acc = [sTimeTIaccuracy sTimeSIaccuracy sTimeFRaccuracy]';
+    shuffle = [sTimeTIshuffle sTimeSIshuffle sTimeFRshuffle];
+    grps = [zeros(B,1) ones(B,1) 2*ones(B,1)];
 %     e = [   sTimeTIshuffle(l)-mean(sTimeTIshuffle), sTimeTIshuffle(u)-mean(sTimeTIshuffle);...
 %             sTimeSIshuffle(l)-mean(sTimeSIshuffle),sTimeSIshuffle(u)-mean(sTimeSIshuffle);...
 %             sTimeFRshuffle(l)-mean(sTimeFRshuffle),sTimeFRshuffle(u)-mean(sTimeFRshuffle)];
 %    e = abs(e);
 %    x = 1:3; 
-    y = [   mean(sTimeTIshuffle),...
-            mean(sTimeSIshuffle),...
-            mean(sTimeFRshuffle)];
-    figure; hold on;
+    figure('Position',[680 585 360 390]); hold on;
     for i=1:3
-        b(i) = bar(i,acc(i),.5,'facealpha',.5);
+        s(i) = scatter(i,acc(i),100,'filled');
     end
-    [b(1:3).FaceColor] = deal(timecolor);
-    b(1).EdgeColor = timecolor;
-    b(2).EdgeColor = spacecolor;
-    b(3).EdgeColor = frcolor;
-    [b.LineWidth] = deal(3);
-    
-    w = b(1).BarWidth;
-    for i=1:3
-        line([i-w/2 i+w/2],[y(i) y(i)],'color','b','linewidth',2);
-    end
-    
-%     [h,p]=boundedline(x,y,e,'alpha');
-%     h.LineWidth = 2;
-%     h.Color = 'b';
-%     p.FaceColor = 'b';
-    ylim([0.3 0.8]);
-    set(gca,'tickdir','out','linewidth',2,'xtick',[1:3]);
+    s(1).CData = timecolor;
+    s(2).CData = spacecolor;
+    s(3).CData = frcolor;
+    b = boxplot(shuffle(:),grps(:),'color',timecolor,'symbol','d',...
+        'labels',{'TI','SI','Activity rate'});
+    ylim([0.4 0.75]);
+    set(gca,'tickdir','out','fontsize',12,'linewidth',4)
     ylabel('Accuracy');
-    xticklabels({'Temporal Stability | TI','Temporal Stability | SI','Temporal Stability | TR'})
     title(['p = ',num2str(sTimeTIp),', ',num2str(sTimeSIp),', ',num2str(sTimeFRp)]);
     if saveBool
         print(timeFileName,'-dpdf');
@@ -88,38 +76,22 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
     
 %% Plot place stability.
     acc = [sPlaceTIaccuracy sPlaceSIaccuracy sPlaceFRaccuracy]';
-%     e = [   sPlaceSIshuffle(l)-mean(sPlaceSIshuffle), sPlaceSIshuffle(u)-mean(sPlaceSIshuffle);...
-%             sPlaceTIshuffle(l)-mean(sPlaceTIshuffle),sPlaceTIshuffle(u)-mean(sPlaceTIshuffle);...
-%             sPlaceFRshuffle(l)-mean(sPlaceFRshuffle),sPlaceFRshuffle(u)-mean(sPlaceFRshuffle)];
-%     e = abs(e);
-%    x = 1:3; 
-    y = [   mean(sPlaceTIshuffle),...
-            mean(sPlaceSIshuffle),...
-            mean(sPlaceFRshuffle)];
-    figure; hold on;
-    for i=1:3
-        b(i) = bar(i,acc(i),.5,'facealpha',.5);
-    end
-    [b(1:3).FaceColor] = deal(spacecolor);
-    b(1).EdgeColor = timecolor;
-    b(2).EdgeColor = spacecolor;
-    b(3).EdgeColor = frcolor;
-    [b.LineWidth] = deal(3);
-%     [h,p]=boundedline(x,y,e,'alpha');
-%     h.LineWidth = 2;
-%     h.Color = 'b';
-%     p.FaceColor = 'b';
+    shuffle = [sPlaceTIshuffle sPlaceSIshuffle sPlaceFRshuffle];
+    grps = [zeros(B,1) ones(B,1) 2*ones(B,1)];
 
-    w = b(1).BarWidth;
+    figure('Position',[680 585 360 390]); hold on;
     for i=1:3
-        line([i-w/2 i+w/2],[y(i) y(i)],'color','b','linewidth',2);
+        s(i) = scatter(i,acc(i),100,'filled');
     end
-    
-    ylim([0.3 0.8]);
-    set(gca,'tickdir','out','linewidth',2,'xtick',[1:3]);
+    s(1).CData = timecolor;
+    s(2).CData = spacecolor;
+    s(3).CData = frcolor;
+    b = boxplot(shuffle(:),grps(:),'color',spacecolor,'symbol','d',...
+        'labels',{'TI','SI','Activity rate'});
+    ylim([0.4 0.75]);
+    set(gca,'tickdir','out','fontsize',12,'linewidth',4)
     ylabel('Accuracy');
-    xticklabels({'Spatial Stability | TI','Spatial Stability | SI','Spatial Stability | TR'})
     title(['p = ',num2str(sPlaceTIp),', ',num2str(sPlaceSIp),', ',num2str(sPlaceFRp)]);
     if saveBool
-        print(placeFileName,'-dpdf');
+        print(timeFileName,'-dpdf');
     end
