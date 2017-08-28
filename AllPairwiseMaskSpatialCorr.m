@@ -174,5 +174,6 @@ function [d,r,matchMat] = AllPairwiseMaskSpatialCorr(base,reg)
     scatter(matchedDs,matchedRs,'g.');
     xlabel('Centroid distance (microns)');
     ylabel('ROI spatial correlation (r)');
+    axis square;
     set(gca,'tickdir','out');
 end
