@@ -89,7 +89,7 @@ PvT_TrialSkew;
 OverlayNeurons;         %Edit neurons vector to include the above cells.
 %Tuning curves...
 msPlotTimeCells(MD(292:295),'timecells',240);
-msPlotTimeCells(MD(292:295),'timecells',170);
+msPlotTimeCells(MD(292:295),'timecells',107);
 msPlotTimeCells(MD(292:295),'timecells',556);
 
 %b. Proportion of cells exhibiting each across-days behavior. 
