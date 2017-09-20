@@ -1,4 +1,4 @@
-function [d,r,matchMat] = AllPairwiseMaskSpatialCorr(base,reg)
+function [d,r,matchMat] = AllPairwiseMaskSpatialCorr(base,reg,varargin)
 %[d,r,matchMat] = AllPairwiseMaskSpatialCorr(base,reg)
 %
 %   To provide convincing evidence that we correctly segment and register
@@ -25,6 +25,17 @@ function [d,r,matchMat] = AllPairwiseMaskSpatialCorr(base,reg)
 %       matchMat: Two-column vector specifying cells in base session
 %       (column 1) and their index in the registered session (column 2).
 %
+
+%% Parse inputs.
+    p = inputParser; 
+    p.addRequired('base',@(x) isstruct(x)); 
+    p.addRequired('reg',@(x) isstruct(x)); 
+    p.addParameter('corr_vs_dist',true,@(x) islogical(x)); 
+    p.addParameter('corr_vs_nextNearest',true,@(x) islogical(x)); 
+    
+    p.parse(base,reg,varargin{:});
+    corr_vs_dist = p.Results.corr_vs_dist; 
+    corr_vs_nextNearest = p.Results.corr_vs_nextNearest; 
 
 %% Align the fields of view from the two sessions. 
     %Get registration information.
@@ -149,31 +160,47 @@ function [d,r,matchMat] = AllPairwiseMaskSpatialCorr(base,reg)
     %Flatten. 
     distances = d(:);
     correlations = r(:);
-    
-    %Only plot cell pairs across the two sessions that are under 15 microns
-    %away.
-    thresh = 20; 
-    nearby = d<thresh;
-    
-    %Plot distance vs. correlation for all cell pairs across days (whose
-    %distance is under threshold).
-    figure;
-    scatter(distances(nearby),correlations(nearby),'.'); 
-    hold on;
-    
+ 
     %Get the distances and correlation values from the cells that we
     %matched across days. 
     nMatches = size(matchMat,1);
-    [matchedDs,matchedRs] = deal(zeros(nMatches,1));
+    [matchedDs,matchedRs,nextNearestRs] = deal(zeros(nMatches,1));
     for n=1:nMatches
         matchedDs(n) = d(matchMat(n,1),matchMat(n,2)); 
         matchedRs(n) = r(matchMat(n,1),matchMat(n,2)); 
     end
+           
+    %Plotting ROI spatial correlations against centroid distance. 
+    if corr_vs_dist
+        %Only plot cell pairs across the two sessions that are under 20 microns
+        %away.
+        thresh = 20; 
+        nearby = d<thresh;
+
+        %Plot distance vs. correlation for all cell pairs across days (whose
+        %distance is under threshold).
+        figure;
+        scatter(distances(nearby),correlations(nearby),'.'); 
+        hold on;
+
+        %Plot the matched cell pairs in green. 
+        scatter(matchedDs,matchedRs,'g.');
+        xlabel('Centroid distance (microns)');
+        ylabel('ROI spatial correlation (r)');
+        axis square;
+        set(gca,'tickdir','out');
+    end
+   
+%% Plot correlations of next nearest neighbor. 
+    if corr_vs_nextNearest
+        for n=1:nMatches
+            sortedDistances = sort(d(matchMat(n,1),:)); 
+            nextNearest = find(d(matchMat(n,1),:) == sortedDistances(2));
+            
+            nextNearestRs(n) = r(matchMat(n,1),nextNearest);
+        end
         
-    %Plot the matched cell pairs in green. 
-    scatter(matchedDs,matchedRs,'g.');
-    xlabel('Centroid distance (microns)');
-    ylabel('ROI spatial correlation (r)');
-    axis square;
-    set(gca,'tickdir','out');
+        figure;
+        scatter(matchedRs,nextNearestRs,'.');
+    end
 end
