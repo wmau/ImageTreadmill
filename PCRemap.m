@@ -13,8 +13,7 @@ function [tuningStatus,d] = PCRemap(ref,ssn)
     nNeurons = length(PFCentroids); 
     
 %% 
-    mapMD = getMapMD(ref); 
-    matchMat = msMatchCells(mapMD,ssns,PLACECELLS{1},true); 
+    matchMat = msMatchCells(ssns,PLACECELLS{1},true); 
     nPCs = size(matchMat,1); 
     
 %% 

@@ -22,8 +22,7 @@ function corrStats = CorrTrdmllTrace(ref,ssn,noi,varargin)
     ssns = [ref,ssn];   
     DATA = CompileMultiSessionData(ssns,{tracetype});
    
-    mapMD = getMapMD(ref);
-    matchMat = msMatchCells(mapMD,ssns,noi,true);
+    matchMat = msMatchCells(ssns,noi,true);
     
     try nNeurons = length(DATA.curves{1}.tuning);
     catch, nNeurons = size(DATA.(tracetype){1},3); end

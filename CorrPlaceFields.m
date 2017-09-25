@@ -21,8 +21,7 @@ function corrStats = CorrPlaceFields(ref,ssn,noi,varargin)
     ssns = [ref,ssn]; 
     DATA = CompileMultiSessionData(ssns,{pftype,'runoccmaps'});
    
-    mapMD = getMapMD(ref);                              %Find reference map.
-    matchMat = msMatchCells(mapMD,ssns,noi,true);       %Match cells.
+    matchMat = msMatchCells(ssns,noi,true);       %Match cells.
 
     nNeurons = length(DATA.(pftype){1});
     corrStats = nan(nNeurons,2);

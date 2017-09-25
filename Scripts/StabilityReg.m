@@ -54,9 +54,9 @@ for a=1:nAnimals
         stable = Sstable{a}{s};
         unstable = Sunstable{a}{s};
 
-        [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(ssns(s)),stable,false);
+        [~,mapRows,mapCols(s)] = msMatchCells(mds(ssns(s)),stable,false);
         sRows = [sRows; mapRows];
-        [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(ssns(s)),unstable,false);
+        [~,mapRows,mapCols(s)] = msMatchCells(mds(ssns(s)),unstable,false);
         usRows = [usRows; mapRows];
             
     end

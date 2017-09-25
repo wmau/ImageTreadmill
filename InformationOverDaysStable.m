@@ -41,7 +41,7 @@ function [flatDur,flatStats,m,sem,tukey] = InformationOverDaysStable(mds,stabili
             
             neurons = AcquireTimePlaceCells(mds(ssns(s)),cellGet);
             
-            [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(ssns(s)),neurons,false);
+            [~,mapRows,mapCols(s)] = msMatchCells(mds(ssns(s)),neurons,false);
             allrows = [allrows; mapRows];
         end
         

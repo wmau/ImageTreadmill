@@ -14,8 +14,7 @@ function [corrs,cellID] = PairwiseTrdmllCorrs(mds,neurons)
     nNeurons = length(neurons); 
     
     %Map the neurons.
-    mapMD = getMapMD(mds);
-    map = msMatchCells(mapMD,mds,neurons,false);
+    map = msMatchCells(mds,neurons,false);
     cellID = map(:,1);
     
     %Preallocate. 

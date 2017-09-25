@@ -154,7 +154,7 @@ function [d,r,matchMat] = AllPairwiseMaskSpatialCorr(base,reg,varargin)
     end
     
 %% Get real neuron mappings.
-    matchMat = msMatchCells(getMapMD([base,reg]),[base,reg],1:nNeuronsBase,true);
+    matchMat = msMatchCells([base,reg],1:nNeuronsBase,true);
     
 %% Plot correlations vs. distances. 
     %Flatten. 

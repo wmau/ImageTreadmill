@@ -26,7 +26,7 @@
 %             NumNeurons = length(neurons);
             
             for s2=s1+1:nSessions
-                matches = msMatchCells(mapMD,[fulldataset(ssns(s1)) fulldataset(ssns(s2))],...
+                matches = msMatchCells([fulldataset(ssns(s1)) fulldataset(ssns(s2))],...
                     neurons,true);
                 
                 pctMatches = [pctMatches size(matches,1)/NumNeurons];
@@ -41,6 +41,5 @@
     errorbar(1:4,m,sem)
     xlim([0,5])
     xlabel('Lag');
-    ylabel('Proportion Overlap');
     ylabel('Proportion Active on Both Days');
         

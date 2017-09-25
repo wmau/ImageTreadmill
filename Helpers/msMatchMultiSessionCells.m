@@ -18,7 +18,7 @@ function map = msMatchMultiSessionCells(mds,neurons)
     for s=1:nSessions
         cd(mds(s).Location);
     
-        [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(s),neurons{s},false);
+        [~,mapRows,mapCols(s)] = msMatchCells(mds(s),neurons{s},false);
         rows = [rows; mapRows];
     end
     

@@ -4,7 +4,7 @@ function neurons = EliminateUncertainMatches(mds,neurons)
 %
 
 %%
-    matches = msMatchCells(getMapMD(mds),mds,neurons,true);
+    matches = msMatchCells(mds,neurons,true);
     neurons = intersect(neurons,matches(:,1));
     
 end

@@ -51,7 +51,7 @@ function msLinearizedPFs(base,comp,varargin)
     PCs = getPlaceCells(base,PCcrit);
 
 %% Find relevant indices in batch_session_map. 
-    matches = msMatchCells(mapMD,sessions,PCs,false);
+    matches = msMatchCells(sessions,PCs,false);
     nNeurons = size(matches,1);
     
 %% Plot. 

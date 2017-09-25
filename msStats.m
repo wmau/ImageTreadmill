@@ -24,12 +24,9 @@ function stats = msStats(mds,stat,neurons)
     nSessions = length(mds);
     cd(mds(1).Location); 
     load('FinalOutput.mat','NumNeurons');
-    
-    %Session containing mapping matrix. 
-    mapMD = getMapMD(mds);
-    
+
     %Match cells. 
-    matches = msMatchCells(mapMD,mds,neurons,true);
+    matches = msMatchCells(mds,neurons,true);
     
     stats = nan(NumNeurons,nSessions);
     %Toss into matrix. 

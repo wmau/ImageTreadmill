@@ -30,8 +30,7 @@ function [tuningStatus,d] = TCRemap(ref,ssn)
     nNeurons = length(DATA.curves{1}.tuning);    
     
 %% Find the indices in MAP corresponding to sessions of interest.
-    mapMD = getMapMD(ref);
-    matchMat = msMatchCells(mapMD,ssns,TIMECELLS{1},true);  
+    matchMat = msMatchCells(ssns,TIMECELLS{1},true);  
     
 %% Indicate whether a neuron has remapped or not. 
     %Find time resolution of the tuning curves. 

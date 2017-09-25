@@ -29,7 +29,7 @@ function msLinearizedPF_raster(mds,varargin)
     %Color for plotting. 
     purple = [.58 .44 .86];
 %% Match cells.
-    map = msMatchCells(getMapMD(mds),mds,neurons,false); 
+    map = msMatchCells(mds,neurons,false); 
 
 %% Get all rasters and tuning curves. 
     DATA = CompileMultiSessionData(mds,{'si','pfcorr'});

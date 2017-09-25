@@ -9,7 +9,7 @@ function [TI,cellID] = msTempInfo(mds,neurons)
     
     %Map cells. 
     mapMD = getMapMD(mds);
-    map = msMatchCells(mapMD,mds,neurons,true);
+    map = msMatchCells(mds,neurons,true);
     cellID = map(:,1);
     
     TI = nan(nNeurons,nSessions);

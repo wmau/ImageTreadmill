@@ -42,7 +42,6 @@ function plotROIAvgOverDays(referenceMD,otherMDs,neurons,varargin)
     %Combine session entries. Also get session that contains cell mapping. 
     MDs = [referenceMD otherMDs];
     nSessions = length(MDs); 
-    mapMD = getMapMD(MDs); 
    
     %Sort the dates so that we plot in chronological order. 
     dates = {MDs.Date}; 
@@ -54,7 +53,7 @@ function plotROIAvgOverDays(referenceMD,otherMDs,neurons,varargin)
     end
     
 %% Collect neuron indices on different sessions and their registration info.
-    matchedCells = msMatchCells(mapMD,MDs,neurons,false);
+    matchedCells = msMatchCells(MDs,neurons,false);
     
     %Get registration information.
     for s=2:nSessions

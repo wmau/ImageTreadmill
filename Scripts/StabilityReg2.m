@@ -58,11 +58,11 @@ for a=1:nAnimals
         [stable,exiting,entering] = CellStabilityStatus(mds(ssns(s)),mds(ssns(s+1)),cellType);
 
         %Get rows in the map matrix that correspond to each cell category.
-        [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(ssns(s)),stable,false);
+        [~,mapRows,mapCols(s)] = msMatchCells(mds(ssns(s)),stable,false);
         sRows = [sRows; mapRows];
-        [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(ssns(s)),exiting,false);
+        [~,mapRows,mapCols(s)] = msMatchCells(mds(ssns(s)),exiting,false);
         exRows = [exRows; mapRows];
-        [~,mapRows,mapCols(s)] = msMatchCells(mapMD,mds(ssns(s)),entering,false);
+        [~,mapRows,mapCols(s)] = msMatchCells(mds(ssns(s)),entering,false);
         entRows = [entRows; mapRows];
             
     end

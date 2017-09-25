@@ -7,13 +7,12 @@ function [pct,stability,map] = PropStability(mds,cellType)
     nSessions = length(mds);
     
     %Load map.
-    mapMD = getMapMD(mds);
 %     cd(mapMD.Location);
 %     load('batch_session_map.mat');
 %     map = batch_session_map.map(:,2:end); 
 %     
 %     %Reorder the map columns to reflect the order in mds. 
-%     [~,~,mapCols] = msMatchCells(mapMD,mds,[],false);
+%     [~,~,mapCols] = msMatchCells(mds,[],false);
 %     map = map(:,mapCols);
     cellsOfInterest = cell(nSessions,1);
     for s=1:nSessions

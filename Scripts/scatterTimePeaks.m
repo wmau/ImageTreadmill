@@ -12,9 +12,9 @@ for a=1:nAnimals
     mapMD = getMapMD(fulldataset(ssns(1)));
     
     for s=1:nSessions-1
-        stableMatches = msMatchCells(mapMD,fulldataset(ssns(s:s+1)),stable{a}{s},true);
+        stableMatches = msMatchCells(fulldataset(ssns(s:s+1)),stable{a}{s},true);
 
-        unstableMatches = msMatchCells(mapMD,fulldataset(ssns(s:s+1)),unstable{a}{s},true);
+        unstableMatches = msMatchCells(fulldataset(ssns(s:s+1)),unstable{a}{s},true);
         
         [~,t1] = getTimePeak(fulldataset(ssns(s)));
         [~,t2] = getTimePeak(fulldataset(ssns(s+1)));
