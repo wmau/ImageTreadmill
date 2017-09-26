@@ -17,6 +17,8 @@ function plotROIAvgOverDays(referenceMD,otherMDs,neurons,varargin)
 %       varargin: 
 %           plotOrientation, 'vertical' or 'horizontal': orientation of
 %           subplots. 
+%       
+%           scalebar: logical, plots a 10 micron scale bar. 
 %
 %   OUTPUT
 %       Plot of ROIs over days. 
@@ -27,10 +29,12 @@ function plotROIAvgOverDays(referenceMD,otherMDs,neurons,varargin)
     p.addRequired('referenceMD',@(x) isstruct(x)); 
     p.addRequired('MDs',@(x) isstruct(x));
     p.addRequired('neurons',@(x) isnumeric(x)); 
-    p.addParameter('plotOrientation','horizontal',@(x) ischar(x)); 
+    p.addParameter('plotOrientation','horizontal',@(x) ischar(x));
+    p.addParameter('scalebar',true,@(x) islogical(x)); 
     
     p.parse(referenceMD,otherMDs,neurons,varargin{:});
     plotOrientation = p.Results.plotOrientation;
+    scalebar = p.Results.scalebar; 
     
     nNeurons = length(neurons);
     
@@ -134,7 +138,7 @@ function plotROIAvgOverDays(referenceMD,otherMDs,neurons,varargin)
     keepgoing = true;
     n = 1;
     while keepgoing        
-        f = figure(1216); 
+        f = figure(1216); hold on;
         plotNumber = 1;
         for s=chronOrder
             %Neuron index. 
@@ -151,6 +155,9 @@ function plotROIAvgOverDays(referenceMD,otherMDs,neurons,varargin)
             
             %Plot the ROI. 
             imagesc(flipud(ROI));
+            if scalebar
+                line([0 10*1.10],[2 2],'linewidth',5,'color','w');
+            end
             colormap gray;
             axis equal; axis off; 
             set(gca,'ydir','reverse'); 
