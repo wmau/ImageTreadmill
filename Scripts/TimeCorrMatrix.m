@@ -147,27 +147,41 @@ ylabel(yLabel,'fontsize',15);
 xlim([-.5 matSize+.5]);
 
 %% ANOVA by trials. 
-% X = cell2mat(diags');
-% lags = [];
-% for i=1:length(diags)
-%     lags = [lags (i-1).*ones(1,length(diags{i}))];
-% end
-%[~,~,stats] = anovan(X,{lags},'display','off');
+X = cell2mat(diags');
+lags = [];
+for i=1:length(diags)
+    lags = [lags (i-1).*ones(1,length(diags{i}))];
+end
+[~,~,stats] = anovan(X,{lags},'display','off');
 
 
 %% ANOVA by days, all cell entries
+% X = [];
+% lags = [];
+% for a=1:nAnimals
+%     [m,sem,diags] = collapseByLag(dayR{a});
+%     X = [X cell2mat(diags')];
+%     
+%     for i=1:length(diags)
+%         lags = [lags (i-1).*ones(1,length(diags{i}))];
+%     end
+%     
+% end
+% 
+% [~,~,stats] = anovan(X,{lags},'display','off');
+% figure;
+% comp = multcompare(stats);
+
+%% ANOVA by days, day entries
 X = [];
 lags = [];
-for a=1:nAnimals
-    [m,sem,diags] = collapseByLag(dayR{a});
-    X = [X cell2mat(diags')];
-    
-    for i=1:length(diags)
-        lags = [lags (i-1).*ones(1,length(diags{i}))];
-    end
-    
+[m,sem,diags] = collapseByLag(binnedByDays);
+for d = 1:length(diags)
+    X = [X diags{d}];
+    lags = [lags d*ones(1,length(diags{d}))];
 end
 
-[~,~,stats] = anovan(X,{lags},'display','off');
+%[~,~,stats] = anovan(X,{lags},'display','off');
+[~,~,stats] = kruskalwallis(X,lags);
 figure;
 comp = multcompare(stats);

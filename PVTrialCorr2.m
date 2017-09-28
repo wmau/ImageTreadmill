@@ -77,10 +77,10 @@ function [R,lapNum,sessionNum,Rmeans] = PVTrialCorr2(mds,varargin)
         
         switch codingCells
             case {'timecells','none_time'}
-                load('TreadmillTraces.mat','DFDTTrdmll'); 
+                load('TreadmillTraces.mat','RawTrdmll'); 
         %         DFDTTrdmll = diff(LPtrdmll,[],2);
         %         DFDTTrdmll = padarray(DFDTTrdmll,[0 1 0],0,'pre');
-                rasters = DFDTTrdmll;
+                rasters = RawTrdmll;
             case {'placecells','none_place'}
                 load('SpatialTraces.mat','raster'); 
                 rasters = raster;
