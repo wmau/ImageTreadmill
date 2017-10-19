@@ -17,7 +17,8 @@ function TrialBreakdownFluor_time(md,neurons,nBlocks)
     cd(path);
     
     load('TimeCells.mat','T');
-    load('TreadmillTraces.mat','DFDTTrdmll');
+    load('TreadmillTraces.mat','RawTrdmll');
+    DFDTTrdmll = RawTrdmll;
     [nTrials,nFrames,~] = size(DFDTTrdmll); 
     blockLims = floor(linspace(0,nTrials,nBlocks+1));
    
