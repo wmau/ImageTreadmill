@@ -54,9 +54,7 @@ function [skewness,even,odd] = getAllSkewnesses(md,varargin)
                 j = findclosest(t_unbinned,sigEnd);         %...and end index. 
                 sigCurve(i:j) = true;                       %Mark those in the preallocated vector. 
                 
-                %Get skewness calculation.
-                
-                if thisNeuron == 731, keyboard; end 
+                %Get skewness calculation.                      
                 skewness(thisNeuron) = TrialSkewness(raster,sigCurve);
                 
                 %Per reviewer suggestion, take only the even/odd trials and

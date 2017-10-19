@@ -1,11 +1,11 @@
 clear;
 loadMD;
 
-fulldataset = MD(292:309);          %Sessions.
-nSessions = length(fulldataset);    %Number of sessions.
-cellType = 'timecells';             %Only time cells work right now.
-rasterType = 'time';                %Look at temporal responses. 
-B = 500;                            %Number of trial shuffles. 
+fulldataset = [MD(292:303) MD(305:308)];            %Sessions.
+nSessions = length(fulldataset);                    %Number of sessions.
+cellType = 'timecells';                             %Only time cells work right now.
+rasterType = 'time';                                %Look at temporal responses. 
+B = 500;                                             %Number of trial shuffles. 
 
 [skew,sig,strictSig,even,odd] = deal(cell(nSessions,1)); 
 for s=1:nSessions
@@ -58,4 +58,7 @@ for s=1:nSessions
         end
     end
 end
+
+nEarly = sum(cellfun(@(x) sum(x==1),strictSig));
+nLate = sum(cellfun(@(x) sum(x==2),strictSig));
 

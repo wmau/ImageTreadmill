@@ -1,8 +1,8 @@
 clear;
 loadMD;
 
-cellType = 'placecells';
-rasterType = 'place';
+cellType = 'timecells';
+rasterType = 'time';
 
 switch cellType
     case 'timecells'
@@ -12,7 +12,7 @@ switch cellType
 end
 
 B = 100;
-fulldataset = MD(292:309); 
+fulldataset = [MD(292:303) MD(305:308)]; 
 
 nSessions = length(fulldataset); 
 [shuffleExample,peaks,skewness] = deal(cell(nSessions,1));

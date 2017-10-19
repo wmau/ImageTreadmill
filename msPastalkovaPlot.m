@@ -125,8 +125,7 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(base,comp,Ts,plotit)
     end
          
     if plotit
-        set(f,'PaperOrientation','landscape');
-        set(f,'PaperUnits','normalized');
-        set(f,'PaperPosition',[0 0 1 1]);
+        set(f,'PaperOrientation','landscape',...
+            'PaperUnits','normalized','PaperPosition',[0 0 1 1]);
     end
 end
