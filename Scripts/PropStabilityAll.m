@@ -9,7 +9,7 @@
     %MD(305:309) = Polaris.
     fulldataset = [MD(292:303) MD(305:308)]; 
    
-    cellType = 'place';
+    cellType = 'time';
     switch cellType
         case 'time', c = [0 .5 .5];
         case 'place', c = [.58 .44 .86];

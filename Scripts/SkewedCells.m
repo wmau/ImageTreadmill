@@ -3,8 +3,8 @@ loadMD;
 
 fulldataset = MD(292:309);
 nSessions = length(fulldataset); 
-cellType = 'placecells';
-rasterType = 'place';
+cellType = 'timecells';
+rasterType = 'time';
 B = 500;
 
 [skew,sig] = deal(cell(nSessions,1)); 

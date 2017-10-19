@@ -19,16 +19,17 @@ function [decodedTime,postProbs] = PredictTime(Mdl,X,varargin)
     postProbs = nan(nBins,nBins,nTestLaps); 
     decodedTime = nan(nBins,nTestLaps);
     
+    %Reshape X so that it's observations x neurons. 
     for l=1:nTestLaps
+        %Indexing nonsense. 
         chunk = (l-1)*nBins+1:(l-1)*nBins+nBins;
         
+        %Predict. 
         [decodedTime(:,l),postProbs(:,:,l)] = predict(Mdl,X(chunk,:));
-        postProbs(:,:,l) = postProbs(:,:,l)';
     end
     
+%% Plot. 
     if plotit 
-        figure;
-        imagesc(mean(postProbs,3));
-        axis equal;
+        TimeDecoderPosteriorProbabilityPlot(postProbs); 
     end
 end

@@ -1,5 +1,5 @@
 function plotTimeCells(md,varargin)
-%plotTimecells(MD,T,varargin)
+%plotTimecells(MD,varargin)
 %   
 %   Plots single neuron responses in time during treadmill run. First
 %   panel: spike-position trajectory. Second panel: Raster. Third panel:

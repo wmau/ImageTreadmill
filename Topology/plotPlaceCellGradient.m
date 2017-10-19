@@ -1,6 +1,7 @@
 function plotPlaceCellGradient(md)
 %PlotTimeCellGradient(md)
-%
+%   BROKE WITH THE NEW PLOTNEURONS CHANGE. DO NOT USE.
+% 
 %   Plots place cell ROIs in colors based on their rank in the sequence.
 %   Colder colors are earlier, warmer colors are later. 
 %
