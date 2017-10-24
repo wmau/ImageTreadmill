@@ -1,4 +1,4 @@
-function [Mdl,X,testX,testLaps] = TrialDecoder(md,varargin)
+function [Mdl,X,testX,testLaps,trialBlockLims] = TrialDecoder(md,varargin)
 
 %%  
     cd(md.Location);
@@ -8,14 +8,11 @@ function [Mdl,X,testX,testLaps] = TrialDecoder(md,varargin)
     
     p = inputParser;
     p.addRequired('md',@(x) isstruct(x));
-    p.addParameter('nTrainingRuns',round(sum(complete)*.5),...
-        @(x) isnumeric(x)); 
     p.addParameter('neurons',getTimeCells(md),@(x) isnumeric(x)); 
     p.addParameter('shuffle',false,@(x) islogical(x)); 
     p.addParameter('nTrialBlocks',6,@(x) isnumeric(x)); 
     
     p.parse(md,varargin{:});
-    nTrainingRuns = p.Results.nTrainingRuns;
     neurons = p.Results.neurons; 
     shuffle = p.Results.shuffle;
     nTrialBlocks = p.Results.nTrialBlocks;

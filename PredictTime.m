@@ -24,7 +24,9 @@ function [decodedTime,postProbs] = PredictTime(Mdl,X,varargin)
         %Indexing nonsense. 
         chunk = (l-1)*nBins+1:(l-1)*nBins+nBins;
         
-        %Predict. 
+        %Predict. IMPORTANT! Rows denote individual test data entries,
+        %and columns are predictions, opposite of what's plotted in the
+        %posterior probability plots. 
         [decodedTime(:,l),postProbs(:,:,l)] = predict(Mdl,X(chunk,:));
     end
     

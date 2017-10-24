@@ -19,7 +19,7 @@ function TimeDecoderPosteriorProbabilityPlot(postProbs)
 
 %% Plot. 
     figure; hold on;
-        imagesc(t,t,PPMatrix);
+        imagesc(t,t,PPMatrix');
             caxis([s(0.0125*length(s)) s(0.9875*length(s))]);
             colormap hot;
             axis equal; axis tight; 

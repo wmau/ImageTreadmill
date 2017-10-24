@@ -26,7 +26,7 @@ function [Mdl,X,testX,testLaps] = TimeDecoder(md,varargin)
     trainingLaps = randsample(sum(complete),nTrainingRuns)';
     
     %The remaining laps are our test laps. 
-    testLaps = setdiff(sum(complete),trainingLaps);
+    testLaps = setdiff(1:sum(complete),trainingLaps);
     
     %Get predictor matrix and the test matrix. 
     X = reshapeRateByLap(md,'runs',trainingLaps,'neurons',neurons); 
