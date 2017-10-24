@@ -1,7 +1,7 @@
 clear;
 loadMD;
 
-fulldataset = [MD(292:299) MD(300:303) MD(305:308)];
+fulldataset = [MD(292:303) MD(305:308)];
 nSessions = length(fulldataset); 
 
 animals = unique({fulldataset.Animal});
@@ -77,5 +77,5 @@ M = mean(allErrors);
 
 overallShuffleM = mean(allErrorsShuffle); 
 
-boxScatterplot([M overallShuffleM],[zeros(size(M)) ones(size(overallShuffleM))],...
+scatterBox([M overallShuffleM],[zeros(size(M)) ones(size(overallShuffleM))],...
     'xLabels',{'Empirical','Shuffle'},'yLabel','Decode error (s)');
