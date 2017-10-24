@@ -1,5 +1,5 @@
-function boxScatterplot(x,grps,varargin)
-%boxScatterplot(x,grps,varargin)
+function scatterBox(x,grps,varargin)
+%scatterBox(x,grps,varargin)
 %
 %   I usually like to plot individual data points on top of boxplots so
 %   this function does that by separating your x vector into grps and then
