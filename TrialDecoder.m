@@ -1,4 +1,8 @@
 function [Mdl,X,testX,testLaps,trialBlockLims] = TrialDecoder(md,varargin)
+%[Mdl,X,testX,testLaps,trialBlockLims] = TrialDecoder(md,varargin)
+%
+%
+%
 
 %%  
     cd(md.Location);

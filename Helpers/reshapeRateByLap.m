@@ -10,7 +10,7 @@ function X = reshapeRateByLap(md,varargin)
     load('TimeCells.mat','ratebylap','TodayTreadmillLog');
     complete = logical(TodayTreadmillLog.complete);         %Completed runs.
     nRuns = round(sum(complete)*.5);                        %Number of runs to use in model.
-    randRuns = randsample(find(complete),nRuns)';            %Subset of runs. 
+    randRuns = randsample(1:sum(complete),nRuns)';            %Subset of runs. 
     
     p = inputParser; 
     p.addRequired('md',@(x) isstruct(x)); 
@@ -31,7 +31,9 @@ function X = reshapeRateByLap(md,varargin)
     end
 %% Reshape ratebylap. 
     ratebylap = ratebylap(complete,:,:);
+    try
     ratebylap = ratebylap(runs,:,neurons);                  %Only take specified runs.
+    catch, keyboard; end
     ratebylap(ratebylap > 0) = 1; 
     
     [nRuns,nBins,nNeurons] = size(ratebylap);              	%Size variables. 
