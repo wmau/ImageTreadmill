@@ -1,7 +1,8 @@
 function map = msMatchMultiSessionCells(mds,neurons)
 %map = msMatchMultiSessionCells(mds,neurons)
 %   
-%   
+%   Gets a registration map of all neurons specified in the cell array
+%   "neurons". 
 
 %% 
     nSessions = length(mds);

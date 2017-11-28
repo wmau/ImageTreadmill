@@ -1,9 +1,9 @@
-function decodeError = TrialDecodeError(decodedTrial,realTrial,trialBlockLims)
+function percentCorrect = TrialDecodeError(decodedTrial,realTrial,trialBlockLims)
 %
 %
 %
 
 %%
     realTrialBlocks = getTrialBlockNum(realTrial,trialBlockLims)'; 
-    decodeError = abs(realTrialBlocks - decodedTrial); 
+    percentCorrect = sum((realTrialBlocks - decodedTrial)==0)/length(decodedTrial); 
 end

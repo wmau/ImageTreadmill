@@ -22,10 +22,10 @@ for a=1:nAnimals
             TrialDecoder(fulldataset(ssns(s))); 
         [decodedTrial,postProbs] = PredictTrial(Mdl,testX,trialBlockLims,...
             testLaps,'plotit',false);
-        decodeError = TrialDecodeError(decodedTrial,testLaps,trialBlockLims); 
+        pCorrect = TrialDecodeError(decodedTrial,testLaps,trialBlockLims); 
         
         %Take the mean across runs. 
-        allErrors = [allErrors; decodeError];
+        allErrors = [allErrors; pCorrect];
         
         %For each session, run B shuffle tests. 
         for i=1:B
@@ -34,10 +34,10 @@ for a=1:nAnimals
             testX = testX(randperm(size(testX,1)),:);
             shuffleDecode = PredictTrial(Mdl,testX,trialBlockLims,...
                 testLaps,'plotit',false);
-            decodeErrorShuffle = TrialDecodeError(shuffleDecode,testLaps,...
+            pCorrectShuffle = TrialDecodeError(shuffleDecode,testLaps,...
                 trialBlockLims); 
 
-            allErrorsShuffles = [allErrorsShuffles; decodeErrorShuffle]; 
+            allErrorsShuffles = [allErrorsShuffles; pCorrectShuffle]; 
         end
     end
 end
