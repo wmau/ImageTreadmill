@@ -5,12 +5,8 @@ function NeighborhoodPlaceDistance(md,thresholds)
 
 %%
     cd(md.Location); 
-    load(fullfile(pwd,'Placefields.mat'),'pval');
-    load(fullfile(pwd,'PlacefieldStats.mat'),'PFnHits','bestPF');
-    load(fullfile(pwd,'SpatialInfo.mat'),'MI'); 
-    idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');
     PCcrit = .01;
-    PCs = find(pval<PCcrit & MI'>0 & PFnHits(idx)>4); 
+    PCs = getPlaceCells(md,PCcrit);
     nPCs = length(PCs);
     nDistances = length(thresholds);
     B = 1000;
@@ -36,7 +32,7 @@ function NeighborhoodPlaceDistance(md,thresholds)
     end
     
 %% 
-    [~,~,~,order] = LinearizedPFs_treadmill(md);
+    [~,~,~,order] = LinearizedPFs_treadmill(md,'plotit',false);
     order = order./max(order); 
     
 %% 
@@ -94,8 +90,8 @@ function NeighborhoodPlaceDistance(md,thresholds)
     hold on;
     l = boundedline(thresholds,surrogate,ci,'alpha');
     l.Color = [.5 .5 1]; l.LineStyle = '--';
-    xlabel('Distance Threshold [\mum]');
-    ylabel('Rank Distance');
+    xlabel('Neighborhood Radius [microns]');
+    ylabel('Norm. Sequence Rank Difference');
     axis tight; 
     set(gca,'tickdir','out');
 end

@@ -1,4 +1,4 @@
-function [STATS,nNeurons] = StabilityStatsEarlyLate(mds,stabilityType,statType,treadmillTime)
+function [STATS,nNeurons,stable,unstable] = StabilityStatsEarlyLate(mds,stabilityType,statType,treadmillTime)
 %
 %
 %
@@ -9,6 +9,13 @@ function [STATS,nNeurons] = StabilityStatsEarlyLate(mds,stabilityType,statType,t
     stabilityType = lower(stabilityType); 
     statType = lower(statType);
 
+%% Determine what type of neuron to analyze.
+    switch statType
+        case 'ti',cellGet = 'timecells'; 
+        case 'si',cellGet = 'timecells'; 
+        case {'fr','fluor'}, cellGet = 'timecells';
+    end
+   
 %% 
     [STATS.stable,STATS.unstable,stable,unstable] = deal(cell(1,nAnimals));
     [nNeurons.stable,nNeurons.unstable] = deal(zeros(1,nAnimals)); 
@@ -24,73 +31,47 @@ function [STATS,nNeurons] = StabilityStatsEarlyLate(mds,stabilityType,statType,t
         
         for s=1:nSessions-1
             cd(mds(ssns(s)).Location);
-                     
-            %Critical p-value for place cell consideration.
-            PCcrit = .01;
-            
+       
             %Get time and place cells. 
             TCs = getTimeCells(mds(ssns(s)));
-            PCs = getPlaceCells(mds(ssns(s)),PCcrit);
-            
+ 
             switch statType
                 case 'ti'
                     load('TemporalInfo.mat','MI');
                     stat = MI; 
-                    
-                    if strcmp(stabilityType,'time')
-                        neurons = TCs; 
-                    elseif strcmp(stabilityType,'place')
-                        neurons = intersect(TCs,PCs);
-                    end
-                    
+                                  
                 case 'si'
                     load('SpatialInfo.mat','MI');
                     stat = MI;
-                    
-                    if strcmp(stabilityType,'place')
-                        neurons = PCs;
-                    elseif strcmp(stabilityType,'time')
-                        neurons = intersect(TCs,PCs);
-                    end
-                    
-                case 'pk'
-                    [~,stat] = getTimePeak(mds(ssns(s))); 
-                    
-                    neurons = TCs;
-                    
+
                 case 'fr'
                     load('Pos_align.mat','PSAbool');
-                    [~,f] = size(PSAbool); 
-                    stat = sum(PSAbool,2)./f;
-                    
-                    if strcmp(stabilityType,'time')
-                        neurons = TCs;
-                    elseif strcmp(stabilityType,'place')
-                        neurons = PCs;
-                    end
+                    [n,f] = size(PSAbool);
+                    d = diff([zeros(n,1) PSAbool],1,2);
+                    d(d<0) = 0;
+                    stat = sum(d,2)./f;  
             end
             
-            if strcmp(stabilityType,'time') || ...
-              (strcmp(stabilityType,'place') && strcmp(statType,'time'))
-                %Get early/late.
-                [~,order] = PastalkovaPlot(mds(ssns(s)),false);
-                middle = length(order)/2;
+            neurons = AcquireTimePlaceCells(mds(ssns(s)),cellGet);
+            neurons = EliminateUncertainMatches([mds(ssns(s)) mds(ssns(s+1))],neurons);
+            
+            %Get early/late.
+            [~,order] = PastalkovaPlot(mds(ssns(s)),'plotit',false);
+            middle = length(order)/2;
 
-                if strcmp(treadmillTime,'early')
-                    neurons = intersect(neurons,TCs(order < middle));
-                elseif strcmp(treadmillTime,'late')
-                    neurons = intersect(neurons,TCs(order >= middle)); 
-                end
+            if strcmp(treadmillTime,'early')
+                neurons = intersect(neurons,TCs(order < middle));
+            elseif strcmp(treadmillTime,'late')
+                neurons = intersect(neurons,TCs(order >= middle)); 
             end
-            
+ 
             %Normalize.
-            if strcmp(statType,'fr')
-                stat = (stat-min(stat))./range(stat);
-            else
-                stat(neurons) = zscore(stat(neurons));
-            end
-            
-            
+%             if strcmp(statType,'fr')
+%                 stat = (stat-min(stat))./range(stat);
+%             else
+                stat(TCs) = zscore(stat(TCs));
+%             end
+
             if strcmp(stabilityType,'time')           
                 %Get correlation coefficients and p-values. 
                 corrs = CorrTrdmllTrace(mds(ssns(s)),mds(ssns(s+1)),neurons);

@@ -10,12 +10,10 @@ function [d,td] = TimeCellTopology(md)
 
 %%
     cd(md.Location);
-    load('TimeCells.mat','TimeCells','T'); 
-    load('TemporalInfo.mat','sig');
-    TimeCells = intersect(find(sig),TimeCells);
+    TimeCells = getTimeCells(md);
     nTCs = length(TimeCells);
     
-    [~,order] = PastalkovaPlot(md,false);
+    [~,order] = PastalkovaPlot(md,'plotit',false);
     centroids = getNeuronCentroids(md,'neurons',TimeCells);
     
     [d,td] = deal(nan(nTCs));
@@ -40,14 +38,15 @@ function [d,td] = TimeCellTopology(md)
     
     d = d(~isnan(d));
     td = abs(td(~isnan(td)));
+    td = td./max(td); 
     
     [R,p] = corr(td,d);
     
     dots = scatter(td,d,10,'filled');
     alpha(dots,.2); 
     lsline;
-    xlabel('Rank distance'); 
-    ylabel('Anatomical distance [\mum]');
+    xlabel('Norm. sequence rank distance'); 
+    ylabel('Anatomical distance [microns]');
     title(['P = ',num2str(p)]);
     
 end

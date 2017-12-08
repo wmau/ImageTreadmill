@@ -44,7 +44,7 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(base,comp,Ts,plotit)
 
 %% Find relevant indices in batch_session_map. 
     %Find the columns in MAP 
-    matchMat = msMatchCells(mapMD,sessions,TIMECELLS{1},false);
+    matchMat = msMatchCells(sessions,TIMECELLS{1},false);
     
 %% Create the figure. 
     %Number of time bins for each session.
@@ -83,8 +83,10 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(base,comp,Ts,plotit)
             if plotit
                 subplot(1,nSessions,dateOrder(i)); 
                 imagesc([0:Ts(i)],[1:nTimeCells],normtilemat{1}); hold on;
-                plot(sortedPeaks(:,i),[1:nTimeCells],'r','linewidth',2);
-                colormap gray; xlabel('Time [s]'); title(dateTitles{i});
+                plot(sortedPeaks(:,i),[1:nTimeCells],'color',[0 .5 .5],...
+                    'linewidth',5);
+                set(gca,'ytick',[1 nTimeCells]);
+                colormap gray; xlabel('Time (s)'); title(dateTitles{i});
             end
         else %Almost the same as above. 
             %Preallocate. 
@@ -111,18 +113,19 @@ function [normtilemat,sortedPeaks] = msPastalkovaPlot(base,comp,Ts,plotit)
             if plotit
                 subplot(1,nSessions,dateOrder(i))
                 imagesc([0:Ts(i)],[1:nTimeCells],normtilemat{i}); hold on;
-                plot(sortedPeaks(:,1),[1:nTimeCells],'r','linewidth',2);
+                plot(sortedPeaks(:,1),[1:nTimeCells],'color',[0 .5 .5],...
+                    'linestyle',':','linewidth',6);
+                set(gca,'ytick',[]);
                 colormap gray; xlabel('Time [s]'); title(dateTitles{i});
             end
         end
         
         %Label y axis on first plot. 
-        if dateOrder(i)==1 && plotit, ylabel('Neurons'); end
+        if dateOrder(i)==1 && plotit, ylabel('Cell #'); end
     end
          
     if plotit
-        set(f,'PaperOrientation','landscape');
-        set(f,'PaperUnits','normalized');
-        set(f,'PaperPosition',[0 0 1 1]);
+        set(f,'PaperOrientation','landscape',...
+            'PaperUnits','normalized','PaperPosition',[0 0 1 1]);
     end
 end

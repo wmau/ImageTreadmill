@@ -8,9 +8,7 @@ function NeighborhoodTimeDistance(md,thresholds)
 
 %%
     cd(md.Location); 
-    load('TimeCells.mat','TimeCells');
-    load('TemporalInfo.mat','sig');
-    TimeCells = intersect(TimeCells,find(sig)); 
+    TimeCells = getTimeCells(md);
     nTCs = length(TimeCells);
     nDistances = length(thresholds);
     B = 1000;
@@ -103,8 +101,8 @@ function NeighborhoodTimeDistance(md,thresholds)
     hold on;
     l = boundedline(thresholds,surrogate,ci,'alpha');
     l.Color = [.5 .5 1]; l.LineStyle = '--';
-    xlabel('Distance Threshold [\mum]');
-    ylabel('Rank Distance');
+    xlabel('Neighborhood Radius [microns]');
+    ylabel('Norm. Rank Difference');
     axis tight; 
     set(gca,'tickdir','out');
 end

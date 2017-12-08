@@ -1,4 +1,4 @@
-function [r,lags]=xcorr_by_laps(triggerRaster,targetRaster,corrType)
+function [r,lags]=xcorr_by_laps(triggerRaster,targetRaster)
 %[r,lags]=xcorr_by_laps(triggerRaster,targetRaster)
 %
 %   Performs lap by lap cross correlation of two rasters. 
@@ -22,7 +22,7 @@ function [r,lags]=xcorr_by_laps(triggerRaster,targetRaster,corrType)
     %XCorr. 
     r = zeros(nLaps,maxlag*2+1); 
     for l=1:nLaps
-        [r(l,:),lags] = xcorr(triggerRaster(l,:),targetRaster(l,:),maxlag,corrType); 
+        [r(l,:),lags] = xcorr(triggerRaster(l,:),targetRaster(l,:),maxlag); 
     end
     
     %Lags is in frames. 

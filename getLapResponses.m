@@ -52,7 +52,7 @@ function [ratebylap,x,y,time_interp,aviFrame,PSAbool,TodayTreadmillLog] = getLap
     %Make sure the mouse is on the treadmill during these epochs. Find the
     %section that the mouse is on. 
     if alternation
-        Alt = postrials_treadmill(x,y,0); 
+        Alt = postrials_treadmill(MD); 
         if blocked %In blocked alternation, choice is always correct.
             Alt.alt = ones(1,length(Alt.frames)); 
         end

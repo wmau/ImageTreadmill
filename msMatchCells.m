@@ -1,12 +1,14 @@
-function [matchMat,mapRows,mapCols] = msMatchCells(mapMD,md,neurons,trim)
-%matchMat = msMatchCells(mapMD,md,neurons)
+function [matchMat,mapRows,mapCols] = msMatchCells(mds,neurons,trim)
+%[matchMat,mapRows,mapCols] = msMatchCells(md,neurons,trim)
 %
 %   Matches all specified neurons across sessions specified in md. 
 %
 %   INPUTS
 %       mapMD: MD entry containing batch_session_map.mat.
 %
-%       md: Specified sessions.
+%       md: Specified sessions. The order of sessions is important here. If
+%       you want to find a cell that was called #955 in session N, session
+%       N must be the first entry in this variable. 
 %
 %       neurons: Specified neurons.
 %
@@ -17,14 +19,17 @@ function [matchMat,mapRows,mapCols] = msMatchCells(mapMD,md,neurons,trim)
 %       is the neurons vector. Subsequent columns are the corresponding
 %       neurons from other sessions.
 %
+%       mapRows: 
+%
 
 %% Match cells.
+    mapMD = getMapMD(mds); 
     load(fullfile(mapMD.Location,'batch_session_map.mat'));
     
     %Specified sessions.
-    dates = {md.Date};
-    sessions = [md.Session];
-    nSessions = length(md);
+    dates = {mds.Date};
+    sessions = [mds.Session];
+    nSessions = length(mds);
     
     %Sessions registered.
     regDates = {batch_session_map.session.Date};
@@ -50,7 +55,7 @@ function [matchMat,mapRows,mapCols] = msMatchCells(mapMD,md,neurons,trim)
     matchMat = MAP(mapRows,mapCols);
    
     if trim
-        matchMat(matchMat(:,2)==0,:) = [];
-        matchMat(isnan(matchMat(:,2)),:) = [];
+        matchMat(any(matchMat(:,2:end)==0,2),:) = [];
+        matchMat(any(isnan(matchMat(:,2:end)),2),:) = [];
     end
 end

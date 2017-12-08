@@ -17,22 +17,22 @@ if saveBool
 end
 
 disp('Classifying temporal stability based on temporal information.');
-[~,sTimeTIaccuracy,sTimeTIshuffle,sTimeTIp] = ClassifyStability(fulldataset,'time','TI',krnl);
+[~,sTimeTIaccuracy,sTimeTIshuffle,sTimeTIp] = ClassifyStability(fulldataset,'time','ti',krnl);
 
 disp('Classifying temporal stability based on spatial information.');
-[~,sTimeSIaccuracy,sTimeSIshuffle,sTimeSIp] = ClassifyStability(fulldataset,'time','SI',krnl);
+[~,sTimeSIaccuracy,sTimeSIshuffle,sTimeSIp] = ClassifyStability(fulldataset,'time','si',krnl);
 
 disp('Classifying temporal stability based on transient frequency.');
 [~,sTimeFRaccuracy,sTimeFRshuffle,sTimeFRp] = ClassifyStability(fulldataset,'time','FR',krnl);
 
-% disp('Classifying spatial stability based on spatial information.');
-% [~,sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = ClassifyStability(fulldataset,'place','SI',krnl);
-% 
-% disp('Classifying spatial stability based on temporal information.');
-% [~,sPlaceTIaccuracy,sPlaceTIshuffle,sPlaceTIp] = ClassifyStability(fulldataset,'place','TI',krnl);
-% 
-% disp('Classifying spatial stability based on transient frequency.');
-% [~,sPlaceFRaccuracy,sPlaceFRshuffle,sPlaceFRp] = ClassifyStability(fulldataset,'time','FR',krnl);
+disp('Classifying spatial stability based on spatial information.');
+[~,sPlaceSIaccuracy,sPlaceSIshuffle,sPlaceSIp] = ClassifyStability(fulldataset,'place','si',krnl);
+
+disp('Classifying spatial stability based on temporal information.');
+[~,sPlaceTIaccuracy,sPlaceTIshuffle,sPlaceTIp] = ClassifyStability(fulldataset,'place','ti',krnl);
+
+disp('Classifying spatial stability based on transient frequency.');
+[~,sPlaceFRaccuracy,sPlaceFRshuffle,sPlaceFRp] = ClassifyStability(fulldataset,'time','FR',krnl);
 
 timecolor = [0 .5 .5];
 spacecolor = [0.5765 0.4392 0.8588];
@@ -50,62 +50,48 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
 
 %% Plot time stability.
     acc = [sTimeTIaccuracy sTimeSIaccuracy sTimeFRaccuracy]';
-    e = [   sTimeTIshuffle(l)-mean(sTimeTIshuffle), sTimeTIshuffle(u)-mean(sTimeTIshuffle);...
-            sTimeSIshuffle(l)-mean(sTimeSIshuffle),sTimeSIshuffle(u)-mean(sTimeSIshuffle);...
-            sTimeFRshuffle(l)-mean(sTimeFRshuffle),sTimeFRshuffle(u)-mean(sTimeFRshuffle)];
-    e = abs(e);
-    x = 1:3; 
-    y = [   mean(sTimeTIshuffle),...
-            mean(sTimeSIshuffle),...
-            mean(sTimeFRshuffle)];
-    figure; hold on;
+    shuffle = [sTimeTIshuffle sTimeSIshuffle sTimeFRshuffle];
+    grps = [zeros(B,1) ones(B,1) 2*ones(B,1)];
+%     e = [   sTimeTIshuffle(l)-mean(sTimeTIshuffle), sTimeTIshuffle(u)-mean(sTimeTIshuffle);...
+%             sTimeSIshuffle(l)-mean(sTimeSIshuffle),sTimeSIshuffle(u)-mean(sTimeSIshuffle);...
+%             sTimeFRshuffle(l)-mean(sTimeFRshuffle),sTimeFRshuffle(u)-mean(sTimeFRshuffle)];
+%    e = abs(e);
+%    x = 1:3; 
+    figure('Position',[680 585 360 390]); hold on;
     for i=1:3
-        b(i) = bar(i,acc(i),.5);
+        s(i) = scatter(i,acc(i),100,'filled');
     end
-    [b(1:3).FaceColor] = deal(timecolor);
-    b(2).EdgeColor = spacecolor;
-    b(3).EdgeColor = frcolor;
-    [b.LineWidth] = deal(3);
-    [h,p]=boundedline(x,y,e,'alpha');
-    h.LineWidth = 2;
-    h.Color = 'b';
-    p.FaceColor = 'b';
-    ylim([0.3 0.7]);
-    set(gca,'tickdir','out','linewidth',2,'xtick',[1:3]);
+    s(1).CData = timecolor;
+    s(2).CData = spacecolor;
+    s(3).CData = frcolor;
+    b = boxplot(shuffle(:),grps(:),'color',timecolor,'symbol','d',...
+        'labels',{'TI','SI','Activity rate'});
+    ylim([0.4 0.75]);
+    set(gca,'tickdir','out','fontsize',12,'linewidth',4)
     ylabel('Accuracy');
-    xticklabels({'Temporal Stability | TI','Temporal Stability | SI','Temporal Stability | TR'})
     title(['p = ',num2str(sTimeTIp),', ',num2str(sTimeSIp),', ',num2str(sTimeFRp)]);
     if saveBool
         print(timeFileName,'-dpdf');
     end
     
 %% Plot place stability.
-    acc = [sPlaceSIaccuracy sPlaceTIaccuracy sPlaceFRaccuracy]';
-    e = [   sPlaceSIshuffle(l)-mean(sPlaceSIshuffle), sPlaceSIshuffle(u)-mean(sPlaceSIshuffle);...
-            sPlaceTIshuffle(l)-mean(sPlaceTIshuffle),sPlaceTIshuffle(u)-mean(sPlaceTIshuffle);...
-            sPlaceFRshuffle(l)-mean(sPlaceFRshuffle),sPlaceFRshuffle(u)-mean(sPlaceFRshuffle)];
-    e = abs(e);
-    x = 1:3; 
-    y = [   mean(sPlaceSIshuffle),...
-            mean(sPlaceTIshuffle),...
-            mean(sPlaceFRshuffle)];
-    figure; hold on;
+    acc = [sPlaceTIaccuracy sPlaceSIaccuracy sPlaceFRaccuracy]';
+    shuffle = [sPlaceTIshuffle sPlaceSIshuffle sPlaceFRshuffle];
+    grps = [zeros(B,1) ones(B,1) 2*ones(B,1)];
+
+    figure('Position',[680 585 360 390]); hold on;
     for i=1:3
-        b(i) = bar(i,acc(i),.5);
+        s(i) = scatter(i,acc(i),100,'filled');
     end
-    [b(1:3).FaceColor] = deal(spacecolor);
-    b(2).EdgeColor = timecolor;
-    b(3).EdgeColor = frcolor;
-    [b.LineWidth] = deal(3);
-    [h,p]=boundedline(x,y,e,'alpha');
-    h.LineWidth = 2;
-    h.Color = 'b';
-    p.FaceColor = 'b';
-    ylim([0.3 0.7]);
-    set(gca,'tickdir','out','linewidth',2,'xtick',[1:3]);
+    s(1).CData = timecolor;
+    s(2).CData = spacecolor;
+    s(3).CData = frcolor;
+    b = boxplot(shuffle(:),grps(:),'color',spacecolor,'symbol','d',...
+        'labels',{'TI','SI','Activity rate'});
+    ylim([0.4 0.75]);
+    set(gca,'tickdir','out','fontsize',12,'linewidth',4)
     ylabel('Accuracy');
-    xticklabels({'Spatial Stability | SI','Spatial Stability | TI','Spatial Stability | TR'})
-    title(['p = ',num2str(sPlaceSIp),', ',num2str(sPlaceTIp),', ',num2str(sPlaceFRp)]);
+    title(['p = ',num2str(sPlaceTIp),', ',num2str(sPlaceSIp),', ',num2str(sPlaceFRp)]);
     if saveBool
-        print(placeFileName,'-dpdf');
+        print(timeFileName,'-dpdf');
     end

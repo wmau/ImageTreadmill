@@ -1,12 +1,12 @@
 TT = []; II = []; IND = [];
-for i=243:246
+for i=292:309
     [t,ind] = getTimePeak(MD(i)); 
     cd(MD(i).Location);
-    load(fullfile(pwd,'TimeCells.mat'),'TimeCells');
-    load(fullfile(pwd,'TemporalInfo.mat'),'I');
-    TT = [TT; t(TimeCells)];
-    II = [II; I(TimeCells)];
-    IND = [IND; ind(TimeCells)];
+    TimeCells = getTimeCells(MD(i));
+    load(fullfile(pwd,'TemporalInfo.mat'),'MI');
+    TT = [TT; ind(TimeCells)];
+    II = [II; MI(TimeCells)];
+    IND = [IND; t(TimeCells)];
 end
 
 TTx = [0.25:0.25:10];

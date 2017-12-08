@@ -75,8 +75,8 @@ function bounds = sections_treadmill(x,y,direction,plotit)
         approach_l.y =  approachY;
     case 'right'
         %Right arm.
-        right.x =       center.x; 
-        right.y =       [ymax           ymax            ymax-w          ymax-w];
+        right.x =       center.x;
+        right.y =       [ymax-w         ymax-w          ymax            ymax];
         
         %Right return.
         return_r.x =    base.x; 
@@ -153,7 +153,7 @@ function bounds = sections_treadmill(x,y,direction,plotit)
         
         %Zeros for left arm. 
         bounds.approach_l.x = zeros(1,4);       bounds.approach_l.y = zeros(1,4); 
-        bounds.left.x = zeros(1,4);            bounds.left.y = zeros(1,4);
+        bounds.left.x = zeros(1,4);             bounds.left.y = zeros(1,4);
         bounds.return_l.x = zeros(1,4);         bounds.return_l.y = zeros(1,4);
     case 'alternation'
         if plotit

@@ -37,12 +37,16 @@ nHits = ip.Results.nHits;
 ratioHits = ip.Results.ratioHits;
 
 %% Get place cells.
+
     dirstr = ChangeDirectory(md.Animal, md.Date, md.Session);
     load(fullfile(dirstr,['Placefields' name_append '.mat']),'TMap_gauss','pval');
     load(fullfile(dirstr,['PlacefieldStats' name_append '.mat']),'PFnHits','bestPF','PFpcthits');
     load(fullfile(dirstr,['SpatialInfo' name_append '.mat']),'MI');
+
     
+    [~,bestPF] = max(PFnHits,[],2);
     idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');    
     PCs = find(pval<crit & MI'>0 & PFnHits(idx) > 5 & PFpcthits(idx) > .05);
+
     
 end

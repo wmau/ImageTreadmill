@@ -43,7 +43,7 @@ function Placefields(MD,varargin)
     ip = inputParser;
     ip.addRequired('MD',@(x) isstruct(x)); 
     ip.addParameter('exclude_frames',[],@(x) isnumeric(x)); 
-    ip.addParameter('cmperbin',1,@(x) isscalar(x)); 
+    ip.addParameter('cmperbin',2.5,@(x) isscalar(x)); 
     ip.addParameter('minspeed',3,@(x) isscalar(x)); 
     ip.addParameter('B',1000,@(x) isscalar(x));
     ip.addParameter('aligned',true,@(x) islogical(x));
@@ -51,6 +51,7 @@ function Placefields(MD,varargin)
     ip.addParameter('Tenaspis_data','FinalOutput.mat',@(x) ischar(x)); 
     ip.addParameter('name_append','',@ischar);
     ip.KeepUnmatched = true;
+    ip.addParameter('saveSI',true,@(x) islogical(x)); 
     
     ip.parse(MD,varargin{:});
     
@@ -63,6 +64,7 @@ function Placefields(MD,varargin)
     Pos_data = ip.Results.Pos_data;
     Tenaspis_data = ip.Results.Tenaspis_data;
     name_append = ip.Results.name_append;
+    saveSI = ip.Results.saveSI;
     
 %% Set up.
 
@@ -133,7 +135,8 @@ function Placefields(MD,varargin)
     end
     
     %Compute mutual information.
-    MI = spatInfo(TMap_unsmoothed, RunOccMap, PSAbool, true, 'name_append', name_append);
+    MI = spatInfo(TMap_unsmoothed, RunOccMap, PSAbool, true, 'name_append', ...
+        name_append);
     
 %% Get statistical significance of place field using mutual information.
     %Preallocate. 

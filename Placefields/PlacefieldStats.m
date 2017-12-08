@@ -69,14 +69,6 @@ function PlacefieldStats(md, varargin)
        save(savename, 'Placefields_half_stats','calc_mode')
     end
     
-%     try
-%         load('Pos_align.mat','PSAbool');
-%     catch
-%         load('FinalOutput.mat','PSAbool');
-%         [~,~,~,PSAbool] = AlignImagingToTracking(md.Pix2CM,PSAbool,0);
-%     end
-%     PSAbool = PSAbool(:,isrunning);
-    
 
 end
 
@@ -137,7 +129,7 @@ function [] = calc_stats(TMap_gauss,PSAbool,xBin,yBin,filesavename)
                 e = PFepochs{n,p}(epoch,2);
                 
                 %Get activations during traversal epochs.
-                PFactive{n,p}(epoch) = any(PSAbool(n,s:e));                             
+                PFactive{n,p}(epoch) = any(PSAbool(n,s:e));      
             end
         end
         
