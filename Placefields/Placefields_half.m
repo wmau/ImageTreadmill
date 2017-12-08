@@ -23,7 +23,8 @@ function [ ] = Placefields_half( MD, calc_mode, exclude_frames, name_append, var
     
     ip = inputParser;
     ip.addRequired('MD',@(x) isstruct(x)); 
-    ip.addRequired('calc_mode',@(a) ischar(a) && (strcmpi(a,'half') || strcmpi(a,'oddeven')));
+    ip.addRequired('calc_mode',@(a) ischar(a) && (strcmpi(a,'half') || ...
+        strcmpi(a,'oddeven') || strcmpi(a,'inMD'))); % inMD - specified in .half field of MD
     ip.addRequired('exclude_frames', @(x) isnumeric(x)); 
     ip.addRequired('name_append', @ischar);
     ip.addParameter('half_custom', nan, @(a) isnumeric(a) && round(a) == a); % custom halfway point based on aligned Pos.mat file (run AlignImagingData and plot x/y to find frame number).
@@ -72,6 +73,10 @@ function [ ] = Placefields_half( MD, calc_mode, exclude_frames, name_append, var
             
             ind_use_half{1}(odd_frames) = true;
             ind_use_half{2}(even_frames) = true;
+        case 'inMD'
+            half = MD.half;
+            ind_use_half{1}(1:half) = true; 
+            ind_use_half{2}(half+1:Flength) = true; 
         otherwise
             % Add in functionality here to use a specific halfway point if
             % desired!

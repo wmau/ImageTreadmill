@@ -41,23 +41,47 @@ function PlacefieldStats(md, varargin)
     ip = inputParser;
     ip.addRequired('md',@(x) isstruct(x));  
     ip.addParameter('name_append','',@ischar);
+    ip.addParameter('halfPF',false,@islogical); % true = calc for Placefields_halves
     
     ip.parse(md,varargin{:});
     
     %Compile.
     name_append = ip.Results.name_append;
+    halfPF = ip.Results.halfPF;
 %% Set up.
     [dirstr, md] = ChangeDirectory(md.Animal, md.Date, md.Session); % Change Directory and fill in partial MD if used
-
-    load(fullfile(dirstr, ['Placefields' name_append '.mat']),'TMap_gauss','xBin','yBin','isrunning');
-    try
-        load('Pos_align.mat','PSAbool');
-    catch
-        load('FinalOutput.mat','PSAbool');
-        [~,~,~,PSAbool] = AlignImagingToTracking(md.Pix2CM,PSAbool,0);
+    savename = fullfile(dirstr,['PlacefieldStats' name_append '.mat']);
+    if ~halfPF
+        load(fullfile(dirstr, ['Placefields' name_append '.mat']),...
+            'TMap_gauss','xBin','yBin','isrunning','PSAbool');
+        calc_stats(TMap_gauss,PSAbool,xBin,yBin,savename);
+    elseif halfPF
+       load(fullfile(dirstr, ['Placefields' name_append '.mat']));
+       for j = 1:2
+           TMap_gauss = Placefields_halves{j}.TMap_gauss;
+           PSAbool = Placefields_halves{j}.PSAbool;
+           xBin = Placefields_halves{j}.xBin;
+           yBin = Placefields_halves{j}.yBin;
+           calc_stats(TMap_gauss,PSAbool,xBin,yBin,savename);
+           Placefields_half_stats{j} = load(savename);
+           delete(savename);
+       end
+       save(savename, 'Placefields_half_stats','calc_mode')
     end
-    PSAbool = PSAbool(:,isrunning);
     
+%     try
+%         load('Pos_align.mat','PSAbool');
+%     catch
+%         load('FinalOutput.mat','PSAbool');
+%         [~,~,~,PSAbool] = AlignImagingToTracking(md.Pix2CM,PSAbool,0);
+%     end
+%     PSAbool = PSAbool(:,isrunning);
+    
+
+end
+
+%% Main function to calculate everything
+function [] = calc_stats(TMap_gauss,PSAbool,xBin,yBin,filesavename)
 %% Get basic properties of the placefields
     nNeurons = length(TMap_gauss);
     cc = cell(1,nNeurons);
@@ -130,7 +154,7 @@ function PlacefieldStats(md, varargin)
     %Number and percentage hits.
     PFnHits = cellfun(@sum,PFactive);
     PFpcthits = PFnHits./PFnEpochs;
-     
-    save(fullfile(dirstr,['PlacefieldStats' name_append '.mat']),'PFpcthits','PFnHits','PFnEpochs','PFepochs',...
+    
+    save(filesavename,'PFpcthits','PFnHits','PFnEpochs','PFepochs',...
         'PFcentroids','PFpixels','PFarea','bestPF','-v7.3');
 end
