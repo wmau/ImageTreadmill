@@ -19,7 +19,7 @@ function [ ] = Placefields_half( MD, calc_mode, exclude_frames, name_append, var
 
 %% Parse inputs.
 
-    [dirstr, MD] = ChangeDirectory(MD.Animal, MD.Date, MD.Session, 0); % Change Directory and fill in partial MD if used
+    [dirstr, MD] = ChangeDirectory(MD.Animal, MD.Date, MD.Session); % Change Directory and fill in partial MD if used
     
     ip = inputParser;
     ip.addRequired('MD',@(x) isstruct(x)); 
