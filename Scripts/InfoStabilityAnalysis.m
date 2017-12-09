@@ -42,7 +42,7 @@
 %     [~,p] = corr([s,us]',[S,US]')
     
     fPos = [-1900 460 300 450];
-    boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
+    scatterBox([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Temporal Information [bits]','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
@@ -57,7 +57,7 @@
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','SI');
 
     fPos = [-1600 460 300 450];
-    boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
+    scatterBox([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Spatial Information [bits]','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
@@ -72,7 +72,7 @@
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','FR');
 
     fPos = [-1300 460 300 450];
-    boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
+    scatterBox([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Transient Frequency','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
@@ -92,7 +92,7 @@
 %     [~,p] = corr([s,us]',[S,US]')
 
     fPos = [-1000 460 300 450];
-    boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
+    scatterBox([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Spatial Information [bits]','boxColor',purple,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
@@ -107,7 +107,7 @@
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','TI');
     
     fPos = [-700 460 300 450];
-    boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
+    scatterBox([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Temporal Information [bits]','boxColor',purple,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
@@ -122,7 +122,7 @@
     [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','FR');
 
     fPos = [-400 460 300 450];
-    boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
+    scatterBox([s,us],grps,'xLabels',{'Stable','Unstable'},...
         'yLabel','Transient Frequency','boxColor',purple,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
@@ -134,17 +134,29 @@
     end 
     
 %%
-    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','pk');
+    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'time','fluor');
 
     fPos = [-400 460 300 450];
-    boxScatterplot([s,us],grps,'xLabels',{'Stable','Unstable'},...
-        'yLabel','Time Peak [s]','boxColor',purple,'position',...
+    scatterBox([s,us],grps,'xLabels',{'Stable','Unstable'},...
+        'yLabel','Norm. Fluor. Intensity [AU]','boxColor',teal,'position',...
         fPos,'circleColors',[sColors;usColors]);
     [~,kp] = kstest2(s,us);
     tp = ranksum(s,us); 
     d = cohensD(s,us);
     title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen"s d = ',num2str(d)]});
-    
+
+%% 
+    [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(fulldataset,'place','fluor');
+
+    fPos = [-400 460 300 450];
+    scatterBox([s,us],grps,'xLabels',{'Stable','Unstable'},...
+        'yLabel','Norm. Fluor. Intensity [AU]','boxColor',purple,'position',...
+        fPos,'circleColors',[sColors;usColors]);
+    [~,kp] = kstest2(s,us);
+    tp = ranksum(s,us); 
+    d = cohensD(s,us);
+    title({['KS p = ',num2str(kp)], ['T p = ',num2str(tp)], ['Cohen"s d = ',num2str(d)]});
+
 %% Nested function
 function [s,us,grps,sColors,usColors] = ParseInfoStabilityParams(data,stability,infoType)
     nAnimals = length(unique({data.Animal}));

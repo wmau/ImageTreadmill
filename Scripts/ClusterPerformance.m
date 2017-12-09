@@ -1,9 +1,9 @@
 clear;
 loadMD;
 fulldataset = MD(292:309);
-distType = 'cityblock';
+distType = 'sqeuclidean';
 
-saveBool = true;
+saveBool = false;
 folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures\Supplementals';
 timeFileName = fullfile(folder,'Cluster time');
 placeFileName = fullfile(folder,'Cluster place');
@@ -50,11 +50,11 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
 
 %% Plot time stability.
     acc = [sTimeTIaccuracy sTimeSIaccuracy sTimeFRaccuracy]';
-    e = [   sTimeTIshuffle(l)-mean(sTimeTIshuffle), sTimeTIshuffle(u)-mean(sTimeTIshuffle);...
-            sTimeSIshuffle(l)-mean(sTimeSIshuffle),sTimeSIshuffle(u)-mean(sTimeSIshuffle);...
-            sTimeFRshuffle(l)-mean(sTimeFRshuffle),sTimeFRshuffle(u)-mean(sTimeFRshuffle)];
-    e = abs(e);
-    x = 1:3; 
+%     e = [   sTimeTIshuffle(l)-mean(sTimeTIshuffle), sTimeTIshuffle(u)-mean(sTimeTIshuffle);...
+%             sTimeSIshuffle(l)-mean(sTimeSIshuffle),sTimeSIshuffle(u)-mean(sTimeSIshuffle);...
+%             sTimeFRshuffle(l)-mean(sTimeFRshuffle),sTimeFRshuffle(u)-mean(sTimeFRshuffle)];
+%    e = abs(e);
+%    x = 1:3; 
     y = [   mean(sTimeTIshuffle),...
             mean(sTimeSIshuffle),...
             mean(sTimeFRshuffle)];
@@ -66,11 +66,17 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
     b(2).EdgeColor = spacecolor;
     b(3).EdgeColor = frcolor;
     [b.LineWidth] = deal(3);
-    [h,p]=boundedline(x,y,e,'alpha');
-    h.LineWidth = 2;
-    h.Color = 'b';
-    p.FaceColor = 'b';
-    ylim([0.3 0.7]);
+    
+    w = b(1).BarWidth;
+    for i=1:3
+        line([i-w/2 i+w/2],[y(i) y(i)],'color','r','linewidth',2);
+    end
+    
+%     [h,p]=boundedline(x,y,e,'alpha');
+%     h.LineWidth = 2;
+%     h.Color = 'b';
+%     p.FaceColor = 'b';
+    ylim([0.3 0.8]);
     set(gca,'tickdir','out','linewidth',2,'xtick',[1:3]);
     ylabel('Accuracy');
     xticklabels({'Temporal Stability | TI','Temporal Stability | SI','Temporal Stability | TR'})
@@ -80,32 +86,39 @@ sPlaceFRshuffle = sort(sPlaceFRshuffle);
     end
     
 %% Plot place stability.
-    acc = [sPlaceSIaccuracy sPlaceTIaccuracy sPlaceFRaccuracy]';
-    e = [   sPlaceSIshuffle(l)-mean(sPlaceSIshuffle), sPlaceSIshuffle(u)-mean(sPlaceSIshuffle);...
-            sPlaceTIshuffle(l)-mean(sPlaceTIshuffle),sPlaceTIshuffle(u)-mean(sPlaceTIshuffle);...
-            sPlaceFRshuffle(l)-mean(sPlaceFRshuffle),sPlaceFRshuffle(u)-mean(sPlaceFRshuffle)];
-    e = abs(e);
-    x = 1:3; 
-    y = [   mean(sPlaceSIshuffle),...
-            mean(sPlaceTIshuffle),...
+    acc = [sPlaceTIaccuracy sPlaceSIaccuracy sPlaceFRaccuracy]';
+%     e = [   sPlaceSIshuffle(l)-mean(sPlaceSIshuffle), sPlaceSIshuffle(u)-mean(sPlaceSIshuffle);...
+%             sPlaceTIshuffle(l)-mean(sPlaceTIshuffle),sPlaceTIshuffle(u)-mean(sPlaceTIshuffle);...
+%             sPlaceFRshuffle(l)-mean(sPlaceFRshuffle),sPlaceFRshuffle(u)-mean(sPlaceFRshuffle)];
+%     e = abs(e);
+%    x = 1:3; 
+    y = [   mean(sPlaceTIshuffle),...
+            mean(sPlaceSIshuffle),...
             mean(sPlaceFRshuffle)];
     figure; hold on;
     for i=1:3
         b(i) = bar(i,acc(i),.5);
     end
     [b(1:3).FaceColor] = deal(spacecolor);
-    b(2).EdgeColor = timecolor;
+    b(1).EdgeColor = timecolor;
     b(3).EdgeColor = frcolor;
     [b.LineWidth] = deal(3);
-    [h,p]=boundedline(x,y,e,'alpha');
-    h.LineWidth = 2;
-    h.Color = 'b';
-    p.FaceColor = 'b';
-    ylim([0.3 0.7]);
+%     [h,p]=boundedline(x,y,e,'alpha');
+%     h.LineWidth = 2;
+%     h.Color = 'b';
+%     p.FaceColor = 'b';
+
+    w = b(1).BarWidth;
+    for i=1:3
+        line([i-w/2 i+w/2],[y(i) y(i)],'color','r','linewidth',2);
+    end
+    
+    ylim([0.3 0.8]);
     set(gca,'tickdir','out','linewidth',2,'xtick',[1:3]);
     ylabel('Accuracy');
-    xticklabels({'Spatial Stability | SI','Spatial Stability | TI','Spatial Stability | TR'})
-    title(['p = ',num2str(sPlaceSIp),', ',num2str(sPlaceTIp),', ',num2str(sPlaceFRp)]);
+    xticklabels({'Spatial Stability | TI','Spatial Stability | SI','Spatial Stability | TR'})
+    title(['p = ',num2str(sPlaceTIp),', ',num2str(sPlaceSIp),', ',num2str(sPlaceFRp)]);
     if saveBool
         print(placeFileName,'-dpdf');
     end
+    

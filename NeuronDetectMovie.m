@@ -73,6 +73,8 @@ function NeuronDetectMovie(md,movietype,clim,varargin)
             h5file = fullfile(pwd,'DFF.h5'); 
         case 'slpdf'
             h5file = fullfile(pwd,'SLPDF.h5'); 
+        case 'bpdff'
+            h5file = fullfile(pwd,'BPDFF.h5'); 
     end
     
 %% Write video. 

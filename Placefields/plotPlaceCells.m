@@ -32,16 +32,18 @@ function plotPlaceCells(md,varargin)
         error('No neurons meet your placefield criteria!')
     end
 
+
     try
         load(fullfile(dirstr,['Placefields' name_append '.mat']),'TMap_gauss','isrunning');
     catch
-        PlacefieldStats(md,'name_append', name_append);
+        Placefields(md,'name_append', name_append);
     end
     load(fullfile(dirstr,['SpatialInfo' name_append '.mat']),'MI','Ipos','okpix');
+    PFarea = nansum(PFarea,2);
+
     try
         load('Pos_align.mat','PSAbool','x_adj_cm','y_adj_cm');
     catch
-        load('Pos.mat','xpos_interp','ypos_interp');
         load('FinalOutput.mat','PSAbool');
         [x_adj_cm,y_adj_cm,~,PSAbool] = AlignImagingToTracking(md.Pix2CM,PSAbool,0);
     end
@@ -69,6 +71,7 @@ function plotPlaceCells(md,varargin)
     end
 
 %%  
+    folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures\Supplementals\Example Cells\Place Cells';
     thisNeuron = 1;
     keepgoing = true;
     
@@ -80,18 +83,23 @@ function plotPlaceCells(md,varargin)
             plot(x(spks),y(spks),'r.','MarkerSize',8);
             axis equal; axis off; 
             title(['Neuron #',num2str(neurons(thisNeuron))]);
+            
         subplot(1,3,2);
+            tmap = imagesc(TMap_gauss{neurons(thisNeuron)});
+            set(tmap,'alphadata',~isnan(TMap_gauss{neurons(thisNeuron)}));
+            axis equal; axis off; 
+            colormap hot;         
+            title([num2str(round(MI(neurons(thisNeuron)),2)),' bits']);
+            
+        subplot(1,3,3);
             imap = imagesc(IMap{neurons(thisNeuron)});
             set(imap,'alphadata',~isnan(TMap_gauss{neurons(thisNeuron)}));
             axis equal; axis off; 
             colormap hot;           
-            title([num2str(round(MI(neurons(thisNeuron)),2)),' bits']);
-        subplot(1,3,3);
-            tmap = imagesc(TMap_gauss{neurons(thisNeuron)});
-            set(tmap,'alphadata',~isnan(TMap_gauss{neurons(thisNeuron)}));
-            axis equal; axis off; 
-            colormap hot;           
-            
+            title(['PF Area = ',num2str(PFarea(neurons(thisNeuron)))]);
+
+        %print(fullfile(folder,[md.Animal,' PC #',num2str(neurons(thisNeuron))]),'-dpdf');
+                    
         [keepgoing,thisNeuron] = scroll(thisNeuron,nPCs,f);
         close all;
     end

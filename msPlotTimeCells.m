@@ -48,7 +48,9 @@ function msPlotTimeCells(md,varargin)
             'ratebylap',...
             'curves',...
             'delays',...
-            'complete'};
+            'complete',...
+            'ti',...
+            'tfcorr'};
     if pf
         args{end+1} = 'placefields'; 
         args{end+1} = 'runoccmaps'; 
@@ -63,6 +65,8 @@ function msPlotTimeCells(md,varargin)
     CURVES = DATA.curves; 
     DELAYS = DATA.delays; 
     COMPLETE = DATA.complete; 
+    TI = DATA.ti;
+    TFCORR = DATA.tfcorr;
     Ts = cell2mat(DATA.t); 
     if pf
         PFS = DATA.placefields; 
@@ -127,9 +131,9 @@ function msPlotTimeCells(md,varargin)
     
     %Main plotting. 
     if pf 
-        fPos = [-1300 -40 830 180*nSessions];
+        fPos = [2600 100 630 180*nSessions];
     else 
-        fPos = [-1300 -40 520 180*nSessions];
+        fPos = [2600 100 370 180*nSessions];
     end
     
     
@@ -146,6 +150,9 @@ function msPlotTimeCells(md,varargin)
         %neuron was mapped, but inactive on stem. 
         for thisSession=1:nSessions
             n = neurons(thisSession);
+            
+            if isnan(n) || n==0, detection = ' Not detected'; 
+            else, detection = []; end
             
             %PLACE FIELD. 
             if ~isnan(n) && n~=0 && pf
@@ -216,13 +223,17 @@ function msPlotTimeCells(md,varargin)
                 plotme = plotme(:,~isnan(plotme(1,:)));
 
                 %Plot raster. 
-                imagesc(0:Ts(thisSession),1:5:sum(goodLaps),plotme);
+                imagesc(0:Ts(thisSession),1:sum(goodLaps),plotme);
                 colormap gray; freezeColors;
+                
+                if thisSession~=nSessions, set(gca,'xtick',[]); end
+                
                 ylabel('Laps'); title(['Neuron #',num2str(n)]); 
             else
                 imagesc(0); 
                 colormap gray; axis off; freezeColors
             end
+            set(gca,'ytick',[1,sum(COMPLETE{thisSession})]);
             
             %TUNING CURVE. 
             curveAX(thisSession) = subplot(nSessions,nCols,thisSession*nCols);
@@ -238,32 +249,38 @@ function msPlotTimeCells(md,varargin)
                 CIl = interp1(tCI{thisSession},CURVES{thisSession}.ci{n}(2,:),t{thisSession},'phcip');
                                
                 %Plot tuning curve and confidence intervals. 
-                plot(t{thisSession},CURVES{thisSession}.smoothed{n},'-r','linewidth',2);
+                plot(t{thisSession},CURVES{thisSession}.smoothed{n},'color',[0 .5 .5],...
+                    'linewidth',2);
                 hold on;
                 plot(t{thisSession},CImean,'-b','linewidth',2);
                 plot(t{thisSession},CIu,'--b',t{thisSession},CIl,'--b');  
                 Ylim = get(gca,'ylim');
         
                 %If there are enough laps, plot significance asterisks. 
-                if sum(any(RATEBYLAP{thisSession}(:,:,n),2)) > critLaps(thisSession) && ismember(n,TIMECELLS{thisSession})
+                if ismember(n,TIMECELLS{thisSession})
                     %Significance asterisks. 
                     [SIGX,SIGY] = significance_asterisks(t{thisSession},CURVES{thisSession}.sig{n},...
                         CURVES{thisSession}.smoothed{n},bins{thisSession});
                     
-                    plot(SIGX,SIGY+Ylim(2)*sf,'go','linewidth',2);                   
+                    plot(SIGX,SIGY+Ylim(2)*sf,'ro','linewidth',2);                   
                 end
                 
                 %Labels. 
                 title(dateTitles{thisSession});
-                xlabel('Time [s]'); ylabel('Rate');
                 yLims = get(gca,'ylim');
                 ylim([0,yLims(2)]); xlim([0,t{thisSession}(end)]);
+                ylabel('Rate');
+                
+                if thisSession~=nSessions, set(gca,'xtick',[]); end
+                if thisSession==nSessions, xlabel('Time [s]'); end
+                
                 set(gca,'tickdir','out','linewidth',4);
                 hold off; freezeColors
             else
                 %Flat line. 
                 plot(t{thisSession},zeros(length(t{thisSession}),1),'-r','linewidth',2);
-                title(dateTitles{thisSession});
+                title([dateTitles{thisSession} detection]);
+                set(gca,'xtick',[]);
                 yLims = get(gca,'ylim'); xlim([0,t{thisSession}(end)]);
                 ylim([0,yLims(2)]); freezeColors
             end
@@ -274,6 +291,34 @@ function msPlotTimeCells(md,varargin)
         curveXLims = [min([curveAX.XLim]), max([curveAX.XLim])];
         curveYLims = [min([curveAX.YLim]), max([curveAX.YLim])];
         
+        %Label temporal information.
+        for thisSession=1:nSessions
+            n = neurons(thisSession);
+            
+            if ~isnan(n) && n~=0
+                ax = subplot(nSessions,nCols,thisSession*nCols);
+                set(ax,'units','normalized');
+                %Label temporal information. 
+                text(2.5,0.9*curveYLims(2),['TI = ',num2str(round(TI{thisSession}(n),3)), ' bits']); 
+                
+                if thisSession~=nSessions
+                    %Purely for determining critical p-value. 
+                    TCs = getTimeCells(md(thisSession));
+                    TCs = EliminateUncertainMatches([md(thisSession),md(thisSession+1)],TCs);
+                    
+                    crit = 0.01/length(TCs);
+                    if TFCORR{thisSession}(n,2) < crit
+                        c = [0 .5 .5]; 
+                    else, c = 'r';
+                    end 
+                    
+                    %Label correlation coefficient. 
+                    text(6,-.2*curveYLims(2),['R = ',num2str(round(TFCORR{thisSession}(n,1),3))],'color',c)     
+                end
+            end
+     
+        end
+        
         if pf 
             for j=1:nSessions
                 if pfExist(j)
@@ -283,12 +328,13 @@ function msPlotTimeCells(md,varargin)
             end
             clims = [pfAX.CLim];
             pfLims = [0, max(clims(clims~=1))];
-            set(pfAX(pfExist),'CLim',pfLims); 
+            try set(pfAX(pfExist),'CLim',pfLims); 
+            catch, set(pfAX(pfExist),'CLim',[0 1]); end
             for j=1:nSessions
                 subplot(nSessions,nCols,j*nCols-2);
                 freezeColors;
             end
-        end
+        end  
         
         set(rasterAX,'XLim',rasterXLims);
         set(curveAX,'XLim',curveXLims,'YLim',curveYLims);

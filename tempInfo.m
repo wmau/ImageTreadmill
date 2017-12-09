@@ -4,7 +4,7 @@ function tempInfo(MD)
 %   Calculates the Shannon mutual information I(X,K) between the random
 %   variables spike count [0,1] and time via the equations: 
 %
-%   (1) I_time(ti) = sum[k>=0](P_k|ti * log2(P_k|ti / P_k)) 
+%   (1) I_time(ti) = sum[k>=0](P_k|ti * log(P_k|ti / P_k)) 
 %
 %   (2) MI = sum[i=1->N](P_xi * I_time(ti)
 %
@@ -12,7 +12,7 @@ function tempInfo(MD)
 %       P_ti is the probability the mouse is in time bin ti,
 %       (1/(T*20)).*ones(1,T*20)
 %       
-%       P_k is the probability of observe k spikes,
+%       P_k is the probability of observing k spikes,
 %       sum(rasters{n}(:))./ prod(size(rasters{n})
 %
 %       P_k|ti is the conditional probability of observing k spikes at time
@@ -75,26 +75,4 @@ function tempInfo(MD)
     sig = pval<0.01 & MI>0 & nLapsActive>crit;
     
     save('TemporalInfo.mat','MI','Isec','Ispk','pval','sig');
-end
-
-function [MI,Isec,Ispk,Itime] = tempInfoOneNeuron(raster)
-    [nLaps,nBins,~] = size(raster);
-    
-    P_t = 1/nBins;                          %Probability occupancy in time (uniform).
-    P_1t = mean(raster);                    %Mean rate at this time bin. (multiply by 4 because 0.25 time bins)
-    P_0t = 1-P_1t;
-    
-    %Probability of spiking and not spiking.
-    P_k1 = sum(sum(raster))/(nLaps*nBins);  
-    P_k0 = 1-P_k1;                  
-    
-    %Mutual information.
-    I_k1 = P_1t.*log(P_1t./P_k1);
-    I_k0 = P_0t.*log(P_0t./P_k0);
-    Itime = I_k1 + I_k0; 
-    MI = nansum(P_t.*Itime);
-    
-    %Information content.
-    Isec = nansum(P_t.*P_1t.*log2(P_1t./P_k1));      %bits/sec
-    Ispk = Isec/P_k1;                                %bits/spk
 end

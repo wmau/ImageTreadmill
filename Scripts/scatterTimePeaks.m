@@ -1,5 +1,5 @@
 loadMD;
-fulldataset = [MD(215:2:221) MD(253:256) MD(274:278) MD(287:291)];
+fulldataset = MD(292:309);
 animals = unique({fulldataset.Animal});
 
 [~,~,stable,unstable] = PartitionStats(fulldataset,'time','TI');
@@ -12,9 +12,9 @@ for a=1:nAnimals
     mapMD = getMapMD(fulldataset(ssns(1)));
     
     for s=1:nSessions-1
-        stableMatches = msMatchCells(mapMD,fulldataset(ssns(s:s+1)),stable{a}{s},true);
+        stableMatches = msMatchCells(fulldataset(ssns(s:s+1)),stable{a}{s},true);
 
-        unstableMatches = msMatchCells(mapMD,fulldataset(ssns(s:s+1)),unstable{a}{s},true);
+        unstableMatches = msMatchCells(fulldataset(ssns(s:s+1)),unstable{a}{s},true);
         
         [~,t1] = getTimePeak(fulldataset(ssns(s)));
         [~,t2] = getTimePeak(fulldataset(ssns(s+1)));
@@ -26,3 +26,7 @@ for a=1:nAnimals
     end
     
 end
+line([0 10],[0 10],'color','k','linewidth',1,'linestyle','--');
+xlabel('Peak on Day 1 [s]');
+ylabel('Peak on Day 2 [s]');
+set(gca,'tickdir','out','linewidth',2,'xtick',[0:2:10],'ytick',[0:2:10]);

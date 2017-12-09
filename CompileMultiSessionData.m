@@ -55,7 +55,12 @@ function DATA = CompileMultiSessionData(MD,args)
                     'ti',...
                     'placecells',...
                     'placeorder',...
-                    'timeorder'};
+                    'timeorder',...
+                    'placefieldcentroids',...
+                    'tfcorr',...
+                    'pfcorr',...
+                    'dualcells',...
+                    'numneurons'};
 
     %Check that the arguments match template. 
     for i=1:nArgs
@@ -85,10 +90,7 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %TIME CELLS. 
         if any(strcmp('timecells',args))
-            load(fullfile(pwd,'TimeCells.mat'),'TimeCells');
-            load(fullfile(pwd,'TemporalInfo.mat'),'sig');
-            DATA.timecells{i} = intersect(find(sig),TimeCells); 
-            %DATA.timecells{i} = TimeCells;
+            DATA.timecells{i} = getTimeCells(MD(i));           
         end
         
         %RASTERS.
@@ -191,21 +193,14 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %PLACE CELLS.
         if any(strcmp('placecells',args))
-            load(fullfile(pwd,'Placefields.mat'),'pval');
-            load(fullfile(pwd,'PlacefieldStats.mat'),'PFnHits','bestPF');
-            idx = sub2ind(size(PFnHits), 1:size(PFnHits,1), bestPF');
-            DATA.placecells{i} = find(pval < .01 & PFnHits(idx) > 4); 
+            DATA.placecells{i} = getPlaceCells(MD(i),.01);
         end
         
         %RANK IN PLACE CELL SEQUENCE.
         if any(strcmp('placeorder',args))
             [~,~,~,order] = LinearizedPFs_treadmill(MD(i));
-            load(fullfile(pwd,'Placefields.mat'),'pval');
-            load(fullfile(pwd,'PlacefieldStats.mat'),'PFnHits','bestPF');
-            load(fullfile(pwd,'SpatialInfo.mat'),'MI'); 
-            idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');
-            PCcrit = .01;
-            PCs = pval<PCcrit & MI'>0 & PFnHits(idx)>4; 
+            load('Placefields.mat','pval');
+            PCs = getPlaceCells(MD(i),.01);
             nNeurons = size(pval,2);
             DATA.placeorder{i} = zeros(nNeurons,1);
             DATA.placeorder{i}(PCs) = order./max(order);
@@ -213,13 +208,50 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %RANK IN TIME CELL SEQUENCE.
         if any(strcmp('timeorder',args))
-            [~,order] = PastalkovaPlot(MD(i),false);
-            load(fullfile(pwd,'TimeCells.mat'),'TimeCells');
-            load(fullfile(pwd,'TemporalInfo.mat'),'sig');
+            [~,order] = PastalkovaPlot(MD(i),'plotit',false);
             nNeurons = length(sig);
-            TCs = intersect(find(sig),TimeCells); 
+            TCs = getTimeCells(MD(i));
             DATA.timeorder{i} = zeros(nNeurons,1);
             DATA.timeorder{i}(TCs) = order./max(order);
+        end
+        
+        %PLACE FIELD CENTROID. 
+        if any(strcmp('placefieldcentroids',args))
+            load('PlacefieldStats.mat','PFcentroids','PFnHits');
+            [~,bestPF] = max(PFnHits,[],2); 
+            idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');
+            DATA.placefieldcentroids{i} = PFcentroids(idx); 
+        end
+        
+        %TIME FIELD TUNING CURVE CORRELATION
+        if any(strcmp('tfcorr',args)) 
+            load('FinalOutput.mat','NumNeurons');
+            if i~=nSessions
+                DATA.tfcorr{i} = CorrTrdmllTrace(MD(i),MD(i+1),1:NumNeurons);
+            else           
+                DATA.tfcorr{i} = nan(NumNeurons,2);
+            end
+        end
+        
+        %PLACE FIELD CORRELATION.
+        if any(strcmp('pfcorr',args))
+            load('FinalOutput.mat','NumNeurons');
+            if i~=nSessions
+                DATA.pfcorr{i} = CorrPlaceFields(MD(i),MD(i+1),1:NumNeurons);
+            else
+                DATA.pfcorr{i} = nan(NumNeurons,2);
+            end
+        end
+        
+        %DUAL TIME-PLACE CELLS
+        if any(strcmp('dualcells',args))
+            DATA.dualcells{i} = AcquireTimePlaceCells(MD(i),'dual');
+        end
+        
+        %NUMBER OF NEURONS
+        if any(strcmp('numneurons',args))
+            load('FinalOutput.mat','NumNeurons');
+            DATA.numneurons{i} = NumNeurons;
         end
     end
     

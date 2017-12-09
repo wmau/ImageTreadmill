@@ -1,5 +1,5 @@
-function plotTimeCells(md,T,varargin)
-%plotTimecells(MD,T,varargin)
+function plotTimeCells(md,varargin)
+%plotTimecells(MD,varargin)
 %   
 %   Plots single neuron responses in time during treadmill run. First
 %   panel: spike-position trajectory. Second panel: Raster. Third panel:
@@ -17,7 +17,6 @@ function plotTimeCells(md,T,varargin)
 
 %% Grab inputs
     path = md.Location;
-    
     cd(path);
     
     %Load time cell data. 
@@ -30,18 +29,20 @@ function plotTimeCells(md,T,varargin)
     
     p = inputParser;
     p.addRequired('md',@(x) isstruct(x)); 
-    p.addRequired('T',@(x) isnumeric(x) && isscalar(x)); 
     p.addParameter('dotplot',false,@(x) islogical(x)); 
     p.addParameter('placefield',false,@(x) islogical(x));
     p.addParameter('TimeCells',TimeCells,@(x) isnumeric(x)); 
     p.addParameter('singletraces',false,@(x) ischar(x));
+    p.addParameter('plotit',true,@(x) islogical(x)); 
     
-    p.parse(md,T,varargin{:});
+    p.parse(md,varargin{:});
     
     dotplot = p.Results.dotplot; 
     pf = p.Results.placefield; 
     TimeCells = p.Results.TimeCells;
     singletraces = p.Results.singletraces;
+    plotit = p.Results.plotit;
+    
 %% 
     load('TemporalInfo.mat','MI');
     
@@ -131,63 +132,70 @@ function plotTimeCells(md,T,varargin)
                 curves.smoothed{TimeCells(thisNeuron)},bins);
 
             %Plot. 
-            f = figure(50);
-            f.Position = [550 180 360 565];
-            if dotplot
-                subplot(2,2,1);     %Dotplot. 
-                    plot(x,y,x(treadmillruns & FT(TimeCells(thisNeuron),:)),y(treadmillruns & FT(TimeCells(thisNeuron),:)),'r.','MarkerSize',16);
-                    axis off; title(['Neuron #',num2str(TimeCells(thisNeuron))]);
-                subplot(2,2,2);     %Raster. 
-                    imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
-                        colormap gray; ylabel('Laps'); 
-            elseif pf
-                subplot(2,2,1);     %Place map. 
-                    h = imagesc(TMap_gauss{TimeCells(thisNeuron)});
-                    set(h,'alphadata',~isnan(TMap_gauss{TimeCells(thisNeuron)}));
-                        title(['p = ', num2str(pval(TimeCells(thisNeuron)))]);
-                        axis off; colormap hot; freezeColors;
-                subplot(2,2,2);     %Raster. 
-                    imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
-                        colormap gray; ylabel('Laps'); 
-                        title(['Neuron #',num2str(TimeCells(thisNeuron))])
-            else              
-                subplot(2,2,1:2);   %Raster. 
-                    imagesc([0:T],[1:5:sum(delays==T)],ratebylap(:,:,TimeCells(thisNeuron)));
-                        colormap gray; ylabel('Laps','fontsize',18); c = colorbar; c.Position(1) = 0.92;
-                        title(['Neuron #',num2str(TimeCells(thisNeuron)),', I = ',num2str(MI(TimeCells(thisNeuron)))]);
-                        set(gca,'fontsize',16);
-            end
-            
-            subplot(2,2,3:4);   %Tuning curve.
-                yyaxis right; 
-                if singletraces
-                    plot(tTraces,traces(:,:,TimeCells(thisNeuron)),...
-                        '-','color',[.7 .7 .7 .2],'linewidth',2);
-                        xlabel('Time [s]','fontsize',16); ylabel('\deltaF./\deltat');
-                        set(gca,'fontsize',18,...
-                            'ycolor',[.7 .7 .7],'linewidth',4,'tickdir','out');
-                        ylim([min(min(traces(:,:,TimeCells(thisNeuron)))), ...
-                            max(max(traces(:,:,TimeCells(thisNeuron))))]);
+            if plotit
+                f = figure(50);
+                f.Position = [550 180 360 565];
+                if dotplot
+                    subplot(2,2,1);     %Dotplot. 
+                        plot(x,y,x(treadmillruns & FT(TimeCells(thisNeuron),:)),y(treadmillruns & FT(TimeCells(thisNeuron),:)),'r.','MarkerSize',16);
+                        axis off; title(['Neuron #',num2str(TimeCells(thisNeuron))]);
+                    subplot(2,2,2);     %Raster. 
+                        imagesc([0:T],[1:sum(complete)],ratebylap(:,:,TimeCells(thisNeuron)));
+                            colormap gray; ylabel('Laps'); 
+                elseif pf
+                    subplot(2,2,1);     %Place map. 
+                        h = imagesc(TMap_gauss{TimeCells(thisNeuron)});
+                        set(h,'alphadata',~isnan(TMap_gauss{TimeCells(thisNeuron)}));
+                            title(['p = ', num2str(pval(TimeCells(thisNeuron)))]);
+                            axis off; colormap hot; freezeColors;
+                    subplot(2,2,2);     %Raster. 
+                        imagesc([0:T],[1:sum(complete)],ratebylap(:,:,TimeCells(thisNeuron)));
+                            colormap gray; ylabel('Laps'); 
+                            title(['Neuron #',num2str(TimeCells(thisNeuron))])
+                else              
+                    subplot(2,2,1:2);   %Raster. 
+                        imagesc([0:T],[1:sum(complete)],ratebylap(:,:,TimeCells(thisNeuron)));
+                            colormap gray; ylabel('Laps','fontsize',18); c = colorbar; c.Position(1) = 0.92;
+                            title(['Neuron #',num2str(TimeCells(thisNeuron))]);
+                            set(gca,'fontsize',16);
                 end
-                    
-                yyaxis left; 
-                hold on;
-                plot(t,curves.smoothed{TimeCells(thisNeuron)},'-r','linewidth',5);
-                plot(t,CImean,'-b','linewidth',2);
-                plot(t,CIu,'--b',t,CIl,'--b');
-                    Ylim = get(gca,'ylim');
-                plot(SIGX,SIGY+Ylim(2)*sf,'go','linewidth',4);
-                    xlim([0,T]);
-                    ylabel('Rate','fontsize',16);
-                    axis tight;
-                    yLims = get(gca,'ylim');
-                    ylim([0, yLims(2)*(1+sf)]);
-                    set(gca,'ycolor','r');
-                hold off;       
+                set(gca,'ytick',[1,sum(complete)]);
 
-            %Scroll through neurons.
-            [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),f);
-            close all;
+                subplot(2,2,3:4);   %Tuning curve.
+                    yyaxis right; 
+                    if singletraces
+                        plot(tTraces,traces(:,:,TimeCells(thisNeuron)),...
+                            '-','color',[.7 .7 .7 .2],'linewidth',2);
+                            xlabel('Time [s]','fontsize',16); ylabel('\deltaF./\deltat');
+                            set(gca,'fontsize',18,...
+                                'ycolor',[.7 .7 .7],'linewidth',4,'tickdir','out');
+                            ylim([min(min(traces(:,:,TimeCells(thisNeuron)))), ...
+                                max(max(traces(:,:,TimeCells(thisNeuron))))]);
+                    end
+
+                    yyaxis left; 
+                    hold on;
+                    plot(t,curves.smoothed{TimeCells(thisNeuron)},'color',[0 .5 .5],...
+                        'linewidth',5);
+                    plot(t,CImean,'-b','linewidth',2);
+                    plot(t,CIu,'--b',t,CIl,'--b');
+                        Ylim = get(gca,'ylim');
+                    plot(SIGX,SIGY+Ylim(2)*sf,'ro','linewidth',4);
+                        xlim([0,T]);
+                        ylabel('Rate','fontsize',16);
+                        axis tight;
+                        yLims = get(gca,'ylim');
+                        ylim([0, yLims(2)*(1+sf)]);
+                        set(gca,'ycolor',[0 .5 .5],'fontsize',15);
+                    hold off;       
+                    title(['I = ',num2str(round(MI(TimeCells(thisNeuron)),3)), ' bits']);
+
+                %Scroll through neurons.
+                [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),f);
+                close all;
+            else 
+                keepgoing = false;
+            end
             
         end
 %% Alternation

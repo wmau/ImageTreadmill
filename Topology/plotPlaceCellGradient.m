@@ -1,6 +1,7 @@
 function plotPlaceCellGradient(md)
 %PlotTimeCellGradient(md)
-%
+%   BROKE WITH THE NEW PLOTNEURONS CHANGE. DO NOT USE.
+% 
 %   Plots place cell ROIs in colors based on their rank in the sequence.
 %   Colder colors are earlier, warmer colors are later. 
 %
@@ -16,7 +17,7 @@ function plotPlaceCellGradient(md)
     nNeurons = size(PSAbool,1);
     nPCs = length(PlaceCells); 
     c = colormap(jet(nPCs)); 
-    [~,~,~,order] = LinearizedPFs_treadmill(md);
+    [~,~,~,order] = LinearizedPFs_treadmill(md,'plotit',false);
     PlaceCells = PlaceCells(order);
     
     PlotNeurons(md,1:nNeurons,[.7 .7 .7],1);

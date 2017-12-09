@@ -8,7 +8,7 @@ function raster = buildRasterTrace(inds,trace,neuron)
 %       inds: trialsx2 matrix of column indices of FT specifying the
 %       timestamps at which to build rasters.
 %
-%       FT: From T2output.
+%       trace: From FinalOutput.mat.
 %
 %       neuron: Scalar, row index of FT specifying which neuron.
 %

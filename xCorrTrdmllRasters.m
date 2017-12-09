@@ -9,13 +9,13 @@ function [R,A,lags] = xCorrTrdmllRasters(md,tracetype)
         case 'FT'
             load('Pos_align.mat','FT');
         case 'rawtrace'
-            load('Pos_align.mat','rawtrace');
-            FT = rawtrace; clear rawtrace; 
+            load('Pos_align.mat','RawTrace');
+            FT = RawTrace; clear RawTrace; 
             m = max(FT,[],2);
             FT = FT./repmat(m,1,size(FT,2)); 
         case 'difftrace'
-            load('Pos_align.mat','difftrace');
-            FT = difftrace; clear difftrace; 
+            load('Pos_align.mat','DFDTtrace');
+            FT = DFDTtrace; clear DFDTtrace; 
             m = max(FT,[],2);
             FT = FT./repmat(m,1,size(FT,2));        
     end
