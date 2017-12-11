@@ -1,4 +1,4 @@
-function [pct,stability,map] = PropStability2(mds,cellType)
+function [pct,stability,map,everStable] = PropStability2(mds,cellType)
 %[pct,stability,map] = PropStability2(mds,cellType)
 %
 %
@@ -92,6 +92,7 @@ function [pct,stability,map] = PropStability2(mds,cellType)
     
     %Get stable cells. 
     good = stableFlag(:,1:end-1) > 0;
+    everStable = any(good,2);           %Cells that were ever stable. 
     %foundCell = map(:,1:end-1) > 0; 
     
     %If a cell was stable for all days it was detected, mark it as 1. 

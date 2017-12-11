@@ -31,16 +31,17 @@ function [decodedTime,postProbs,Mdl] = ...
 %% 
     if isempty(Mdl)
         Mdl = TimeDecoder(trainSession,'neurons',neurons,...
-            'nTrainingRuns',nTrainingRuns); 
+            'nTrainingRuns',nTrainingRuns,'shuffle',shuffle); 
     end
     
 %%
     cd(decodeSession.Location); 
     load('TimeCells.mat','TodayTreadmillLog'); 
-    decodeSessionCompleteRuns = find(TodayTreadmillLog.complete)';
+    decodeSessionCompleteRuns = 1:sum(TodayTreadmillLog.complete)';
     
-    testX = reshapeRateByLap(decodeSession,'neurons',matchedCells(:,2),...
-        'runs',decodeSessionCompleteRuns,'shuffle',shuffle); 
+    day2Cells = matchedCells(ismember(matchedCells(:,1),neurons),2);
+    testX = reshapeRateByLap(decodeSession,'neurons',day2Cells,...
+        'runs',decodeSessionCompleteRuns); 
     
     [decodedTime,postProbs] = PredictTime(Mdl,testX,'plotit',plotit); 
     

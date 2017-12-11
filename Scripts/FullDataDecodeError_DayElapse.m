@@ -28,7 +28,7 @@ for a=1:nAnimals
    
         for i=1:B
             shuffleDecode = ElapsedDayTimeDecoder(fulldataset(training),...
-                fulldataset(test),'plotit',false,'Mdl',Mdl,'shuffle',true); 
+                fulldataset(test),'plotit',false,'shuffle',true); 
             decodeErrorShuffle = TimeDecodeError(shuffleDecode); 
             
             allErrorsShuffle{dayLag} = [allErrorsShuffle{dayLag} mean(decodeErrorShuffle,2)];
@@ -46,15 +46,22 @@ shuffleM = cell2mat(cellfun(@(x) mean(x(:)),allErrorsShuffle,'unif',0));
 shuffleSEM = cell2mat(cellfun(@(x) std(x(:))/sqrt(length(x(:))),...
     allErrorsShuffle,'unif',0));
 
-%Do ANOVA of error across days. 
-X = [];
-grps = [];
-for i=1:3
-    X = [X; allErrors{i}(:)];
-    grps = [grps; i*ones(length(allErrors{i}(:)),1)];
+%Do ANOVA of errors across days. 
+[X_real,X_shuffle,dayLags_real,dayLags_shuffle,condition_real,condition_shuffle] = ...
+    deal([]);
+nComparisons = size(allErrors,1); 
+for i=1:nComparisons
+    X_real = [X_real, mean(allErrors{i})];
+    X_shuffle = [X_shuffle, mean(allErrorsShuffle{i})];
+    
+    dayLags_real = [dayLags_real, i.*ones(1,size(allErrors{i},2))];
+    dayLags_shuffle = [dayLags_shuffle, i.*ones(1,size(allErrorsShuffle{i},2))];
+
+    condition_real = [condition_real, ones(1,size(allErrors{i},2))];
+    condition_shuffle = [condition_shuffle, zeros(1,size(allErrorsShuffle{i},2))];
 end
-[~,~,stats] = kruskalwallis(X,grps);
-multcompare(stats);
+[p,tab,stats] = anovan([X_real X_shuffle],{[condition_real,condition_shuffle],...
+    [dayLags_real dayLags_shuffle]});
 
 figure('Position',[680   428   320   550]); hold on;
 errorbar(m,sem,'k','linewidth',2);
@@ -63,3 +70,4 @@ xlim([.5 3.5]);
 set(gca,'tickdir','out','xtick',(1:3));
 xlabel('Day lag'); 
 ylabel('Decode error (s)');
+

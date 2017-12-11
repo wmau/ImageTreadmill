@@ -33,3 +33,16 @@ xlim([0.5 3.5]);
 xlabel('Days later');
 ylabel('Overlapping ensemble (% membership)');
 set(gca,'tickdir','out');
+
+nComparisons = size(p,2);
+randomOverlap = zeros(B*nAnimals,nComparisons);
+for i=1:nComparisons
+    temp = squeeze(r(:,i,:));
+    randomOverlap(:,i) = temp(:);
+end
+
+dayLag = [ones(nAnimals,1),2.*ones(nAnimals,1),3.*ones(nAnimals,1)];
+dayLagShuffle = [ones(nAnimals*B,1),2.*ones(nAnimals*B,1),3.*ones(nAnimals*B,1)];
+emp = ones(size(p));
+shuffle = zeros(size(r));
+[pval,tab,stats] = anovan([p(:); r(:)],{[emp(:);shuffle(:)],[dayLag(:);dayLagShuffle(:)]});
