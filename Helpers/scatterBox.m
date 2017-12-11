@@ -1,5 +1,5 @@
-function scatterBox(x,grps,varargin)
-%scatterBox(x,grps,varargin)
+function [h, hb, hscat] = scatterBox(x,grps,varargin)
+%[h, hb, hscat] = scatterBox(x,grps,varargin)
 %
 %   I usually like to plot individual data points on top of boxplots so
 %   this function does that by separating your x vector into grps and then
@@ -37,12 +37,17 @@ function scatterBox(x,grps,varargin)
 %
 %           plotBox: whether or not to make boxplot.
 %
+%   OUTPUTS
+%       h, hb, hscat: handles to axes, boxplot, and scatterplot
+%       respectively
+%
 
 %% Set up. 
     p = inputParser; 
     p.addRequired('x',@(x) isnumeric(x));
     p.addRequired('grps',@(x) isnumeric(x));
-    p.addParameter('xLabels',{'Group 1','Group 2'},@(x) iscell(x));
+    p.addParameter('xLabels',arrayfun(@(a) ['Group ' num2str(a)], unique(grps),...
+        'UniformOutput',false),@(x) iscell(x));
     p.addParameter('yLabel','Metric',@(x) ischar(x)); 
     p.addParameter('boxColor','k',@(x) ischar(x) || isnumeric(x));
     p.addParameter('circleSize',20,@(x) isnumeric(x)); 
@@ -51,6 +56,7 @@ function scatterBox(x,grps,varargin)
     p.addParameter('sf',.05,@(x) isscalar(x));
     p.addParameter('position',[520 350 300 450]); 
     p.addParameter('plotBox',true,@(x) islogical(x));
+    p.addParameter('h', [], @(a) ishandle(a) || isempty(a)); 
     
     p.parse(x,grps,varargin{:});
     xLabels = p.Results.xLabels; 
@@ -62,6 +68,7 @@ function scatterBox(x,grps,varargin)
     sf = p.Results.sf; 
     position = p.Results.position;
     plotBox = p.Results.plotBox;
+    h = p.Results.h;
     
     %Turn into column.
     if size(x,1) < size(x,2) 
@@ -86,21 +93,26 @@ function scatterBox(x,grps,varargin)
         nInGrp = sum(grps==g);
         
         %Jitter!
-        jitters(c:c+nInGrp-1) = g - (sf*randn(nInGrp,1));
+%         jitters(c:c+nInGrp-1) = g - (sf*randn(nInGrp,1));
+        jitters(grps == g) = g - (sf*randn(nInGrp,1));
         
         %Step. 
         c = c+nInGrp; 
     end
     
-    %Figure here. 
-    if isnumeric(position)
-        figure('Position',position); 
+    %Figure here.
+    if isempty(h)
+        if isnumeric(position)
+            figure('Position',position);
+        end
+    elseif ~isempty(h)
+        axes(h); %Make axes
     end
     hold on;
-    scat = scatter(jitters,x,circleSize,circleColors,'filled');
-    alpha(scat,transparency);
+    hscat = scatter(jitters,x,circleSize,circleColors,'filled');
+    alpha(hscat,transparency);
     if plotBox
-        boxplot(x,grps,'color',boxColor,'symbol','k','labels',xLabels,...
+        hb = boxplot(x,grps,'color',boxColor,'symbol','k','labels',xLabels,...
             'positions',unique(grps));
         boxProps = get(gca,'Children');
         [boxProps(1).Children.LineWidth] = deal(2);
@@ -108,5 +120,6 @@ function scatterBox(x,grps,varargin)
     ylabel(yLabel);
     set(gca,'tickdir','out');
     
+    h = gca;
     
 end
