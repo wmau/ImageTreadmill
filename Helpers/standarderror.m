@@ -5,6 +5,6 @@ function SEM = standarderror(data)
 %
 
 %% Compute standard error.
-    SEM = std(data)/sqrt(length(data));
+    SEM = nanstd(data)/sqrt(length(data(~isnan(data))));
 end
     

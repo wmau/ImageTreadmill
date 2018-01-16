@@ -14,7 +14,7 @@ loadMD;
 %MD(296:299) = G48.
 %MD(300:304) = Bellatrix.
 %MD(305:309) = Polaris.
-fulldataset = [MD(305:308)];   
+fulldataset = [MD(292:303) MD(305:308)];   
 
 %Parameters to change.
 codingCells = 'timecells';      %Options: timecells or placecells

@@ -27,6 +27,7 @@ function [skewness,even,odd] = getAllSkewnesses(md,varargin)
     
 %% Compute the trial skewness score for each time/place cell. 
     neurons = AcquireTimePlaceCells(md,cellType)';
+    %neurons = 1:nNeurons;
     switch rasterType 
         case 'time'
             load('TimeCells.mat','curves');

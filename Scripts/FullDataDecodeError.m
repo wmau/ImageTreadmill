@@ -77,9 +77,9 @@ M = mean(allErrors);
 overallShuffleM = mean(allErrorsShuffle); 
 
 scatterBox([M overallShuffleM],[zeros(size(M)) ones(size(overallShuffleM))],...
-    'xLabels',{'Empirical','Shuffle'},'yLabel','Decode error (s)');
+    'xLabels',{'Empirical','Shuffle'},'yLabel','Decode error (s)',...
+    'boxColor',[0 0 0; 1 0 0]);
 
-errorP = ranksum(
 
 %% ANOVA on errors
 [p,tab,stats] = anova1(allErrors);
