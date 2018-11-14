@@ -187,8 +187,8 @@ function DATA = CompileMultiSessionData(MD,args)
         
         %TEMPORAL INFORMATION.
         if any(strcmp('ti',args))
-            load(fullfile(pwd,'TemporalInfo.mat'),'MI');
-            DATA.ti{i} = MI; 
+            load(fullfile(pwd,'TemporalInfo.mat'),'Ispk');
+            DATA.ti{i} = Ispk; 
         end
         
         %PLACE CELLS.

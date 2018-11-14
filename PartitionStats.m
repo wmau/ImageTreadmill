@@ -62,12 +62,12 @@ function [STATS,nNeurons,stable,unstable] = PartitionStats(mds,stabilityType,sta
             switch statType
                 %Temporal information. 
                 case 'ti' 
-                    load('TemporalInfo.mat','MI','Ispk','Isec');
+                    load('TemporalInfo.mat','MI','Ispk','Ispk');
                     stat = MI; 
             
                 %Spatial information.
                 case 'si'
-                    load('SpatialInfo.mat','MI','Ispk','Isec');
+                    load('SpatialInfo.mat','MI','Ispk','Ispk');
                     stat = MI;
                     
                 %Time field width.

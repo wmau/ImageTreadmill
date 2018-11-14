@@ -5,6 +5,7 @@ function [dual_pct,mean_rSampDual_pct] = rSampTimePlaceConjoint(md)
 
 %%
     cd(md.Location); 
+    load('FinalOutput.mat','NumNeurons');
     B = 1000;
     
     %Get time and place cells, as well as conjunctive time/place cells. 
@@ -17,13 +18,12 @@ function [dual_pct,mean_rSampDual_pct] = rSampTimePlaceConjoint(md)
     nPCs = length(PCs); 
     
     load('FinalOutput.mat','NumNeurons');
-    N = length(union(TCs,PCs));
+    N = nTCs;
     
     rSampDual_pct = nan(B,1);
     for i=1:B
-        rSampTime = randsample(1:NumNeurons,nTCs);
         rSampPlace = randsample(1:NumNeurons,nPCs); 
-        rSampDual = intersect(rSampTime,rSampPlace);
+        rSampDual = intersect(TCs,rSampPlace);
         
         rSampDual_pct(i) = length(rSampDual)/N; 
     end

@@ -45,11 +45,11 @@ for i=1:B
     end
     
     if i==1
-        histogram(cell2mat(shuffle),'binwidth',0.02,'facecolor',[.7 .7 .7],...
-            'edgecolor','none','normalization','probability');
-        ylabel(['Proportion of ',rasterType,' cells'],'fontsize',15); 
+        %histogram(cell2mat(shuffle),'binwidth',0.02,'facecolor',[.7 .7 .7],...
+            %'edgecolor','none','normalization','probability');
+        %ylabel(['Proportion of ',rasterType,' cells'],'fontsize',15); 
         
-        keyboard;
+        %keyboard;
     end
     shuffleSD(i) = nanstd(cell2mat(shuffle));
 end

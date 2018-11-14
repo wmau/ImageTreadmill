@@ -131,9 +131,9 @@ function msPlotTimeCells(md,varargin)
     
     %Main plotting. 
     if pf 
-        fPos = [2600 100 630 180*nSessions];
+        fPos = [675 200 630 180*nSessions];
     else 
-        fPos = [2600 100 370 180*nSessions];
+        fPos = [675 200 370 180*nSessions];
     end
     
     
@@ -313,7 +313,7 @@ function msPlotTimeCells(md,varargin)
                     end 
                     
                     %Label correlation coefficient. 
-                    text(6,-.2*curveYLims(2),['R = ',num2str(round(TFCORR{thisSession}(n,1),3))],'color',c)     
+                    text(6,-.2*curveYLims(2),['R = ',num2str(round(TFCORR{thisSession}(n,2),3))],'color',c)     
                 end
             end
      
