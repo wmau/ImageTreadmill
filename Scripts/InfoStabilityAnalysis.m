@@ -7,7 +7,7 @@
     %MD(296:299) = G48.
     %MD(300:304) = Bellatrix.
     %MD(305:309) = Polaris.
-    fulldataset = MD(292:309);      
+    fulldataset = [MD(292:303) MD(305:308)];   
     %fulldataset(9:13) = [];
 
     %Some initial variables. 
@@ -15,7 +15,7 @@
     purple = [.58 .44 .86];
     
 %% Save information
-    saveBool = true;
+    saveBool = false;
     folder = 'C:\Users\William Mau\Documents\Projects\Time Cell Imaging Summer 2015 -\Paper\Figures';
     TimeTI = fullfile(folder,'Stable Time TI');
     TimeSI = fullfile(folder,'Stable Time SI');

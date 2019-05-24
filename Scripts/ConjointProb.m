@@ -7,7 +7,7 @@
 clear;
 loadMD;
 
-fulldataset = MD(292:309); 
+fulldataset = [MD(292:303) MD(305:308)];   
 nSessions = length(fulldataset); 
 
 [empPct,randPct] = deal(nan(nSessions,1)); 

@@ -5,7 +5,7 @@ fulldataset = [MD(292:303) MD(305:308)];            %Sessions.
 nSessions = length(fulldataset);                    %Number of sessions.
 cellType = 'timecells';                             %Only time cells work right now.
 rasterType = 'time';                                %Look at temporal responses. 
-B = 500;                                             %Number of trial shuffles. 
+B = 100;                                             %Number of trial shuffles. 
 
 [skew,sig,strictSig,even,odd] = deal(cell(nSessions,1)); 
 for s=1:nSessions

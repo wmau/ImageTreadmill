@@ -14,7 +14,7 @@ loadMD;
 %MD(296:299) = G48.
 %MD(300:304) = Bellatrix.
 %MD(305:309) = Polaris.
-fulldataset = [MD(292:299) MD(300:303) MD(305:308)];   
+fulldataset = [MD(292:303) MD(305:308)];   
 
 %Parameters to change.
 codingCells = 'timecells';      %Options: timecells or placecells
@@ -71,8 +71,8 @@ for a=1:nAnimals
     
     %Do activity correlations then take the mean across neurons. R_allcells
     %describes the entire population.
-    [allTrialRs,lapNum,sessionNum] = PVTrialCorr2(fulldataset(ssns),'codingcells',codingCells,...
-        'z',z,'similarityMetric',similarityMetric);
+    [allTrialRs,lapNum,sessionNum] = PVTrialCorr2(fulldataset(ssns),...
+        'codingcells',codingCells,'z',z,'similarityMetric',similarityMetric);
     R_allCells = nanmean(allTrialRs,3);
     
     %Bin trials into 5 bins. 
@@ -91,7 +91,8 @@ for a=1:nAnimals
     [~,dayR{a}] = binCoeffs(R_allCells,'processingMode','binByDay','sessionNum',sessionNum); 
 end
 
-    matSize = min(cellfun('length',R_DayBlocks));
+
+matSize = min(cellfun('length',R_DayBlocks));
     
     nSessions = length(R_DayBlocks);
     allTrialRs = zeros(matSize,matSize,nSessions);

@@ -202,5 +202,7 @@ function [d,r,matchMat] = AllPairwiseMaskSpatialCorr(base,reg,varargin)
         
         figure;
         scatter(matchedRs,nextNearestRs,'.');
+        xlabel('Matched cell correlation (r)');
+        ylabel('Next nearest neighbor correlation (r)');
     end
 end

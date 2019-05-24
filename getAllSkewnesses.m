@@ -1,4 +1,4 @@
-function [skewness,even,odd] = getAllSkewnesses(md,varargin)
+function [skewness,even,odd,sigCurve] = getAllSkewnesses(md,varargin)
 %skewness = getAllSkewnesses(md,varargin)
 %
 %   
@@ -27,6 +27,7 @@ function [skewness,even,odd] = getAllSkewnesses(md,varargin)
     
 %% Compute the trial skewness score for each time/place cell. 
     neurons = AcquireTimePlaceCells(md,cellType)';
+    neurons = 1:nNeurons;
     switch rasterType 
         case 'time'
             load('TimeCells.mat','curves');
@@ -35,7 +36,9 @@ function [skewness,even,odd] = getAllSkewnesses(md,varargin)
             t_binned = linspace(0,10,size(curves.sig{1},2));    %Vector of times, binned.
             t_unbinned = linspace(0,10,inds(1,2)-inds(1,1));    %Vector of times, unbinned. 
               
-            if subsample, [even,odd] = deal(nan(nNeurons,1)); end
+            if subsample, [even,odd] = deal(nan(nNeurons,1)); 
+            else, even = nan; odd = nan; end
+            sigCurve = cell(1,nNeurons);
             %For each cell...
             for thisNeuron = neurons
                 %Build a raster plot. 
@@ -46,38 +49,39 @@ function [skewness,even,odd] = getAllSkewnesses(md,varargin)
                 
                 %Complicated way of getting the statistically significant
                 %tuning field. 
-                sigCurve = false(1,size(raster,2));         %Preallocate.
-                sigInds = find(curves.sig{thisNeuron});     %Get the indices of the curve that are significant. 
-                sigStart = t_binned(sigInds(1));            %Beginning...
-                sigEnd = t_binned(sigInds(end));            %...and end of the significant region.
-                i = findclosest(t_unbinned,sigStart);       %Corresponding start index in unbinned vector...
-                j = findclosest(t_unbinned,sigEnd);         %...and end index. 
-                sigCurve(i:j) = true;                       %Mark those in the preallocated vector. 
+                %sigCurve{thisNeuron} = false(1,size(raster,2));         %Preallocate.
+                sigCurve{thisNeuron} = true(1,size(raster,2));
+%                 sigInds = find(curves.sig{thisNeuron});     %Get the indices of the curve that are significant. 
+%                 sigStart = t_binned(sigInds(1));            %Beginning...
+%                 sigEnd = t_binned(sigInds(end));            %...and end of the significant region.
+%                 i = findclosest(t_unbinned,sigStart);       %Corresponding start index in unbinned vector...
+%                 j = findclosest(t_unbinned,sigEnd);         %...and end index. 
+%                 sigCurve{thisNeuron}(i:j) = true;                       %Mark those in the preallocated vector. 
                 
                 %Get skewness calculation.                      
-                skewness(thisNeuron) = TrialSkewness(raster,sigCurve);
+                skewness(thisNeuron) = TrialSkewness(raster,sigCurve{thisNeuron});
                 
                 %Per reviewer suggestion, take only the even/odd trials and
                 %take cells that are robust, not subject to noise. 
                 if subsample
-                    even(thisNeuron) = TrialSkewness(raster(2:2:end,:),sigCurve); 
-                    odd(thisNeuron) = TrialSkewness(raster(1:2:end,:),sigCurve); 
+                    even(thisNeuron) = TrialSkewness(raster(2:2:end,:),sigCurve{thisNeuron}); 
+                    odd(thisNeuron) = TrialSkewness(raster(1:2:end,:),sigCurve{thisNeuron}); 
                 end
             end
-        case 'place'
-            load('SpatialTraces','raster','sigCurve'); 
-            rasters = raster; 
-   
-            n = 1;
-            for thisNeuron = neurons
-                raster = rasters(:,:,thisNeuron);
-
-                if shuffle 
-                    raster = raster(randperm(size(raster,1)),:);
-                end
-                skewness(thisNeuron) = TrialSkewness(raster,sigCurve(thisNeuron,:));
-                n = n+1;
-            end
+%         case 'place'
+%             load('SpatialTraces','raster','sigCurve'); 
+%             rasters = raster; 
+%    
+%             n = 1;
+%             for thisNeuron = neurons
+%                 raster = rasters(:,:,thisNeuron);
+% 
+%                 if shuffle 
+%                     raster = raster(randperm(size(raster,1)),:);
+%                 end
+%                 skewness(thisNeuron) = TrialSkewness(raster,sigCurve{thisNeuron}(thisNeuron,:));
+%                 n = n+1;
+%             end
     end
     
 end

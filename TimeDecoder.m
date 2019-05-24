@@ -1,4 +1,4 @@
-function [Mdl,X,testX,testLaps] = TimeDecoder(md,varargin)
+function [Mdl,X,testX,testLaps,trainingLaps] = TimeDecoder(md,varargin)
 %
 %
 %
@@ -29,9 +29,8 @@ function [Mdl,X,testX,testLaps] = TimeDecoder(md,varargin)
     testLaps = setdiff(1:sum(complete),trainingLaps);
     
     %Get predictor matrix and the test matrix. 
-    X = reshapeRateByLap(md,'runs',trainingLaps,'neurons',neurons); 
-    testX = reshapeRateByLap(md,'runs',testLaps,'neurons',neurons,...
-        'shuffle',shuffle); 
+    X = reshapeRateByLap(md,'runs',trainingLaps,'neurons',neurons,'shuffle',shuffle); 
+    testX = reshapeRateByLap(md,'runs',testLaps,'neurons',neurons); 
     
     %Get response vector. 
     t = linspace(0,10,nBins)'; 

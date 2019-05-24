@@ -44,11 +44,11 @@ function plotTimeCells(md,varargin)
     plotit = p.Results.plotit;
     
 %% 
-    load('TemporalInfo.mat','MI');
+    load('TemporalInfo.mat','Ispk');
     
     if pf            
         %Load place maps. 
-        load(fullfile(path,'PlaceMaps.mat'),'TMap_gauss','OccMap','pval'); 
+        load(fullfile(path,'Placefields.mat'),'TMap_gauss','OccMap','pval'); 
 
         %Replace unoccupied bins with NaNs. 
         for i=1:length(TMap_gauss)
@@ -188,7 +188,7 @@ function plotTimeCells(md,varargin)
                         ylim([0, yLims(2)*(1+sf)]);
                         set(gca,'ycolor',[0 .5 .5],'fontsize',15);
                     hold off;       
-                    title(['I = ',num2str(round(MI(TimeCells(thisNeuron)),3)), ' bits']);
+                    title(['I = ',num2str(round(Ispk(TimeCells(thisNeuron)),3)), ' bits']);
 
                 %Scroll through neurons.
                 [keepgoing,thisNeuron] = scroll(thisNeuron,length(TimeCells),f);

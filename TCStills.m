@@ -167,8 +167,8 @@ function cLims = getMaxMin(stills,mask,inds)
     maskedMaxMins = zeros(nInds,2); 
     for i = 1:nInds
         still = stills(:,:,inds(i)); 
-        maskedMaxMins(i,1) = max(max(still(mask)));
-        maskedMaxMins(i,2) = min(min(still(mask)));
+        maskedMaxMins(i,1) = min(min(still(mask)));
+        maskedMaxMins(i,2) = max(max(still(mask)));
     end
     
     cLims = [min(maskedMaxMins(:,1)) max(maskedMaxMins(:,2))];

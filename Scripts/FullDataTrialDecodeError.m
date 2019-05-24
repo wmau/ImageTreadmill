@@ -7,6 +7,7 @@ loadMD;
 
 fulldataset = [MD(292:303) MD(305:308)];
 nSessions = length(fulldataset); 
+nTrialBlocks = 8; 
 
 animals = unique({fulldataset.Animal});
 nAnimals = length(animals); 
@@ -19,7 +20,7 @@ for a=1:nAnimals
     for s=1:length(ssns)
         %Get the decode error for each run. 
         [Mdl,~,testX,testLaps,trialBlockLims] = ...
-            TrialDecoder(fulldataset(ssns(s))); 
+            TrialDecoder(fulldataset(ssns(s)),'nTrialBlocks',nTrialBlocks); 
         [decodedTrial,postProbs] = PredictTrial(Mdl,testX,trialBlockLims,...
             testLaps,'plotit',false);
         pCorrect = TrialDecodeError(decodedTrial,testLaps,trialBlockLims); 
@@ -43,13 +44,9 @@ for a=1:nAnimals
 end
 
 %% Plot error 
-m = [mean(allErrors) mean(allErrorsShuffles)];
-sem = [standarderror(allErrors) standarderror(allErrorsShuffles)];
+scatterBox([allErrors;allErrorsShuffles],...
+    [zeros(size(allErrors));ones(size(allErrorsShuffles))],...
+    'xLabels',{'Empirical','Shuffle'},'yLabel','% trial decoded correctly',...
+    'boxColor',[0 0 0; 1 0 0])
 
-figure; hold on;
-bar([1,1.3],m,'barwidth',.4,'facecolor','k');
-errorbar(1,m(1),sem(1),'color','k');
-errorbar(1.3,m(2),sem(2),'color','k');
-xlim([.8 1.5]);
-set(gca,'tickdir','out','xtick',[1,1.3],'xticklabel',{'Real','Shuffle'});
-ylabel('Trial Block Error');
+p = ranksum(allErrors,allErrorsShuffles);

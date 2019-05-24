@@ -17,7 +17,7 @@ for a=1:nAnimals
     
     for s=1:length(ssns)
         %Get the decode error for each run. 
-        [Mdl,~,testX,testLaps] = TimeDecoder(fulldataset(ssns(s))); 
+        [Mdl,~,testX] = TimeDecoder(fulldataset(ssns(s))); 
         [decodedTime,postProbs] = PredictTime(Mdl,testX,'plotit',false);
         decodeError = TimeDecodeError(decodedTime); 
         
@@ -26,9 +26,8 @@ for a=1:nAnimals
         
         %For each session, run B shuffle tests. 
         for i=1:B
-            testX = reshapeRateByLap(fulldataset(ssns(s)),...
-                'shuffle',true,'runs',testLaps);
-            shuffleDecode = PredictTime(Mdl,testX,'plotit',false);
+            [badMdl,~,badTestX] = TimeDecoder(fulldataset(ssns(s)),'shuffle',true);
+            shuffleDecode = PredictTime(badMdl,badTestX,'plotit',false);
             decodeErrorShuffle = TimeDecodeError(shuffleDecode); 
 
             allErrorsShuffle(:,sIndex) = mean(decodeErrorShuffle,2); 
@@ -78,4 +77,9 @@ M = mean(allErrors);
 overallShuffleM = mean(allErrorsShuffle); 
 
 scatterBox([M overallShuffleM],[zeros(size(M)) ones(size(overallShuffleM))],...
-    'xLabels',{'Empirical','Shuffle'},'yLabel','Decode error (s)');
+    'xLabels',{'Empirical','Shuffle'},'yLabel','Decode error (s)',...
+    'boxColor',[0 0 0; 1 0 0]);
+
+
+%% ANOVA on errors
+[p,tab,stats] = anova1(allErrors);

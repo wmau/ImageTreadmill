@@ -1,5 +1,5 @@
 %% Set up.
-    clear;
+    %clear;
     
     %Load MD entries. 
     loadMD;
@@ -36,13 +36,13 @@
     
     
     figure;
-    p = pie([sPct iPct ioPct oPct],[1 0 0 0],...
+    pfig = pie([sPct iPct ioPct oPct],[1 0 0 0],...
         {   ['Stable (',num2str(sPct),'%)'],...
             ['Entering (',num2str(iPct),'%)'],...
             ['Transient (',num2str(ioPct),'%)'],...
             ['Exiting (',num2str(oPct),'%)']});
-    p(1).FaceColor = c;
-    p(3).FaceColor = c;
-    p(3).FaceAlpha = .3;
-    p(5).FaceColor = [.5 .5 .5];
-    p(7).FaceColor = [0 0 0];
+    pfig(1).FaceColor = c;
+    pfig(3).FaceColor = c;
+    pfig(3).FaceAlpha = .3;
+    pfig(5).FaceColor = [.5 .5 .5];
+    pfig(7).FaceColor = [0 0 0];
