@@ -42,7 +42,8 @@ function [OccMap,RunOccMap,xEdges,yEdges,xBin,yBin] = ...
     yEdges = (0:nYBins)*cmperbin+ymin; 
  
 %% Run 2D histogram function.
-    OccMap = histcounts2(x(good),y(good),xEdges,yEdges); 
-    [RunOccMap,~,~,~,~] = histcounts2(x(isrunning),y(isrunning),xEdges,yEdges);
-    [~,~,~,xBin,yBin] = histcounts2(x,y,xEdges,yEdges); 
+    OccMap = histcounts2(x(good), y(good), xEdges, yEdges); 
+    [RunOccMap,~,~,~,~] = histcounts2(x(good & isrunning), y(good & isrunning),... 
+        xEdges, yEdges);
+    [~,~,~,xBin,yBin] = histcounts2(x, y, xEdges, yEdges); 
 end

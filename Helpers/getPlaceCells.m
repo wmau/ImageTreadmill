@@ -46,7 +46,7 @@ ratioHits = ip.Results.ratioHits;
     
     [~,bestPF] = max(PFnHits,[],2);
     idx = sub2ind(size(PFnHits),1:size(PFnHits,1),bestPF');    
-    PCs = find(pval<crit & MI'>0 & PFnHits(idx) > 5 & PFpcthits(idx) > .05);
+    PCs = find(pval<crit & MI'>0 & PFnHits(idx) > nHits & PFpcthits(idx) > ratioHits);
 
     
 end

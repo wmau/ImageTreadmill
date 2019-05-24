@@ -39,6 +39,7 @@ function plotPlaceCells(md,varargin)
         Placefields(md,'name_append', name_append);
     end
     load(fullfile(dirstr,['SpatialInfo' name_append '.mat']),'MI','Ipos','okpix');
+    load(fullfile(dirstr,['PlacefieldStats' name_append '.mat']),'PFarea')
     PFarea = nansum(PFarea,2);
 
     try

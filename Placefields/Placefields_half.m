@@ -38,7 +38,8 @@ function [ ] = Placefields_half( MD, calc_mode, exclude_frames, name_append, var
     %% Calculate indices for each half
     load(fullfile(dirstr,'FinalOutput.mat'),'PSAbool');
     % Align imaging and tracking
-    [~,~,~,~,FToffset,~,~,time_interp,~] = AlignImagingToTracking(MD.Pix2CM, PSAbool, 0);
+    [~,~,~,~,FToffset,~,~,time_interp,~] = AlignImagingToTracking(...
+        MD.Pix2CM, PSAbool, 0,'basedir',dirstr);
     Flength = length(PSAbool);
     
     ind_use_half{1} = false(1,Flength);

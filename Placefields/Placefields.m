@@ -35,8 +35,18 @@ function Placefields(MD,varargin)
 %       aligned. Default = Pos_align.mat.
 %
 %       Tenaspis_data: output of Tenaspis. Default = FinalOutput.mat.
+%
+%       exclude_frames: frames to exclude, either in raw imaging movie
+%       (e.g. dropped frames), or in aligned data aligned data (e.g. frames
+%       corresponding to times mouse is off the maze). If aligned = false,
+%       then use raw imaging movie frames, if aligned = true, then use
+%       frame numbers from data in Pos_align.mat
+%
+%       name_append: string to append to Placefields file ->
+%       Placefieldsname_append.mat
 
 %% Parse inputs.
+    currdir = cd;
 
     [dirstr, MD] = ChangeDirectory(MD.Animal, MD.Date, MD.Session); % Change Directory and fill in partial MD if used
     
@@ -69,27 +79,25 @@ function Placefields(MD,varargin)
 %% Set up.
 
     if aligned
-        load(Pos_data,...
-            'PSAbool','x_adj_cm','y_adj_cm','speed','xmin','xmax','ymin','ymax','FToffset'); 
+        load(Pos_data,'PSAbool','x_adj_cm','y_adj_cm','speed','time_interp',...
+            'xmin','xmax','ymin','ymax','FToffset'); 
         x = x_adj_cm; y = y_adj_cm; clear x_adj_cm y_adj_cm;
         offset = FToffset;
     else
         load(Pos_data,'xpos_interp','ypos_interp');
         load(Tenaspis_data,'PSAbool'); 
-        [x,y,speed,PSAbool,offset] = AlignImagingToTracking(MD.Pix2CM,PSAbool,0,'basedir',MD.Location);
+        [x,y,speed,PSAbool,offset,~,~,time_interp] = ...
+            AlignImagingToTracking(MD.Pix2CM,PSAbool,0,'basedir',MD.Location);
         xmin = min(x); ymin = min(y); 
         xmax = max(x); ymax = max(y);
         
     end
     
-    if ~isempty(exclude_frames)
-        %Assuming your exclude_frames did not already apply to the aligned
-        %data, correct them. This should work, but haven't actually tested
-        %this.
+    % Adjust frames to exclude by FToffset
+    if ~isempty(exclude_frames) && ~aligned
         exclude_frames = exclude_frames - (offset-2);
         exclude_frames(exclude_frames < 1) = [];
         exclude_frames(exclude_frames > size(PSAbool,2)) = [];
-
     end
     
    
@@ -105,9 +113,9 @@ function Placefields(MD,varargin)
 % %% De-bugging spot for aligning exclude_frames
 %     
 %     figure
-%     frames_plot = 1:length(x);
-%     plot(frames_plot,x,'k',frames_plot(good), x(good),'r*')
-%     
+% %     frames_plot = 1:length(x);
+%     plot(time_interp,x,'k',time_interp(~good), x(~good),'r*')
+    
 %% Get occupancy map. 
     lims = [xmin xmax;
             ymin ymax];
@@ -118,6 +126,8 @@ function Placefields(MD,varargin)
     x = x(isrunning);
     y = y(isrunning);
     PSAbool = logical(PSAbool(:,isrunning));
+    xBin = xBin(isrunning);
+    yBin = yBin(isrunning);
     nGood = length(x); 
     
 %% Construct place field and compute mutual information.
@@ -177,4 +187,6 @@ function Placefields(MD,varargin)
     save(fullfile(dirstr,['Placefields' name_append '.mat']),'OccMap','RunOccMap','TCounts','TMap_gauss',...
         'TMap_unsmoothed','minspeed','isrunning','cmperbin','exclude_frames',...
         'xEdges','yEdges','xBin','yBin','pval','x','y','PSAbool','MI'); 
+    
+    cd(currdir)
 end

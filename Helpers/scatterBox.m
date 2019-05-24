@@ -19,23 +19,30 @@ function [h, hb, hscat] = scatterBox(x,grps,varargin)
 %           yLabel: string specifying y axis label. 
 %
 %           boxColor: string or RGB value specifying what color you want
-%           the boxplot to be.
+%           the boxplot to be. default = 'k' (black)
 %
 %           circleSize: scalar or vector specifying scatter plot circle
-%           sizes. 
+%           sizes. default = 20;
 %
 %           circleColors: string or RGB values specifying what color you
 %           want all or individual circles in the scatter plot to be.
+%           default = [0.7 0.7 0.7];
 %       
 %           transparency: scalar specifying how transparent you want the
-%           circles to be. 1 is opaque, 0 is completely transparent. 
+%           circles to be. 1 is opaque, 0 is completely transparent.
+%           Default = 0.3.
 %
 %           sf: spread factor, scalar specifying how wide you want the
-%           individual data points to be jittered. 
+%           individual data points to be jittered. Default = 0.05;
 %
 %           position: vector specifying the position of the figure. 
 %
 %           plotBox: whether or not to make boxplot.
+%
+%           h: axes to plot into (default = make new figure)
+%
+%           paired_id: if you are using paired data points, will connect
+%           dots between each point with the same id # in each group.
 %
 %   OUTPUTS
 %       h, hb, hscat: handles to axes, boxplot, and scatterplot
@@ -51,11 +58,12 @@ function [h, hb, hscat] = scatterBox(x,grps,varargin)
     p.addParameter('yLabel','Metric',@(x) ischar(x)); 
     p.addParameter('boxColor','k',@(x) ischar(x) || isnumeric(x));
     p.addParameter('circleSize',20,@(x) isnumeric(x)); 
-    p.addParameter('circleColors',[.7 .7 .7],@(x) ischar(x) || isnumeric(x));
-    p.addParameter('transparency',.3,@(x) isscalar(x)); 
+    p.addParameter('circleColors',[0.3 0.3 0.3],@(x) ischar(x) || isnumeric(x));
+    p.addParameter('transparency', 0.7, @(x) isscalar(x)); 
     p.addParameter('sf',.05,@(x) isscalar(x));
     p.addParameter('position',[520 350 300 450]); 
     p.addParameter('plotBox',true,@(x) islogical(x));
+    p.addParameter('paired_ind', [], @(a) isempty(a) || isnumeric(a));
     p.addParameter('h', [], @(a) ishandle(a) || isempty(a)); 
     
     p.parse(x,grps,varargin{:});
@@ -69,6 +77,7 @@ function [h, hb, hscat] = scatterBox(x,grps,varargin)
     position = p.Results.position;
     plotBox = p.Results.plotBox;
     h = p.Results.h;
+    paired_ind = p.Results.paired_ind; 
     
     %Turn into column.
     if size(x,1) < size(x,2) 
@@ -116,9 +125,17 @@ function [h, hb, hscat] = scatterBox(x,grps,varargin)
             'positions',unique(grps));
         boxProps = get(gca,'Children');
         [boxProps(1).Children.LineWidth] = deal(2);
+    else 
+        hb = nan;
     end
     ylabel(yLabel);
-    set(gca,'tickdir','out');
+    
+    % Plot lines between pairs if specified
+    if ~isempty(paired_ind)
+        arrayfun(@(a) plot(jitters(paired_ind == a), x(paired_ind == a), ...
+            'k-'), unique(paired_ind))
+    end
+    set(gca,'tickdir','out','box','off');
     
     h = gca;
     

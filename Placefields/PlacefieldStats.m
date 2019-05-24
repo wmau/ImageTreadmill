@@ -55,6 +55,7 @@ function PlacefieldStats(md, varargin)
         load(fullfile(dirstr, ['Placefields' name_append '.mat']),...
             'TMap_gauss','xBin','yBin','isrunning','PSAbool');
         calc_stats(TMap_gauss,PSAbool,xBin,yBin,savename);
+%         calc_stats(TMap_gauss,PSAbool,xBin(isrunning),yBin(isrunning),savename);
     elseif halfPF
        load(fullfile(dirstr, ['Placefields' name_append '.mat']));
        for j = 1:2
