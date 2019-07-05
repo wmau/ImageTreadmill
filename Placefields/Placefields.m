@@ -60,6 +60,7 @@ function Placefields(MD,varargin)
     ip.addParameter('Pos_data','Pos_align.mat',@(x) ischar(x));
     ip.addParameter('Tenaspis_data','FinalOutput.mat',@(x) ischar(x)); 
     ip.addParameter('name_append','',@ischar);
+    ip.addParameter('rescale', 1, @isnumeric); %option to rescale data after converting to cm.
     ip.KeepUnmatched = true;
     ip.addParameter('saveSI',true,@(x) islogical(x)); 
     
@@ -75,6 +76,7 @@ function Placefields(MD,varargin)
     Tenaspis_data = ip.Results.Tenaspis_data;
     name_append = ip.Results.name_append;
     saveSI = ip.Results.saveSI;
+    rescale = ip.Results.rescale;
     
 %% Set up.
 
@@ -83,6 +85,8 @@ function Placefields(MD,varargin)
             'xmin','xmax','ymin','ymax','FToffset'); 
         x = x_adj_cm; y = y_adj_cm; clear x_adj_cm y_adj_cm;
         offset = FToffset;
+        
+        % NRK code here to apply additional scaling factor if desired...
     else
         load(Pos_data,'xpos_interp','ypos_interp');
         load(Tenaspis_data,'PSAbool'); 
@@ -91,6 +95,16 @@ function Placefields(MD,varargin)
         xmin = min(x); ymin = min(y); 
         xmax = max(x); ymax = max(y);
         
+    end
+    if ~isempty(rescale) && rescale ~= 1
+        disp(['Rescaling position/speed data by a factor of ' num2str(rescale)])
+        xmin = xmin*rescale;
+        xmax = xmax*rescale;
+        ymin = ymin*rescale;
+        ymax = ymax*rescale;
+        x = x*rescale;
+        y = y*rescale;
+        speed = speed*rescale;
     end
     
     % Adjust frames to exclude by FToffset
@@ -173,7 +187,7 @@ function Placefields(MD,varargin)
         end
 
         %Calculate mutual information of randomized vectors. 
-        rMI = spatInfo(rTMap,RunOccMap,repmat(PSAbool(n,:),[B,1]),false); 
+        rMI = spatInfo(rTMap,RunOccMap,repmat(PSAbool(n,:),[B,1]),saveSI); 
 
         %Get p-value. 
         pval(n) = 1-(sum(MI(n)>rMI)/B); 
